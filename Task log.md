@@ -192,3 +192,283 @@ warning (4) — подозрительный трафик:
 <132>1 2024-06-15T14:31:00Z fw01 DOS-4-PROTECTION - - High rate of ICMP packets from 198.51.100.100
 crit (2) — перегрузка системы:
 <130>1 2024-06-15T14:32:00Z fw01 DOS-2-SYSTEM_OVERLOAD - - DoS protection causing high CPU usage
+
+# Пример конвертации syslog в JSON ✅
+### 🖥️ **ПК: Аутентификация (SSH)**
+
+**Syslog**: 
+`<70>1 2025-10-08T21:44:46Z PC-1 sshd 896 -- Accepted publickey for alice from 40.126.35.10`
+
+**JSON**:
+```json
+{
+  "@timestamp": "2025-10-08T21:44:46Z",
+  "host": {"hostname": "PC-1"},
+  "process": {"name": "sshd", "pid": 896},
+  "event": {
+    "action": "user_login",
+    "category": "authentication",
+    "type": ["start", "access"],
+    "outcome": "success",
+    "severity": 6
+  },
+  "user": {"name": "alice"},
+  "source": {"ip": "40.126.35.10"}
+}
+```
+
+---
+
+### 🖥️ **ПК: Неудачный вход**
+
+**Syslog**:  
+`<68>1 2025-10-08T21:44:46Z PC-1 sshd 1135 -- Failed password for root from 34.102.136.180`
+
+**JSON**:
+```json
+{
+  "@timestamp": "2025-10-08T21:44:46Z",
+  "host": {"hostname": "PC-1"},
+  "process": {"name": "sshd", "pid": 1135},
+  "event": {
+    "action": "user_login",
+    "category": "authentication",
+    "outcome": "failure",
+    "severity": 4
+  },
+  "user": {"name": "root"},
+  "source": {"ip": "34.102.136.180"}
+}
+```
+
+---
+
+### 🖥️ **ПК: Подозрительная активность**
+
+**Syslog**:  
+`<66>1 2025-10-08T21:44:46Z PC-1 sshd 1079 -- Possible break-in attempt from 8.8.8.8`
+
+**JSON**:
+```json
+{
+  "@timestamp": "2025-10-08T21:44:46Z",
+  "host": {"hostname": "PC-1"},
+  "process": {"name": "sshd", "pid": 1079},
+  "event": {
+    "action": "intrusion_attempt",
+    "category": "intrusion_detection",
+    "outcome": "failure",
+    "severity": 2
+  },
+  "source": {"ip": "8.8.8.8"}
+}
+```
+
+---
+
+### 🖥️ **ПК: Запуск процесса**
+
+**Syslog**:  
+`<18>1 2025-10-08T21:44:46Z PC-1 thunderbird 1841 -- execve("/usr/bin/rsync")`
+
+**JSON**:
+```json
+{
+  "@timestamp": "2025-10-08T21:44:46Z",
+  "host": {"hostname": "PC-1"},
+  "process": {"name": "thunderbird", "pid": 1841},
+  "event": {
+    "action": "process_started",
+    "category": "process",
+    "severity": 6
+  },
+  "process": {
+    "executable": "/usr/bin/rsync",
+    "name": "rsync"
+  }
+}
+```
+
+> ⚠️ Здесь `process.name` в корне — это **родительский процесс** (`thunderbird`), а вложенный `process` — **дочерний** (`rsync`).  
+> В ECS для дочернего процесса используется `process.parent.*`, но для простоты можно оставить так.
+
+---
+
+### 🖥️ **ПК: Доступ к файлу**
+
+**Syslog**:  
+`<72>1 2025-10-08T21:44:46Z PC-1 ssh 1565 -- name=/var/log/samba/`
+
+**JSON**:
+```json
+{
+  "@timestamp": "2025-10-08T21:44:46Z",
+  "host": {"hostname": "PC-1"},
+  "process": {"name": "ssh", "pid": 1565},
+  "event": {
+    "action": "file_access",
+    "category": "file",
+    "severity": 6
+  },
+  "file": {"path": "/var/log/samba/"}
+}
+```
+
+---
+
+### 🖥️ **ПК: Сетевая активность**
+
+**Syslog**:  
+`<144>1 2025-10-08T21:44:46Z PC-1 python3 1316 -- OUT src=192.168.10.3 dst=173.194.222.108 dport=9230`
+
+**JSON**:
+```json
+{
+  "@timestamp": "2025-10-08T21:44:46Z",
+  "host": {"hostname": "PC-1"},
+  "process": {"name": "python3", "pid": 1316},
+  "event": {
+    "action": "network_connection",
+    "category": "network",
+    "severity": 6
+  },
+  "source": {"ip": "192.168.10.3"},
+  "destination": {"ip": "173.194.222.108", "port": 9230},
+  "network": {"protocol": "tcp"}
+}
+```
+
+---
+
+### 📡 **Коммутатор: Изменение состояния порта**
+
+**Syslog**:  
+`<180>1 2025-10-08T21:44:46Z SW-1 LINK-UPDOWN -- Interface Fa1/6 changed state to up`
+
+**JSON**:
+```json
+{
+  "@timestamp": "2025-10-08T21:44:46Z",
+  "host": {"hostname": "SW-1"},
+  "event": {
+    "action": "interface_state_change",
+    "category": "network",
+    "severity": 6
+  },
+  "interface": {"name": "Fa1/6", "state": "up"}
+}
+```
+
+---
+
+### 📡 **Коммутатор: Нарушение безопасности**
+
+**Syslog**:  
+`<181>1 2025-10-08T21:44:46Z SW-1 PORTSEC-VIOLATION -- Security violation on Fa1/7`
+
+**JSON**:
+```json
+{
+  "@timestamp": "2025-10-08T21:44:46Z",
+  "host": {"hostname": "SW-1"},
+  "event": {
+    "action": "port_security_violation",
+    "category": "intrusion_detection",
+    "severity": 4
+  },
+  "interface": {"name": "Fa1/7"}
+}
+```
+
+---
+
+### 🌐 **Маршрутизатор: ACL-блокировка**
+
+**Syslog**:  
+`<180>1 2025-10-08T21:44:46Z RT-1 ACL-DENIED -- Denied tcp from 13.107.246.10 to 192.168.10.27`
+
+**JSON**:
+```json
+{
+  "@timestamp": "2025-10-08T21:44:46Z",
+  "host": {"hostname": "RT-1"},
+  "event": {
+    "action": "denied",
+    "category": "network",
+    "outcome": "failure",
+    "severity": 4
+  },
+  "source": {"ip": "13.107.246.10"},
+  "destination": {"ip": "192.168.10.27"},
+  "network": {"protocol": "tcp"}
+}
+```
+
+---
+
+### 🛡️ **Firewall: Разрешение трафика**
+
+**Syslog**:  
+`<181>1 2025-10-08T21:44:46Z FW-1 ASA-302013 -- Built TCP connection for outside: 91.189.91.83 to inside: 192.168.10.10`
+
+**JSON**:
+```json
+{
+  "@timestamp": "2025-10-08T21:44:46Z",
+  "host": {"hostname": "FW-1"},
+  "event": {
+    "action": "connection_established",
+    "category": "network",
+    "outcome": "success",
+    "severity": 6
+  },
+  "source": {"ip": "91.189.91.83", "zone": "outside"},
+  "destination": {"ip": "192.168.10.10", "zone": "inside"},
+  "network": {"protocol": "tcp"}
+}
+```
+
+---
+
+### 🛡️ **Firewall: Блокировка угрозы**
+
+**Syslog**:  
+`<184>1 2025-10-08T21:44:46Z FW-1 PAN-THREAT -- Critical threat: Exploit attempt blocked`
+
+**JSON**:
+```json
+{
+  "@timestamp": "2025-10-08T21:44:46Z",
+  "host": {"hostname": "FW-1"},
+  "event": {
+    "action": "blocked",
+    "category": "intrusion_detection",
+    "severity": 1
+  },
+  "threat": {"name": "Exploit attempt"}
+}
+```
+
+---
+
+## 📌 Общая структура JSON (ECS)
+
+```json
+{
+  "@timestamp": "2025-10-08T21:44:46Z",
+  "host": {"hostname": "..."},
+  "process": {"name": "...", "pid": 1234},
+  "event": {
+    "action": "...",
+    "category": "...",
+    "severity": N,
+    "outcome": "success|failure" (если применимо)
+  },
+  // Дополнительные поля в зависимости от категории:
+  "user": {"name": "..."},
+  "source": {"ip": "...", "port": N},
+  "destination": {"ip": "...", "port": N},
+  "file": {"path": "..."},
+  "interface": {"name": "..."},
+  "threat": {"name": "..."}
+}
