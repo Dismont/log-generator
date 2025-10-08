@@ -16,6 +16,14 @@ sw1 = entity.Switch("SW-1","192.168.10.10","AB-CD-EF-12-45-78","Switch","Wazuh",
 list_ip_addr.append(sw1.get_ip_addr())
 list_mac_addr.append(sw1.get_mac_addr())
 
+rt1 = entity.Router("RT-1","192.168.10.15","AB-CD-EF-12-45-89","Router","Wazuh","IOS","telecom.technology", "IN-124582")
+list_ip_addr.append(rt1.get_ip_addr())
+list_mac_addr.append(rt1.get_mac_addr())
+
+fw1 = entity.FireWall("FW-1","192.168.10.27","AB-CD-EF-12-12-45","Firewall New Generation","Wazuh","IOS","telecom.technology", "IN-124589")
+list_ip_addr.append(fw1.get_ip_addr())
+list_mac_addr.append(fw1.get_mac_addr())
+
 print("IP: ",end=""),print(*list_ip_addr,sep=", ")
 print("MAC: ",end=""),print(*list_mac_addr,sep=", ")
 print("_________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________")
@@ -121,6 +129,57 @@ print(sw1.vlan_event_warning())
 print(sw1.auth_802_1x_info(list_mac_addr))
 print(sw1.auth_802_1x_warning(list_mac_addr))
 print(sw1.auth_802_1x_alert(list_mac_addr))
+
+print("_________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________")
+
+print(rt1.change_status_int_info())
+print(rt1.change_status_int_warning())
+print(rt1.change_status_int_crit())
+
+print(rt1.change_roadmap_info(list_ip_addr))
+print(rt1.change_roadmap_warning(list_ip_addr))
+print(rt1.change_roadmap_alert())
+
+print(rt1.dynamic_routing_event_info())
+print(rt1.dynamic_routing_event_warning(list_ip_addr))
+print(rt1.dynamic_routing_event_crit())
+
+print(rt1.acl_activity_info(list_ip_addr))
+print(rt1.acl_activity_warning(list_ip_addr))
+print(rt1.acl_activity_debug())
+
+print(rt1.nat_event_info(list_ip_addr))
+print(rt1.nat_event_warning(list_ip_addr))
+print(rt1.nat_event_debug(list_ip_addr))
+
+print(rt1.icmp_message_info(list_ip_addr))
+print(rt1.icmp_message_warning(list_ip_addr))
+print(rt1.icmp_message_debug(list_ip_addr))
+
+print(rt1.violation_traffic_info(list_ip_addr))
+print(rt1.violation_traffic_warning())
+print(rt1.violation_traffic_debug())
+
+print("_________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________")
+
+print(fw1.allow_traffic_info(list_ip_addr))
+print(fw1.allow_traffic_debug(list_ip_addr))
+
+print(fw1.allow_traffic_info(list_ip_addr))
+print(fw1.allow_traffic_debug(list_ip_addr))
+print(fw1.allow_traffic_info(list_ip_addr))
+
+print(fw1.lock_traffic_warning(list_ip_addr))
+print(fw1.lock_traffic_alert(list_ip_addr))
+print(fw1.lock_traffic_debug())
+
+print(fw1.change_session_info_connect(list_ip_addr))
+print(fw1.change_session_info_breakup(list_ip_addr))
+print(fw1.change_session_debug(list_ip_addr))
+
+
+
+
 
 
 

@@ -663,4 +663,253 @@ class Switch(Device):
         other_mac = [mac for mac in list_mac_addr if mac != self.get_mac_addr()]
         return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} DOT1X-ATTACK -- EAPOL flood attack detected"
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+class Router(Device):
+
+    def __init__(self,
+            hostname:str,
+            ip_addr:str,
+            mac_addr:str,
+            role:str,
+            log_format:str,
+            os:str,
+            domain:str,
+            asset_tag:str ):
+
+        super().__init__(
+            hostname,
+            ip_addr,
+            mac_addr,
+            role,
+            log_format,
+            asset_tag
+        )
+
+        self.ip_addr = ip_addr
+        self.mac_addr = mac_addr
+        self.os = os
+        self.domain = domain
+        self.destination_ip = [
+            "8.8.8.8",  # Google DNS
+            "1.1.1.1",  # Cloudflare DNS
+            "9.9.9.9",  # Quad9
+            "142.250.185.206",  # Google
+            "140.82.121.4",  # GitHub
+            "104.16.132.229",  # Cloudflare (example.com)
+            "40.126.35.10",  # Microsoft
+            "17.253.144.10",  # Apple
+            "13.32.187.123",  # Amazon
+            "31.13.71.36",  # Facebook
+            "104.244.42.1",  # Twitter/X
+            "142.250.186.174",  # YouTube
+            "91.198.174.192",  # Wikipedia
+            "151.101.1.69",  # Stack Overflow
+            "173.194.222.108",  # Gmail
+            "52.100.160.10",  # Outlook
+            "162.125.1.1",  # Dropbox
+            "3.233.128.10",  # Zoom
+            "34.102.136.180",  # Slack
+            "13.107.246.10",  # Windows Update
+            "91.189.91.83",  # Ubuntu
+            "34.224.140.168",  # Docker Hub
+            "104.16.23.35",  # NPM
+            "151.101.193.223"  # PyPI
+        ]
+        self.port = [
+            "Gi1/0/0",
+            "Gi1/0/1",
+            "Gi1/0/2",
+            "Gi1/0/3"
+        ]
+
+    # CHANGE STATUS INTERFACE - SEVERITY
+    def change_status_int_info(self):
+        return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} LINEPROTO-UPDOWN -- {random.choice(self.port)} changed state to up"
+
+    def change_status_int_warning(self):
+        return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} INTERFACE-FLAP -- {random.choice(self.port)} flapping"
+
+    def change_status_int_crit(self):
+        return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} HWIC-LINK_FAIL -- Carrier loss on {random.choice(self.port)}"
+
+    # CHANGE ROADMAP - SEVERITY
+
+    def change_roadmap_info(self,list_ip_addr):
+        other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
+        return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} IP-ROUTE -- Route {random.choice(self.destination_ip+other_ip)} added"
+
+    def change_roadmap_warning(self,list_ip_addr):
+        other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
+        return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} IP-ROUTE_FLAP -- Route {random.choice(self.destination_ip+other_ip)} flapping"
+
+    def change_roadmap_alert(self):
+        return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} IP-ROUTING_LOSS -- All default routes lost"
+
+    # DYNAMIC ROUTING EVENT - SEVERITY
+
+    def dynamic_routing_event_info(self):
+        return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} OSPF-ADJCHG -- Nbr {random.choice(self.destination_ip)} from DOWN to FULL"
+
+    def dynamic_routing_event_warning(self,list_ip_addr):
+        other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
+        return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} BGP-ADJCHANGE -- Neighbor {random.choice(other_ip)} Down"
+
+    def dynamic_routing_event_crit(self):
+        return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} OSPF-PROTOCOL_ERR -- OSPF checksum error on {random.choice(self.port)}"
+
+    # ACL ACTIVITY - SEVERITY
+
+    def acl_activity_info(self, list_ip_addr):
+        other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
+        return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} ACL-PERMIT -- Permitted tcp from {random.choice(other_ip)} to {random.choice(self.destination_ip)}"
+
+    def acl_activity_warning(self, list_ip_addr):
+        other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
+        return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} ACL-DENIED -- Denied tcp from {random.choice(self.destination_ip)} to {random.choice(other_ip)}"
+
+    def acl_activity_debug(self):
+        return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} ACL-MATCH -- Matched rule {random.randint(100,187)}: permit {random.choice(['tcp', 'udp'])} {random.choice(self.port + ['any'])} {random.choice(self.port + ['any'])} eq {random.choice([20,21,22,23,25,53,80,8080,110,135,143,443,445,993,9600,9200,3306,5432])}"
+
+    # NAT EVENT - SEVERITY
+
+    def nat_event_info(self, list_ip_addr):
+        other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
+        return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} NAT-ADDR -- Translated {random.choice(other_ip)} to {random.choice(self.destination_ip)}"
+
+    def nat_event_warning(self, list_ip_addr):
+        other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
+        return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} NAT-POOL_EXHAUSTED -- NAT pool exhausted"
+
+    def nat_event_debug(self, list_ip_addr):
+        other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
+        return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} NAT-DEBUG -- NAT entry created: {random.choice(other_ip)}:{random.randint(100,65500)} to {random.choice(self.destination_ip)}:{random.randint(100,65500)}"
+
+    # ICMP MESSAGE - SEVERITY
+
+    def icmp_message_info(self, list_ip_addr):
+        other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
+        return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} ICMP-ECHO -- Echo reply sent to {random.choice(other_ip)}"
+
+    def icmp_message_warning(self, list_ip_addr):
+        other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
+        return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} ICMP-DSTUNREACH -- Destination {random.choice(other_ip)} unreachable"
+
+    def icmp_message_debug(self, list_ip_addr):
+        other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
+        return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} ICMP-DEBUG -- Received ICMP type {random.randint(3,12)} from {random.choice(other_ip)}"
+
+    # VIOLATION TRAFFIC -  SEVERITY
+
+    def violation_traffic_info(self, list_ip_addr):
+        other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
+        return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} QOS-CLASSIFIED -- Traffic from {random.choice(other_ip)} classified as {random.choice(['VOICE','VIDEO CONF','BUSINESS-DATA','EFFORT'])}"
+
+    def violation_traffic_warning(self):
+        return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} QOS-RATE_EXCEEDED -- Rate limit exceeded on {random.choice(self.port)} "
+
+    def violation_traffic_debug(self):
+        return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} QOS-DEBUG -- Packet marked with {random.choice(['DSCP','COS'])}"
+
+    
+class FireWall(Device):
+        
+        def __init__(
+            self,
+            hostname:str,
+            ip_addr:str,
+            mac_addr:str,
+            role:str,
+            log_format:str,
+            os:str,
+            domain:str,
+            asset_tag:str ):
+
+            super().__init__(
+                hostname,
+                ip_addr,
+                mac_addr,
+                role,
+                log_format,
+                asset_tag
+            )
+            self.ip_addr = ip_addr
+            self.mac_addr = mac_addr
+            self.os = os
+            self.domain = domain
+            self.destination_ip = [
+                "8.8.8.8",  # Google DNS
+                "1.1.1.1",  # Cloudflare DNS
+                "9.9.9.9",  # Quad9
+                "142.250.185.206",  # Google
+                "140.82.121.4",  # GitHub
+                "104.16.132.229",  # Cloudflare (example.com)
+                "40.126.35.10",  # Microsoft
+                "17.253.144.10",  # Apple
+                "13.32.187.123",  # Amazon
+                "31.13.71.36",  # Facebook
+                "104.244.42.1",  # Twitter/X
+                "142.250.186.174",  # YouTube
+                "91.198.174.192",  # Wikipedia
+                "151.101.1.69",  # Stack Overflow
+                "173.194.222.108",  # Gmail
+                "52.100.160.10",  # Outlook
+                "162.125.1.1",  # Dropbox
+                "3.233.128.10",  # Zoom
+                "34.102.136.180",  # Slack
+                "13.107.246.10",  # Windows Update
+                "91.189.91.83",  # Ubuntu
+                "34.224.140.168",  # Docker Hub
+                "104.16.23.35",  # NPM
+                "151.101.193.223"  # PyPI
+            ]
+            self.port = [
+                "Gi1/0/0",
+                "Gi1/0/1",
+                "Gi1/0/2",
+                "Gi1/0/3"
+            ]
+
+        # ALLOW TRAFFIC -  SEVERITY
+        def allow_traffic_info(self, list_ip_addr):
+            other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
+            return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} ASA-302013 -- Built TCP connection for outside: {random.choice(self.destination_ip)} to inside: {random.choice(other_ip)}"
+
+        def allow_traffic_debug(self, list_ip_addr):
+            other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
+            return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} PAN-SESSION -- Session created: src={random.choice(self.destination_ip)}, dst={random.choice(other_ip)}, app={random.choice(['ssh','ssl','tls','http','telnet'])}"
+
+        # LOCK TRAFFIC - SEVERITY
+
+        def lock_traffic_warning(self,list_ip_addr):
+            other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
+            return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} ASA-106015 -- Deny {random.choice(['tcp','udp'])} src outside:{random.choice(self.destination_ip)}, dst inside:{random.choice(other_ip)}"
+
+        def lock_traffic_alert(self, list_ip_addr):
+            other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
+            return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} PAN-THREAT -- Critical threat: Exploit attempt blocked"
+
+        def lock_traffic_debug(self):
+            return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} FW-RULE_MATCH -- Matched rule 'block-external-{random.choice(['ssh', 'ssl', 'tls', 'http', 'telnet'])}'"
+
+        # CHANGE STATUS SESSION - SEVERITY
+
+        def change_session_info_connect(self,list_ip_addr):
+            other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
+            return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} ASA-6-302013 -- Built {random.choice(['TCP','UDP'])} connection {random.randint(1000,20000)}"
+
+        def change_session_info_breakup(self,list_ip_addr):
+            other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
+            return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} ASA-6-302014 -- Teardown {random.choice(['TCP','UDP'])} connection {random.randint(1000,20000)} duration {random.randint(60,600)}sec"
+
+        def change_session_debug(self,list_ip_addr):
+            other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
+            return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} FW-SESSION -- Session stats: bytes_in={random.randint(10000,200000)}, bytes_out= {random.randint(10000,200000)}"
+
+        # VPN TUNNEL - SEVERITY
+
+        def vpn_tunnel_info(self):
+            return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} IPSEC-VPNUP -- VPN tunnel to {random.choice(self.destination_ip)} established"
+
+        def vpn_tunnel_warning(self):
+            return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} IPSEC-VPNDOWN -- VPN tunnel to {random.choice(self.destination_ip)} disconnected"
