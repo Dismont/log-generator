@@ -223,55 +223,83 @@ def generator_device(count_users: int, category: dict[str,str], number_network: 
                 )
                 list_mac_addr.append(users[i].get_mac_addr())
                 list_ip_addr.append(users[i].get_ip_addr())
-            print(*list_mac_addr, sep=", ")
-            print(*list_ip_addr, sep=", ")
-            operations = []
-            logs = []
-            for i in range(20000):
-                operations.append(random.randint(1,21))
-                for operation in operations:
-                        if operation ==  1:
-                            logs.append(random.choice(users).auth_info_json(list_ip_addr))
-                        elif operation == 2:
-                            logs.append(random.choice(users).auth_warning_json(list_ip_addr))
-                        elif operation ==  3:
-                            logs.append(random.choice(users).auth_crit_json(list_ip_addr))
-                        elif operation ==  4:
-                            logs.append(random.choice(users).start_process_info_json())
-                        elif operation ==  5:
-                            logs.append(random.choice(users).start_process_warning_json())
-                        elif operation ==  6:
-                            logs.append(random.choice(users).start_process_debug_json())
-                        elif operation ==  7:
-                            logs.append(random.choice(users).open_file_info_json())
-                        elif operation ==  8:
-                            logs.append(random.choice(users).open_file_warning_json())
-                        elif operation ==  9:
-                            logs.append(random.choice(users).open_file_crit_json())
-                        elif operation ==  10:
-                            logs.append(random.choice(users).network_activity_info_json())
-                        elif operation ==  11:
-                            logs.append(random.choice(users).network_activity_warning_json())
-                        elif operation ==  12:
-                            logs.append(random.choice(users).network_activity_debug_json())
-                        elif operation ==  13:
-                            logs.append(random.choice(users).edit_policies_notice_json())
-                        elif operation ==  14:
-                            logs.append(random.choice(users).edit_policies_warning_json())
-                        elif operation ==  15:
-                            logs.append(random.choice(users).edit_policies_info_json())
-                        elif operation ==  16:
-                            logs.append(random.choice(users).remote_control_info_json())
-                        elif operation ==  17:
-                            logs.append(random.choice(users).remote_control_warning_json())
-                        elif operation ==  18:
-                            logs.append(random.choice(users).remote_control_alert_json())
-                        elif operation ==  19:
-                            logs.append(random.choice(users).update_system_info_json())
-                        elif operation ==  20:
-                            logs.append(random.choice(users).update_system_err_json())
-                        else:
-                            logs.append(random.choice(users).update_system_notice_json())
+            return {"users" : users, "ip" : list_ip_addr, "mac" : list_mac_addr}
+
+
+        case {"PC": "Windows"}:
+            for i in range(count_users):
+                users.append(
+                    entity.PersonalComputer(
+                        hostname=f"PC-{i + 1}",
+                        ip_addr=f"192.168.{number_network}.{i + 1}",
+                        mac_addr=mac_addr_generator(),
+                        role="PC",
+                        log_format="syslog",
+                        os="Windows",
+                        domain="telecom.technology",
+                        asset_tag=f"IN-{random.randint(1000, 9999)}{random.randint(1000, 9999)}"
+                    )
+                )
+                list_mac_addr.append(users[i].get_mac_addr())
+                list_ip_addr.append(users[i].get_ip_addr())
+
+            return {"users" : users, "ip" : list_ip_addr, "mac" : list_mac_addr}
+
+
+        case _: return [], [], []
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+def generator_protocols(users, list_ip_addr, list_mac_addr):
+    print(*list_mac_addr, sep=", ")
+    print(*list_ip_addr, sep=", ")
+    operations = []
+    logs = []
+    for i in range(20000):
+        operations.append(random.randint(1, 21))
+        for operation in operations:
+            if operation == 1:
+                logs.append(random.choice(users).auth_info_json(list_ip_addr))
+            elif operation == 2:
+                logs.append(random.choice(users).auth_warning_json(list_ip_addr))
+            elif operation == 3:
+                logs.append(random.choice(users).auth_crit_json(list_ip_addr))
+            elif operation == 4:
+                logs.append(random.choice(users).start_process_info_json())
+            elif operation == 5:
+                logs.append(random.choice(users).start_process_warning_json())
+            elif operation == 6:
+                logs.append(random.choice(users).start_process_debug_json())
+            elif operation == 7:
+                logs.append(random.choice(users).open_file_info_json())
+            elif operation == 8:
+                logs.append(random.choice(users).open_file_warning_json())
+            elif operation == 9:
+                logs.append(random.choice(users).open_file_crit_json())
+            elif operation == 10:
+                logs.append(random.choice(users).network_activity_info_json())
+            elif operation == 11:
+                logs.append(random.choice(users).network_activity_warning_json())
+            elif operation == 12:
+                logs.append(random.choice(users).network_activity_debug_json())
+            elif operation == 13:
+                logs.append(random.choice(users).edit_policies_notice_json())
+            elif operation == 14:
+                logs.append(random.choice(users).edit_policies_warning_json())
+            elif operation == 15:
+                logs.append(random.choice(users).edit_policies_info_json())
+            elif operation == 16:
+                logs.append(random.choice(users).remote_control_info_json())
+            elif operation == 17:
+                logs.append(random.choice(users).remote_control_warning_json())
+            elif operation == 18:
+                logs.append(random.choice(users).remote_control_alert_json())
+            elif operation == 19:
+                logs.append(random.choice(users).update_system_info_json())
+            elif operation == 20:
+                logs.append(random.choice(users).update_system_err_json())
+            else:
+                logs.append(random.choice(users).update_system_notice_json())
 
                 if i % 5000 == 0 and i != 0:
                     with open ("log_basic.txt","a+") as file:
