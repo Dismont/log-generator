@@ -279,59 +279,60 @@ def generator_protocols(users, list_ip_addr, list_mac_addr):
     print(*list_ip_addr, sep=", ")
     operations = []
     logs = []
-    for i in range(20000):
+    for i in range(200000):
         operations.append(random.randint(1, 21))
-        for operation in operations:
-            if operation == 1:
+
+    for i in range(len(operations)):
+            if operations[i] == 1:
                 logs.append(random.choice(users).auth_info_json(list_ip_addr))
-            elif operation == 2:
+            elif operations[i] == 2:
                 logs.append(random.choice(users).auth_warning_json(list_ip_addr))
-            elif operation == 3:
+            elif operations[i] == 3:
                 logs.append(random.choice(users).auth_crit_json(list_ip_addr))
-            elif operation == 4:
+            elif operations[i] == 4:
                 logs.append(random.choice(users).start_process_info_json())
-            elif operation == 5:
+            elif operations[i] == 5:
                 logs.append(random.choice(users).start_process_warning_json())
-            elif operation == 6:
+            elif operations[i] == 6:
                 logs.append(random.choice(users).start_process_debug_json())
-            elif operation == 7:
+            elif operations[i] == 7:
                 logs.append(random.choice(users).open_file_info_json())
-            elif operation == 8:
+            elif operations[i] == 8:
                 logs.append(random.choice(users).open_file_warning_json())
-            elif operation == 9:
+            elif operations[i] == 9:
                 logs.append(random.choice(users).open_file_crit_json())
-            elif operation == 10:
+            elif operations[i] == 10:
                 logs.append(random.choice(users).network_activity_info_json())
-            elif operation == 11:
+            elif operations[i] == 11:
                 logs.append(random.choice(users).network_activity_warning_json())
-            elif operation == 12:
+            elif operations[i] == 12:
                 logs.append(random.choice(users).network_activity_debug_json())
-            elif operation == 13:
+            elif operations[i] == 13:
                 logs.append(random.choice(users).edit_policies_notice_json())
-            elif operation == 14:
+            elif operations[i] == 14:
                 logs.append(random.choice(users).edit_policies_warning_json())
-            elif operation == 15:
+            elif operations[i] == 15:
                 logs.append(random.choice(users).edit_policies_info_json())
-            elif operation == 16:
+            elif operations[i] == 16:
                 logs.append(random.choice(users).remote_control_info_json())
-            elif operation == 17:
+            elif operations[i] == 17:
                 logs.append(random.choice(users).remote_control_warning_json())
-            elif operation == 18:
+            elif operations[i] == 18:
                 logs.append(random.choice(users).remote_control_alert_json())
-            elif operation == 19:
+            elif operations[i] == 19:
                 logs.append(random.choice(users).update_system_info_json())
-            elif operation == 20:
+            elif operations[i] == 20:
                 logs.append(random.choice(users).update_system_err_json())
             else:
                 logs.append(random.choice(users).update_system_notice_json())
 
             if i % 500 == 0 and i != 0:
-                with open("log_basic.txt", "a+") as file:
+                with open("log_basic_v2.txt", "a+") as file:
                     for log in logs:
                         file.write(f"{json.dumps(log, indent=4, ensure_ascii=False)}\n")
                     file.close()
                 logs = []
-        print(i, end=", ")
+            print(i, end=", ")
 
 
 
