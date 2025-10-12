@@ -9,7 +9,32 @@ import random
 def main():
     # basic_create()
     # print("BASIC CREATE")
-    generator_device(5,{"PC":"Linux"},2)
+    users = []
+    list_mac_addr = []
+    list_ip_addr = []
+    data: dict[str, list] = {
+        "users": [],
+        "ip": [],
+        "mac": []
+    }
+    linux_data = generator_device(5, {"PC": "Linux"}, 2)
+    windows_data = generator_device(5, {"PC": "Windows"}, 2)
+
+    # Добавляем (расширяем списки)
+    data["users"] += linux_data["users"]
+    data["ip"] += linux_data["ip"]
+    data["mac"] += linux_data["mac"]
+
+    data["users"] += windows_data["users"]
+    data["ip"] += windows_data["ip"]
+    data["mac"] += windows_data["mac"]
+
+    users = data["users"]
+    list_ip_addr = data["ip"]
+    list_mac_addr = data["mac"]
+
+    generator_protocols(users, list_ip_addr, list_mac_addr)
+    print(data)
 
 def basic_create():
     list_ip_addr = []
@@ -202,7 +227,6 @@ def mac_addr_generator():
 
 
 def generator_device(count_users: int, category: dict[str,str], number_network: int):
-
     users = []
     list_ip_addr = []
     list_mac_addr = []
@@ -211,15 +235,15 @@ def generator_device(count_users: int, category: dict[str,str], number_network: 
             for i in range(count_users):
                 users.append(
                     entity.PersonalComputer(
-                        hostname=f"PC-{i+1}",
-                        ip_addr=f"192.168.{number_network}.{i+1}",
+                        hostname=f"PC-{i + 1}",
+                        ip_addr=f"192.168.{number_network}.{i + 1}",
                         mac_addr=mac_addr_generator(),
                         role="PC",
                         log_format="syslog",
                         os="Linux",
                         domain="telecom.technology",
-                        asset_tag=f"IN-{random.randint(1000,9999)}{random.randint(1000,9999)}"
-                )
+                        asset_tag=f"IN-{random.randint(1000, 9999)}{random.randint(1000, 9999)}"
+                    )
                 )
                 list_mac_addr.append(users[i].get_mac_addr())
                 list_ip_addr.append(users[i].get_ip_addr())
