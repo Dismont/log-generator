@@ -2,3 +2,5 @@
 .venv/
 .idea/
 __pycache__/
+log_basic.txt
+progressbar.py

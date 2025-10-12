@@ -111,7 +111,7 @@ class PersonalComputer(Device):
                 {"nautilus": 1},
                 {"ssh": 8}
             ]
-            self.users_attr = {
+            self.users_attr = [
                 "root" ,  # Суперпользователь
                 "deamon",  # Управление демонами
                 "bin",  # Владелец бинарников
@@ -123,9 +123,9 @@ class PersonalComputer(Device):
                 "backup",  # Резервное копирование
                 "uucp",  # Unix-to-Unix Copy
                 "www-data",  # Веб-сервер
-                f"user-{self.asset_tag.replace('IN-', '')}"
+                f"user-{self.asset_tag.replace('IN-', '')}",
                 "auditd"
-            }
+            ]
 
             # ATTR FILESYSTEM
             self.software_files_attr = [
@@ -226,18 +226,6 @@ class PersonalComputer(Device):
                 {"vlc.exe": 1},  # user — медиаплеер
                 {"audiodg.exe": 1},  # user — системный аудио-процесс
             ]
-            self.software_attr = [
-                {"explorer.exe" : 1},
-                {"yandex.exe" : 1},
-                {"powershell.exe" : 16},
-                {"cmd.exe" : 16},
-                {"notepad.exe" : 1},
-                {"HxCalendarAppImm.exe" : 2},
-                {"Acrobat.exe" : 1},
-                {"7-zip.exe" : 1},
-                {"MsMpEng.exe" : 17}
-                ]
-
             self.users_attr = [
                 "NT AUTHORITY SYSTEM",
                 "NT AUTHORITY LOCAL SERVICE",
@@ -329,53 +317,151 @@ class PersonalComputer(Device):
 
     def auth_info(self, list_ip_addr):
         other_ips = [ip for ip in list_ip_addr if ip != self.get_ip_addr()] + self.destination_ip
-        return f"<{8*8+6}>\t1 {self.get_timestamp()} {self.hostname} sshd {random.randint(115,1999)} -- Accepted publickey for alice from {random.choice(other_ips)}"
-
+        return f"<{8*8+6}>\t1 {self.get_timestamp()} {self.hostname} sshd {random.randint(115,1999)} -- Accepted publickey for {random.choice(self.users_attr)} from {random.choice(other_ips)}"
     def auth_warning(self, list_ip_addr):
         other_ips = [ip for ip in list_ip_addr if ip != self.get_ip_addr()] + self.destination_ip
         return f"<{8 * 8+4}>\t1 {self.get_timestamp()} {self.hostname} sshd {random.randint(115, 1999)} -- Failed password for root from {random.choice(other_ips)}"
-
     def auth_crit(self, list_ip_addr):
         other_ips = [ip for ip in list_ip_addr if ip != self.get_ip_addr()] + self.destination_ip
         return f"<{8 * 8+2}>\t1 {self.get_timestamp()} {self.hostname} sshd {random.randint(115, 1999)} -- Possible break-in attempt from {random.choice(other_ips)}"
 
+
+
+    def auth_info_json(self, list_ip_addr):
+        other_ips = [ip for ip in list_ip_addr if ip != self.get_ip_addr()] + self.destination_ip
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "host": {"hostname": f"{self.hostname}"},
+            "process": {"name": "sshd", "pid": random.randint(115,1999)},
+            "event": {
+                "action": "user_login",
+                "category": "authentication",
+                "type": ["start", "access"],
+                "outcome": "success",
+                "severity": 6
+            },
+            "user": {"name": f"{random.choice(self.users_attr)}"},
+            "source": {"ip": f"{random.choice(other_ips)}"}
+        }
+    def auth_warning_json(self, list_ip_addr):
+        other_ips = [ip for ip in list_ip_addr if ip != self.get_ip_addr()] + self.destination_ip
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "host": {"hostname": f"{self.hostname}"},
+            "process": {"name": "sshd", "pid": random.randint(115,1999)},
+            "event": {
+                "action": "user_login",
+                "category": "authentication",
+                "outcome": "failure",
+                "severity": 4
+            },
+            "user": {"name": f"{random.choice(self.users_attr)}"},
+            "source": {"ip": f"{random.choice(other_ips)}"}
+        }
+    def auth_crit_json(self,list_ip_addr):
+        other_ips = [ip for ip in list_ip_addr if ip != self.get_ip_addr()] + self.destination_ip
+        return {
+                "@timestamp": f"{self.get_timestamp()}",
+                "host": {"hostname": f"{self.hostname}"},
+                "process": {"name": "sshd", "pid": random.randint(115,1999) },
+                "event": {
+                    "action": "intrusion_attempt",
+                    "category": "intrusion_detection",
+                    "outcome": "failure",
+                    "severity": 2
+                },
+                "source": {"ip": f"{random.choice(other_ips)}"}
+
+        }
+
     # START PROCESS - SEVERITY
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     def start_process_info(self):
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
         facility = severity_software[app_name]
         all_files_attr = self.software_files_attr
         return f"<{8*facility+facility}>\t1 {self.get_timestamp()} {self.hostname} {app_name} {random.randint(115, 1999)} -- execve(\"{random.choice(all_files_attr)}\")"
-
     def start_process_warning(self):
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
         facility = severity_software[app_name]
         all_files_attr = self.software_files_attr
         return f"<{8 * facility+facility}>\t1 {self.get_timestamp()} {self.hostname} {app_name} {random.randint(115, 1999)} -- Suspicious process: \"{random.choice(all_files_attr)}\""
-
     def start_process_debug(self):
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
         facility = severity_software[app_name]
         return f"<{8 * facility+facility}>\t1 {self.get_timestamp()} {self.hostname} {app_name} {random.randint(115, 1999)} -- Debug: spawning process for user user-{self.asset_tag.replace('IN-', '')}"
 
-    # OPEN FILE - SEVERITY
 
+
+    def start_process_info_json(self):
+        severity_software = random.choice(self.software_attr)
+        app_name = list(severity_software.keys())[0]
+        all_files_attr = self.software_files_attr
+        return {
+      "@timestamp": f"{self.get_timestamp()}",
+      "host": {"hostname": f"{self.hostname}"},
+      "process": {"name": f"{app_name}", "pid": random.randint(115,1999)},
+      "event": {
+        "action": "process_started",
+        "category": "process",
+        "severity": 6
+      },
+      "sorce": {
+        "executable": f"{random.choice(all_files_attr)}",
+        }
+        }
+    def start_process_warning_json(self):
+        severity_software = random.choice(self.software_attr)
+        app_name = list(severity_software.keys())[0]
+        all_files_attr = self.software_files_attr
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "host": {"hostname": f"{self.hostname}"},
+            "process": {"name": f"{app_name}", "pid": random.randint(115, 1999)},
+            "event": {
+                "action": "process_suspicious",
+                "category": "process",
+                "severity": 6
+            },
+            "sorce": {
+                "executable": f"{random.choice(all_files_attr)}",
+            }
+        }
+    def start_process_debug_json(self):
+        severity_software = random.choice(self.software_attr)
+        app_name = list(severity_software.keys())[0]
+        all_files_attr = self.software_files_attr
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "host": {"hostname": f"{self.hostname}"},
+            "process": {"name": f"{app_name}", "pid": random.randint(115, 1999)},
+            "event": {
+                "action": "debug_process",
+                "category": "process",
+                "severity": 6
+            },
+            "sorce": {
+                "executable": f"{random.choice(all_files_attr)}",
+            }
+        }
+
+    # OPEN FILE - SEVERITY
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     def open_file_info(self):
         all_files_attr = self.home_files_attr + self.config_files_attr + self.socket_files_attr + self.system_files_attr
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
         facility = severity_software[app_name]
         return f"<{8 * facility+facility}>\t1 {self.get_timestamp()} {self.hostname} {app_name} {random.randint(115, 1999)} -- name={random.choice(all_files_attr)}"
-
     def open_file_warning(self):
         all_files_attr = self.home_files_attr + self.config_files_attr + self.socket_files_attr + self.system_files_attr
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
         facility = severity_software[app_name]
         return f"<{8 * facility+facility}>\t1 {self.get_timestamp()} {self.hostname} {app_name} {random.randint(115, 1999)} -- Access to {random.choice(all_files_attr)} by user user-{self.asset_tag.replace('IN-', '')}"
-
     def open_file_crit(self):
         all_files_attr = self.home_files_attr + self.config_files_attr + self.socket_files_attr + self.system_files_attr
         severity_software = random.choice(self.software_attr)
@@ -385,14 +471,67 @@ class PersonalComputer(Device):
         second_app_name = list(second_software.keys())[0]
         return f"<{8 * facility + facility}>\t1 {self.get_timestamp()} {self.hostname} {app_name} {random.randint(115, 1999)} -- Critical: {second_app_name}"
 
-    # NETWORK ACTIVITY - SEVERITY
 
+
+    def open_file_info_json(self):
+        all_files_attr = self.home_files_attr + self.config_files_attr + self.socket_files_attr + self.system_files_attr
+        severity_software = random.choice(self.software_attr)
+        app_name = list(severity_software.keys())[0]
+        facility = severity_software[app_name]
+        return {
+              "@timestamp": f"{self.get_timestamp()}",
+              "host": {"hostname": f"{self.hostname}"},
+              "process": {"name": f"{app_name}", "pid": random.randint(115, 1999)},
+              "event": {
+                "action": "file_open",
+                "category": "file",
+                "severity": 6
+              },
+              "user" : f"user-{self.asset_tag.replace('IN-', '')}",
+              "file": {"path": f"{random.choice(all_files_attr)}"}
+                }
+    def open_file_warning_json(self):
+        all_files_attr = self.home_files_attr + self.config_files_attr + self.socket_files_attr + self.system_files_attr
+        severity_software = random.choice(self.software_attr)
+        app_name = list(severity_software.keys())[0]
+        facility = severity_software[app_name]
+        return {
+              "@timestamp": f"{self.get_timestamp()}",
+              "host": {"hostname": f"{self.hostname}"},
+              "process": {"name": f"{app_name}", "pid": random.randint(115, 1999)},
+              "event": {
+                "action": "file_access",
+                "category": "file",
+                "severity": 6
+              },
+              "file": {"path": f"{random.choice(all_files_attr)}"}
+                }
+    def open_file_crit_json(self):
+        all_files_attr = self.home_files_attr + self.config_files_attr + self.socket_files_attr + self.system_files_attr
+        severity_software = random.choice(self.software_attr)
+        app_name = list(severity_software.keys())[0]
+        facility = severity_software[app_name]
+        second_software = random.choice(self.software_attr)
+        second_app_name = list(second_software.keys())[0]
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "host": {"hostname": f"{self.hostname}"},
+            "process": {"name": f"{app_name}", "pid": random.randint(115, 1999)},
+            "event": {
+                "action": "critical",
+                "category": "file",
+                "severity": 6
+            },
+            "file": {"path": f"{random.choice(second_app_name)}"}
+        }
+
+    # NETWORK ACTIVITY - SEVERITY
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     def network_activity_info(self):
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
         facility = severity_software[app_name]
         return f"<{8 * facility + facility}>\t1 {self.get_timestamp()} {self.hostname} {app_name} {random.randint(115, 1999)} -- OUT src={self.get_ip_addr()} dst={random.choice(self.destination_ip)} dport={random.randint(8080,25500)}"
-
     def network_activity_warning(self):
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
@@ -400,7 +539,6 @@ class PersonalComputer(Device):
         second_software = random.choice(self.software_attr)
         second_app_name = list(second_software.keys())[0]
         return f"<{8 * facility + facility}>\t1 {self.get_timestamp()} {self.hostname} {app_name} {random.randint(115, 1999)} -- OUT to {second_app_name} IP {random.choice(self.destination_ip)}"
-
     def network_activity_debug(self):
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
@@ -409,22 +547,77 @@ class PersonalComputer(Device):
         second_app_name = list(second_software.keys())[0]
         return f"<{8 * facility + facility}>\t1 {self.get_timestamp()} {self.hostname} {app_name} {random.randint(115, 1999)} -- TCP: connect({self.get_ip_addr()}:{random.randint(8080,26500)} -> {random.choice(self.destination_ip)}:443)"
 
-    # EDIT POLICIES - SEVERITY
 
+
+    def network_activity_info_json(self):
+        severity_software = random.choice(self.software_attr)
+        app_name = list(severity_software.keys())[0]
+        facility = severity_software[app_name]
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "host": {"hostname": f"{self.hostname}"},
+            "process": {"name": f"{app_name}", "pid": random.randint(115, 1999)},
+            "event": {
+                "action": "network_connection",
+                "category": "network",
+                "severity": 6
+            },
+            "source": {"ip": f"{self.get_ip_addr()}"},
+            "destination": {"ip": f"{random.choice(self.destination_ip)}", "port": random.randint(8080,25500)},
+            "network": {"protocol": f"{random.choice(['tcp','udp'])}"}
+        }
+    def network_activity_warning_json(self):
+        severity_software = random.choice(self.software_attr)
+        app_name = list(severity_software.keys())[0]
+        facility = severity_software[app_name]
+        second_software = random.choice(self.software_attr)
+        second_app_name = list(second_software.keys())[0]
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "host": {"hostname": f"{self.hostname}"},
+            "process": {"name": f"{app_name}", "pid": random.randint(115, 1999)},
+            "event": {
+                "action": "network_connection_app",
+                "category": "network",
+                "severity": 6
+            },
+            "app": f"{second_app_name}",
+            "destination": {"ip": f"{random.choice(self.destination_ip)}"},
+            "network": {"protocol": f"{random.choice(['tcp', 'udp'])}"}
+        }
+    def network_activity_debug_json(self):
+        severity_software = random.choice(self.software_attr)
+        app_name = list(severity_software.keys())[0]
+        facility = severity_software[app_name]
+        second_software = random.choice(self.software_attr)
+        second_app_name = list(second_software.keys())[0]
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "host": {"hostname": f"{self.hostname}"},
+            "process": {"name": f"{app_name}", "pid": random.randint(115, 1999)},
+            "event": {
+                "action": "tcp_connection",
+                "category": "network",
+                "severity": 6
+            },
+            "source": { "ip" : f"{self.get_ip_addr()}", "port" : random.randint(8080,25500)},
+            "destination": {"ip": f"{random.choice(self.destination_ip)}", "port": 443 },
+        }
+
+    # EDIT POLICIES - SEVERITY
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     def edit_policies_notice(self):
         if self.os == "Linux":
             app = "systemd"
         else:
             app = "GroupPolicy"
         return f"<{8 * 1 + 1}>\t1 {self.get_timestamp()} {self.hostname} {app} -- Applied computer policy settings"
-
     def edit_policies_warning(self):
         if self.os == "Linux":
             app = "systemd"
         else:
             app = "GroupPolicy"
         return f"<{8 * 1 + 1}>\t1 {self.get_timestamp()} {self.hostname} {app} -- Failed to apply security policy"
-
     def edit_policies_info(self):
         if self.os == "Linux":
             app = "systemd"
@@ -432,16 +625,101 @@ class PersonalComputer(Device):
             app = "GroupPolicy"
         return f"<{8 * 1 + 1}>\t1 {self.get_timestamp()} {self.hostname} {app} -- Reloading security policies"
 
+
+
+    def edit_policies_notice_json(self):
+        if self.os == "Linux":
+            app = "systemd"
+        else:
+            app = "GroupPolicy"
+        return {
+            "@timestamp":f"{self.get_timestamp()}",
+            "host": {"hostname": f"{self.hostname}"},
+            "process": {"name": f"{app}", "pid": random.randint(115, 1999)},
+            "event": {
+                "action": "applied_policy",
+                "category": "settings",
+                "severity": 6
+            }   }
+    def edit_policies_warning_json(self):
+        if self.os == "Linux":
+            app = "systemd"
+        else:
+            app = "GroupPolicy"
+        return {
+        "@timestamp": f"{self.get_timestamp()}",
+        "host": {"hostname": f"{self.hostname}"},
+        "process": {"name": f"{app}", "pid": random.randint(115, 1999)},
+        "event": {
+            "action": "failed_policy",
+            "category": "settings",
+            "severity": 6
+        }   }
+    def edit_policies_info_json(self):
+        if self.os == "Linux":
+            app = "systemd"
+        else:
+            app = "GroupPolicy"
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "host": {"hostname": f"{self.hostname}"},
+            "process": {"name": f"{app}", "pid": random.randint(115, 1999)},
+            "event": {
+                "action": "reload_policy",
+                "category": "settings",
+                "severity": 6
+            }   }
+
+    # REMOTE CONTROL - SEVERITY
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     def remote_control_info(self):
         return f"<{8 * 1 + 4}>\t1 {self.get_timestamp()} {self.hostname} TermService -- RDP connection from {self.get_ip_addr()} accepted"
-
     def remote_control_warning(self):
         return f"<{8 * 1 + 4}>\t1 {self.get_timestamp()} {self.hostname} TermService -- RDP logon failed for user user-{self.asset_tag.replace('IN-', '')}"
-
     def remote_control_alert(self):
         return f"<{8 * 1 + 4}>\t1 {self.get_timestamp()} {self.hostname} Security -- Multiple RDP brute-force attempts detected"
 
+
+
+    def remote_control_info_json(self):
+        return {
+        "@timestamp": f"{self.get_timestamp()}",
+        "host": {"hostname": f"{self.hostname}"},
+        "process": {"name": "TermService"},
+        "event": {
+            "action": "rdp_connection",
+            "category": "remote_desktop_protocol",
+            "severity": 6
+        },
+        "ip" : f"{self.get_ip_addr()}"
+        }
+    def remote_control_warning_json(self):
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "host": {"hostname": f"{self.hostname}"},
+            "process": {"name": "TermService"},
+            "event": {
+                "action": "rdp_failed_login",
+                "category": "remote_desktop_protocol",
+                "severity": 6
+            },
+            "user" : f"user-{self.asset_tag.replace('IN-', '')}"
+        }
+    def remote_control_alert_json(self):
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "host": {"hostname": f"{self.hostname}"},
+            "process": {"name": "Security"},
+            "event": {
+                "action": "rdp_brute-force_detected",
+                "category": "remote_desktop_protocol",
+                "severity": 6
+            },
+            "source" : {"ip" : f"{self.get_ip_addr()}", "user" : f"{random.choice(self.users_attr)}"},
+            "destination" : {"ip" : f"{random.choice(self.destination_ip)}"}
+            }
     # UPDATE SYSTEM - SEVERITY
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
     def update_system_info(self):
         if self.os == "Linux":
@@ -452,18 +730,108 @@ class PersonalComputer(Device):
             severity_software = random.choice(self.software_attr)
             app_name = list(severity_software.keys())[0]
             return f"<{8 * 1 + 15}>\t1 {self.get_timestamp()} {self.hostname} WindowsUpdate {random.randint(115, 1999)} -- Installed package: {app_name}"
-
     def update_system_err(self):
         if self.os == "Linux":
             return f"<{8 * 1 + 15}>\t1 {self.get_timestamp()} {self.hostname} apt {random.randint(115, 1999)} -- Failed to download updates"
         else:
             return f"<{8 * 1 + 15}>\t1 {self.get_timestamp()} {self.hostname} WindowsUpdate {random.randint(115, 1999)} -- Failed to download updates"
-
     def update_system_notice(self):
         if self.os == "Linux":
             return f"<{8 * 1 + 15}>\t1 {self.get_timestamp()} {self.hostname} apt {random.randint(115, 1999)} -- Security update KB{random.randint(1000,9999)}{random.randint(100,999)} installed"
         else:
             return f"<{8 * 1 + 15}>\t1 {self.get_timestamp()} {self.hostname} WindowsUpdate {random.randint(115, 1999)} -- Security update KB{random.randint(1000,9999)}{random.randint(100,999)} installed"
+
+    def update_system_info_json(self):
+            if self.os == "Linux":
+                severity_software = random.choice(self.software_attr)
+                app_name = list(severity_software.keys())[0]
+                return {
+                    "@timestamp": f"{self.get_timestamp()}",
+                    "host": {"hostname": f"{self.hostname}"},
+                    "process": {"name": "apt", "pid" : random.randint(115, 1999)},
+                    "event": {
+                        "action": "installation_package",
+                        "category": "update_system",
+                        "severity": 6
+                    },
+                    "package" : f"{app_name}"
+                }
+            else:
+                severity_software = random.choice(self.software_attr)
+                app_name = list(severity_software.keys())[0]
+                return {
+                    "@timestamp": f"{self.get_timestamp()}",
+                    "host": {"hostname": f"{self.hostname}"},
+                    "process": {"name": "WindowsUpdate", "pid": random.randint(115, 1999)},
+                    "event": {
+                        "action": "installation_package",
+                        "category": "update_system",
+                        "severity": 6
+                    },
+                    "package": f"{app_name}"
+                }
+    def update_system_err_json(self):
+        if self.os == "Linux":
+            severity_software = random.choice(self.software_attr)
+            app_name = list(severity_software.keys())[0]
+            return {
+                "@timestamp": f"{self.get_timestamp()}",
+                "host": {"hostname": f"{self.hostname}"},
+                "process": {"name": "apt", "pid": random.randint(115, 1999)},
+                "event": {
+                    "action": "failed_installation_package",
+                    "category": "update_system",
+                    "severity": 6
+                },
+                "package": f"{app_name}"
+            }
+        else:
+            severity_software = random.choice(self.software_attr)
+            app_name = list(severity_software.keys())[0]
+            return {
+                "@timestamp": f"{self.get_timestamp()}",
+                "host": {"hostname": f"{self.hostname}"},
+                "process": {"name": "WindowsUpdate", "pid": random.randint(115, 1999)},
+                "event": {
+                    "action": "failed_installation_package",
+                    "category": "update_system",
+                    "severity": 6
+                },
+                "package": f"{app_name}"
+            }
+    def update_system_notice_json(self):
+        if self.os == "Linux":
+            severity_software = random.choice(self.software_attr)
+            app_name = list(severity_software.keys())[0]
+            return {
+                "@timestamp": f"{self.get_timestamp()}",
+                "host": {"hostname": f"{self.hostname}"},
+                "process": {"name": "apt", "pid": random.randint(115, 1999)},
+                "event": {
+                    "action": "security_update",
+                    "category": "update_system",
+                    "severity": 6
+                },
+                "package": f"{app_name}",
+                "size" : f"{random.randint(1000, 9999)}{random.randint(100, 999)} KB",
+            }
+        else:
+            severity_software = random.choice(self.software_attr)
+            app_name = list(severity_software.keys())[0]
+            return {
+                "@timestamp": f"{self.get_timestamp()}",
+                "host": {"hostname": f"{self.hostname}"},
+                "process": {"name": "WindowsUpdate", "pid": random.randint(115, 1999)},
+                "event": {
+                    "action": "security_update",
+                    "category": "update_system",
+                    "severity": 6
+                },
+                "package": f"{app_name}",
+                "size": f"{random.randint(1000, 9999)}{random.randint(100, 999)} KB",
+            }
+
+
 
     def get_init(self) -> str:
         return f"___ Personal Computer ___\nhostname : {self.hostname}\nip_addr : {self.ip_addr}\nmac_addr : {self.mac_addr}\nrole : {self.role}\nlog_format : {self.log_format}\nos : {self.os}\ndomain : {self.domain}\nasset_tag : {self.asset_tag}\n___________________________\n"
@@ -582,83 +950,70 @@ class Switch(Device):
         ]
 
     # CHANGE STATUS PORT - SEVERITY
-
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     def change_status_port_info(self):
         return f"<{8 * 21 + random.randint(10,16)}>\t1 {self.get_timestamp()} {self.hostname} LINK-UPDOWN -- Interface {random.choice(self.port)} changed state to up"
-
     def change_status_port_warning(self):
         return f"<{8 * 21 + + random.randint(10,16)}>\t1 {self.get_timestamp()} {self.hostname} LINK-FLAP -- Interface {random.choice(self.port)} flapping"
-
     def change_status_port_crit(self):
         return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} HWIC-PORT_FAIL -- Hardware failure on {random.choice(self.port)}"
 
     # LEARN MAC ADDR - SEVERITY
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     def learn_mac_addr_info(self, list_mac_addr):
         other_mac = [mac for mac in list_mac_addr if mac != self.get_mac_addr()]
         return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} MAC-LEARN -- MAC {random.choice(other_mac)} learned on {random.choice(self.port)}"
-
     def learn_mac_addr_warning(self, list_mac_addr):
         other_mac = [mac for mac in list_mac_addr if mac != self.get_mac_addr()]
         return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} MAC-MOVE -- MAC {random.choice(other_mac)} move from {random.choice(self.port)} to {random.choice(self.port)}"
-
     def learn_mac_addr_debug(self, list_mac_addr):
         other_mac = [mac for mac in list_mac_addr if mac != self.get_mac_addr()]
         return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} MAC-TABLE -- MAC table entry added {random.choice(other_mac)}"
 
     # VIOLATION PORT SECURITY - SEVERITY
-
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     def violation_port_security_warning(self):
         return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} PORTSEC-VIOLATION -- Security violation on {random.choice(self.port)}"
-
     def violation_port_security_crit(self):
         return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} PORTSEC-CAM_FLOOD -- CAM table overflow attack detected"
-
     def violation_port_security_alert(self):
         return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} SECURITY-COMPROMISE -- Unauthorized device connected"
 
     # STP EVENT - SEVERITY
-
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     def stp_event_info(self):
         return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} STP-PORTSTATE -- Port {random.choice(self.port)} to forwarding"
-
     def stp_event_warning(self):
         return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} STP-TOPOLOGY_CHANGE -- Topology change detected"
-
     def stp_event_crit(self):
         return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} STP-LOOP_DETECTED -- Network loop detected on VLAN {random.randint(2,19)}"
 
     # DUPLEX ERROR - SEVERITY
-
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     def duplex_error_warning(self):
         return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} INTERFACE-CRC -- CRC errors on {random.choice(self.port)}"
-
     def duplex_error_err(self):
         return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} PHY-DUPLEX_MISMATCH -- Duplex mismatch on {random.choice(self.port)}"
-
     def duplex_error_crit(self):
         return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} HWIC-HARDWARE_ERR -- Physical layer failure on {random.choice(self.port)}"
 
     # VLAN EVENT - SEVERITY
-
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     def vlan_event_info(self):
         return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} VLAN-ASSIGN -- Port {random.choice(self.port)} assigned to VLAN {random.randint(2,19)}"
-
     def vlan_event_warning(self):
         return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} VLAN-NATIVE_MISMATCH -- Native VLAN mismatch on {random.choice(self.port)}"
-
     def vlan_event_debug(self):
         return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} VLAN-DEBUG -- VLAN membership updated for {random.choice(self.port)}"
 
     # AUTH 802.1X - SEVERITY
-
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     def auth_802_1x_info(self, list_mac_addr):
         other_mac = [mac for mac in list_mac_addr if mac != self.get_mac_addr()]
         return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} DOT1X-SUCCESS -- Auth succeeded for MAC {random.choice(other_mac)}"
-
     def auth_802_1x_warning(self, list_mac_addr):
         other_mac = [mac for mac in list_mac_addr if mac != self.get_mac_addr()]
         return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} DOT1X-FAIL -- Auth failed for MAC {random.choice(other_mac)}"
-
     def auth_802_1x_alert(self, list_mac_addr):
         other_mac = [mac for mac in list_mac_addr if mac != self.get_mac_addr()]
         return f"<{8 * 21 + + random.randint(10, 16)}>\t1 {self.get_timestamp()} {self.hostname} DOT1X-ATTACK -- EAPOL flood attack detected"

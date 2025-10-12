@@ -282,7 +282,7 @@ crit (2) — перегрузка системы:
     "category": "process",
     "severity": 6
   },
-  "process": {
+  "source": {
     "executable": "/usr/bin/rsync",
     "name": "rsync"
   }
