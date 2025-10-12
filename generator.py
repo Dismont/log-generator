@@ -301,13 +301,13 @@ def generator_protocols(users, list_ip_addr, list_mac_addr):
             else:
                 logs.append(random.choice(users).update_system_notice_json())
 
-                if i % 5000 == 0 and i != 0:
-                    with open ("log_basic.txt","a+") as file:
-                        for log in logs:
-                            file.write(f"{json.dumps(log, indent=4, ensure_ascii = False)}\n")
-                    logs = []
-                else:
-                    print(i,end=", ")
+            if i % 500 == 0 and i != 0:
+                with open("log_basic.txt", "a+") as file:
+                    for log in logs:
+                        file.write(f"{json.dumps(log, indent=4, ensure_ascii=False)}\n")
+                    file.close()
+                logs = []
+        print(i, end=", ")
 
 
 
