@@ -2,7 +2,7 @@ from tqdm import tqdm
 import entity
 import json
 import random
-
+import opensearchpy
 
 
 
@@ -12,221 +12,75 @@ def main():
     users = []
     list_mac_addr = []
     list_ip_addr = []
-    data: dict[str, list] = {
+    pc = {
+        "users": [],
+        "ip": [],
+        "mac": []
+    }
+    switch = {
+        "users": [],
+        "ip": [],
+        "mac": []
+    }
+    router = {
+        "users": [],
+        "ip": [],
+        "mac": []
+    }
+    firewall = {
         "users": [],
         "ip": [],
         "mac": []
     }
     linux_data = generator_device(5, {"PC": "Linux"}, 2)
     windows_data = generator_device(5, {"PC": "Windows"}, 2)
+    switch_data = generator_device(2,{"Switch":None}, 2)
+    router_data = generator_device(2, {"Router": None}, 2)
+    firewall_data = generator_device(1, {"Firewall": None}, 3)
 
     # Добавляем (расширяем списки)
-    data["users"] += linux_data["users"]
-    data["ip"] += linux_data["ip"]
-    data["mac"] += linux_data["mac"]
+    pc["users"] += linux_data["users"]
+    pc["ip"] += linux_data["ip"]
+    pc["mac"] += linux_data["mac"]
 
-    data["users"] += windows_data["users"]
-    data["ip"] += windows_data["ip"]
-    data["mac"] += windows_data["mac"]
+    pc["users"] += windows_data["users"]
+    pc["ip"] += windows_data["ip"]
+    pc["mac"] += windows_data["mac"]
 
-    users = data["users"]
-    list_ip_addr = data["ip"]
-    list_mac_addr = data["mac"]
+    switch["users"] += switch_data["users"]
+    switch["ip"] += switch_data["ip"]
+    switch["mac"] += switch_data["mac"]
 
-    generator_protocols(users, list_ip_addr, list_mac_addr)
-    print(data)
+    router["users"] += router_data["users"]
+    router["ip"] += router_data["ip"]
+    router["mac"] += router_data["mac"]
 
-def basic_create():
-    list_ip_addr = []
-    list_mac_addr = []
+    firewall["users"] += firewall_data["users"]
+    firewall["ip"] += firewall_data["ip"]
+    firewall["mac"] += firewall_data["mac"]
 
-    pc1 = entity.PersonalComputer("PC-1","192.168.10.3","AB-CD-EF-12-13-45","System administrator","syslog","Linux","telecom.technology", "IN-124578")
-    list_ip_addr.append(pc1.get_ip_addr())
-    list_mac_addr.append(pc1.get_mac_addr())
+    list_ip_addr = pc["ip"] + switch["ip"] + router["ip"] + firewall["ip"]
+    list_mac_addr = pc["mac"] + switch["mac"] + router["mac"] + firewall["mac"]
 
-    pc2 = entity.PersonalComputer("PC-2","192.168.10.4","AB-CD-EF-12-13-46","Sector Sell","syslog","Windows","telecom.technology", "IN-124579")
-    list_ip_addr.append(pc2.get_ip_addr())
-    list_mac_addr.append(pc2.get_mac_addr())
+    client = connect_opensearch()
+    
+    # client.indices.delete(index='siem_index')
 
-    sw1 = entity.Switch("SW-1","192.168.10.10","AB-CD-EF-12-45-78","Switch","Wazuh","IOS","telecom.technology", "IN-124580")
-    list_ip_addr.append(sw1.get_ip_addr())
-    list_mac_addr.append(sw1.get_mac_addr())
+    create_index_opensearch(client)
+    all_users = pc["users"] + switch["users"] + router["users"] + firewall["users"]
+    generator_protocols(client, all_users, list_ip_addr, list_mac_addr)
 
-    rt1 = entity.Router("RT-1","192.168.10.15","AB-CD-EF-12-45-89","Router","Wazuh","IOS","telecom.technology", "IN-124582")
-    list_ip_addr.append(rt1.get_ip_addr())
-    list_mac_addr.append(rt1.get_mac_addr())
-
-    fw1 = entity.FireWall("FW-1","192.168.10.27","AB-CD-EF-12-12-45","Firewall New Generation","Wazuh","IOS","telecom.technology", "IN-124589")
-    list_ip_addr.append(fw1.get_ip_addr())
-    list_mac_addr.append(fw1.get_mac_addr())
-
-    print("IP: ",end=""),print(*list_ip_addr,sep=", ")
-    print("MAC: ",end=""),print(*list_mac_addr,sep=", ")
-    print("_________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________")
+    # print(data)
 
 
-
-    print(pc1.show_info())
-    print(pc2.show_info())
-    print(sw1.show_info())
-
-    # print(pc1.get_init())
-    # print(pc1.get_attr())
-    #
-    # print(pc2.get_init())
-    # print(pc2.get_attr())
-
-    # print(pc1.get_timestamp())
-
-    print(pc1.auth_info(list_ip_addr))
-    print(pc1.auth_warning(list_ip_addr))
-    print(pc1.auth_crit(list_ip_addr))
-
-    print(json.dumps(pc1.auth_info_json(list_ip_addr), indent=4, ensure_ascii=False))
-    print(json.dumps(pc1.auth_warning_json(list_ip_addr), indent=4, ensure_ascii=False))
-    print(json.dumps(pc1.auth_crit_json(list_ip_addr), indent=4, ensure_ascii=False))
-
-    print(pc1.start_process_info())
-    print(pc1.start_process_warning())
-    print(pc1.start_process_debug())
-
-    print(json.dumps(pc1.start_process_info_json(), indent=4, ensure_ascii=False))
-    print(json.dumps(pc1.start_process_warning_json(), indent=4, ensure_ascii=False))
-    print(json.dumps(pc1.start_process_debug_json(), indent=4, ensure_ascii=False))
-
-    print(pc1.open_file_info())
-    print(pc1.open_file_warning())
-    print(pc1.open_file_crit())
-
-    print(pc1.network_activity_info())
-    print(pc1.network_activity_warning())
-    print(pc1.network_activity_debug())
-
-    print(pc1.edit_policies_notice())
-    print(pc1.edit_policies_warning())
-    print(pc1.edit_policies_info())
-
-    print(pc1.remote_control_info())
-    print(pc1.remote_control_warning())
-    print(pc1.remote_control_alert())
-
-    print(pc1.update_system_info())
-    print(pc1.update_system_err())
-    print(pc1.update_system_notice())
-
-    print("_________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________")
-
-    print(pc2.auth_info(list_ip_addr))
-    print(pc2.auth_warning(list_ip_addr))
-    print(pc2.auth_crit(list_ip_addr))
-
-    print(pc2.start_process_info())
-    print(pc2.start_process_warning())
-    print(pc2.start_process_debug())
-
-    print(pc2.open_file_info())
-    print(pc2.open_file_warning())
-    print(pc2.open_file_crit())
-
-    print(pc2.network_activity_info())
-    print(pc2.network_activity_warning())
-    print(pc2.network_activity_debug())
-
-    print(pc2.edit_policies_notice())
-    print(pc2.edit_policies_warning())
-    print(pc2.edit_policies_info())
-
-    print(pc2.remote_control_info())
-    print(pc2.remote_control_warning())
-    print(pc2.remote_control_alert())
-
-    print(pc2.update_system_info())
-    print(pc2.update_system_err())
-    print(pc2.update_system_notice())
-
-    print("_________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________")
-
-    print(sw1.change_status_port_info())
-    print(sw1.change_status_port_warning())
-    print(sw1.change_status_port_crit())
-
-    print(sw1.learn_mac_addr_info(list_mac_addr))
-    print(sw1.learn_mac_addr_warning(list_mac_addr))
-    print(sw1.learn_mac_addr_debug(list_mac_addr))
-
-    print(sw1.violation_port_security_warning())
-    print(sw1.violation_port_security_crit())
-    print(sw1.violation_port_security_alert())
-
-    print(sw1.stp_event_info())
-    print(sw1.stp_event_crit())
-    print(sw1.stp_event_warning())
-
-    print(sw1.duplex_error_warning())
-    print(sw1.duplex_error_err())
-    print(sw1.duplex_error_crit())
-
-    print(sw1.vlan_event_info())
-    print(sw1.vlan_event_debug())
-    print(sw1.vlan_event_warning())
-
-    print(sw1.auth_802_1x_info(list_mac_addr))
-    print(sw1.auth_802_1x_warning(list_mac_addr))
-    print(sw1.auth_802_1x_alert(list_mac_addr))
-
-    print("_________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________")
-
-    print(rt1.change_status_int_info())
-    print(rt1.change_status_int_warning())
-    print(rt1.change_status_int_crit())
-
-    print(rt1.change_roadmap_info(list_ip_addr))
-    print(rt1.change_roadmap_warning(list_ip_addr))
-    print(rt1.change_roadmap_alert())
-
-    print(rt1.dynamic_routing_event_info())
-    print(rt1.dynamic_routing_event_warning(list_ip_addr))
-    print(rt1.dynamic_routing_event_crit())
-
-    print(rt1.acl_activity_info(list_ip_addr))
-    print(rt1.acl_activity_warning(list_ip_addr))
-    print(rt1.acl_activity_debug())
-
-    print(rt1.nat_event_info(list_ip_addr))
-    print(rt1.nat_event_warning(list_ip_addr))
-    print(rt1.nat_event_debug(list_ip_addr))
-
-    print(rt1.icmp_message_info(list_ip_addr))
-    print(rt1.icmp_message_warning(list_ip_addr))
-    print(rt1.icmp_message_debug(list_ip_addr))
-
-    print(rt1.violation_traffic_info(list_ip_addr))
-    print(rt1.violation_traffic_warning())
-    print(rt1.violation_traffic_debug())
-
-    print("_________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________")
-
-    print(fw1.allow_traffic_info(list_ip_addr))
-    print(fw1.allow_traffic_debug(list_ip_addr))
-
-    print(fw1.allow_traffic_info(list_ip_addr))
-    print(fw1.allow_traffic_debug(list_ip_addr))
-    print(fw1.allow_traffic_info(list_ip_addr))
-
-    print(fw1.lock_traffic_warning(list_ip_addr))
-    print(fw1.lock_traffic_alert(list_ip_addr))
-    print(fw1.lock_traffic_debug())
-
-    print(fw1.change_session_info_connect(list_ip_addr))
-    print(fw1.change_session_info_breakup(list_ip_addr))
-    print(fw1.change_session_debug(list_ip_addr))
 
 def mac_addr_generator():
     mac = [random.randint(0x00, 0xff) for _ in range(6)]
     return ':'.join(f'{byte:02x}' for byte in mac).upper()
 
 
-def generator_device(count_users: int, category: dict[str,str], number_network: int):
+
+def generator_device(count_users: int, category: dict[str,str] | dict [str, None], number_network: int):
     users = []
     list_ip_addr = []
     list_mac_addr = []
@@ -234,15 +88,15 @@ def generator_device(count_users: int, category: dict[str,str], number_network: 
         case {"PC": "Linux"}:
             for i in range(count_users):
                 users.append(
-                    entity.PersonalComputer(
+                    entity.PersonalComputerLinux(
                         hostname=f"PC-{i + 1}",
                         ip_addr=f"192.168.{number_network}.{i + 1}",
                         mac_addr=mac_addr_generator(),
-                        role="PC",
+                        category="PC",
                         log_format="syslog",
                         os="Linux",
                         domain="telecom.technology",
-                        asset_tag=f"IN-{random.randint(1000, 9999)}{random.randint(1000, 9999)}"
+                        asset_number=f"IN-{random.randint(1000, 9999)}{random.randint(1000, 9999)}"
                     )
                 )
                 list_mac_addr.append(users[i].get_mac_addr())
@@ -251,92 +105,483 @@ def generator_device(count_users: int, category: dict[str,str], number_network: 
 
 
         case {"PC": "Windows"}:
-            for i in range(count_users):
-                users.append(
-                    entity.PersonalComputer(
+             for i in range(count_users):
+                 users.append(
+                     entity.PersonalComputerWindows(
                         hostname=f"PC-{i + 1}",
                         ip_addr=f"192.168.{number_network}.{i + 1}",
                         mac_addr=mac_addr_generator(),
-                        role="PC",
+                        category="PC",
                         log_format="syslog",
                         os="Windows",
                         domain="telecom.technology",
-                        asset_tag=f"IN-{random.randint(1000, 9999)}{random.randint(1000, 9999)}"
-                    )
-                )
+                        asset_number=f"IN-{random.randint(1000, 9999)}{random.randint(1000, 9999)}"
+                    ))
+                 list_mac_addr.append(users[i].get_mac_addr())
+                 list_ip_addr.append(users[i].get_ip_addr())
+             return {"users": users, "ip": list_ip_addr, "mac": list_mac_addr}
+
+        case {"Switch":None}:
+            for i in range(count_users):
+                users.append(
+                    entity.Switch(
+                        hostname=f"SW-{i + 1}",
+                        ip_addr=f"192.168.{number_network}.{i + 1}",
+                        mac_addr=mac_addr_generator(),
+                        category="Switch",
+                        log_format="systemd",
+                        os="IOS",
+                        domain="telecom.technology",
+                        asset_number=f"IN-{random.randint(1000, 9999)}{random.randint(1000, 9999)}"
+                    ))
                 list_mac_addr.append(users[i].get_mac_addr())
                 list_ip_addr.append(users[i].get_ip_addr())
+            return {"users": users, "ip": list_ip_addr, "mac": list_mac_addr}
 
-            return {"users" : users, "ip" : list_ip_addr, "mac" : list_mac_addr}
+        case {"Router": None}:
+            for i in range(count_users):
+                users.append(
+                    entity.Router(
+                        hostname=f"RT-{i + 1}",
+                        ip_addr=f"192.168.{number_network}.{i + 1}",
+                        mac_addr=mac_addr_generator(),
+                        category="Router",
+                        log_format="systemd",
+                        os="IOS",
+                        domain="telecom.technology",
+                        asset_number=f"IN-{random.randint(1000, 9999)}{random.randint(1000, 9999)}"
+                    ))
+                list_mac_addr.append(users[i].get_mac_addr())
+                list_ip_addr.append(users[i].get_ip_addr())
+            return {"users": users, "ip": list_ip_addr, "mac": list_mac_addr}
+
+        case {"Firewall": None}:
+            for i in range(count_users):
+                users.append(
+                    entity.Firewall(
+                        hostname=f"FW-{i + 1}",
+                        ip_addr=f"192.168.{number_network}.{i + 1}",
+                        mac_addr=mac_addr_generator(),
+                        category="Firewall",
+                        log_format="systemd",
+                        os="IOS",
+                        domain="telecom.technology",
+                        asset_number=f"IN-{random.randint(1000, 9999)}{random.randint(1000, 9999)}"
+                    ))
+                list_mac_addr.append(users[i].get_mac_addr())
+                list_ip_addr.append(users[i].get_ip_addr())
+            return {"users": users, "ip": list_ip_addr, "mac": list_mac_addr}
 
 
         case _: return [], [], []
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-def generator_protocols(users, list_ip_addr, list_mac_addr):
-    print(*list_mac_addr, sep=", ")
-    print(*list_ip_addr, sep=", ")
+def generator_protocols(client, users, list_ip_addr, list_mac_addr):
     operations = []
-    logs = []
     for i in range(200000):
         operations.append(random.randint(1, 21))
 
     for i in range(len(operations)):
+        user = random.choice(users)
+
+        if type(user) == entity.PersonalComputerLinux or type(user) == entity.PersonalComputerWindows:
+            print("Linux / Windows -> ",end="")
             if operations[i] == 1:
-                logs.append(random.choice(users).auth_info_json(list_ip_addr))
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs = (user.auth_info_json(list_ip_addr))
+                insert_data_opensearch(client, logs)
             elif operations[i] == 2:
-                logs.append(random.choice(users).auth_warning_json(list_ip_addr))
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs = (user.auth_warning_json(list_ip_addr))
+                insert_data_opensearch(client, logs)
             elif operations[i] == 3:
-                logs.append(random.choice(users).auth_crit_json(list_ip_addr))
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs = (user.auth_crit_json(list_ip_addr))
+                insert_data_opensearch(client, logs)
             elif operations[i] == 4:
-                logs.append(random.choice(users).start_process_info_json())
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs = (user.start_process_info_json())
+                insert_data_opensearch(client, logs)
             elif operations[i] == 5:
-                logs.append(random.choice(users).start_process_warning_json())
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs = (user.start_process_warning_json())
+                insert_data_opensearch(client, logs)
             elif operations[i] == 6:
-                logs.append(random.choice(users).start_process_debug_json())
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs = (user.start_process_debug_json())
+                insert_data_opensearch(client, logs)
             elif operations[i] == 7:
-                logs.append(random.choice(users).open_file_info_json())
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs = (user.open_file_info_json())
+                insert_data_opensearch(client, logs)
             elif operations[i] == 8:
-                logs.append(random.choice(users).open_file_warning_json())
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs = (user.open_file_warning_json())
+                insert_data_opensearch(client, logs)
             elif operations[i] == 9:
-                logs.append(random.choice(users).open_file_crit_json())
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs = (user.open_file_crit_json())
+                insert_data_opensearch(client, logs)
             elif operations[i] == 10:
-                logs.append(random.choice(users).network_activity_info_json())
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs = (user.network_activity_info_json())
+                insert_data_opensearch(client, logs)
             elif operations[i] == 11:
-                logs.append(random.choice(users).network_activity_warning_json())
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.network_activity_warning_json())
+                insert_data_opensearch(client, logs)
             elif operations[i] == 12:
-                logs.append(random.choice(users).network_activity_debug_json())
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.network_activity_debug_json())
+                insert_data_opensearch(client, logs)
             elif operations[i] == 13:
-                logs.append(random.choice(users).edit_policies_notice_json())
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.edit_policies_notice_json())
+                insert_data_opensearch(client, logs)
             elif operations[i] == 14:
-                logs.append(random.choice(users).edit_policies_warning_json())
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.edit_policies_warning_json())
+                insert_data_opensearch(client, logs)
             elif operations[i] == 15:
-                logs.append(random.choice(users).edit_policies_info_json())
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.edit_policies_info_json())
+                insert_data_opensearch(client, logs)
             elif operations[i] == 16:
-                logs.append(random.choice(users).remote_control_info_json())
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.remote_control_info_json())
+                insert_data_opensearch(client, logs)
             elif operations[i] == 17:
-                logs.append(random.choice(users).remote_control_warning_json())
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.remote_control_warning_json())
+                insert_data_opensearch(client, logs)
             elif operations[i] == 18:
-                logs.append(random.choice(users).remote_control_alert_json())
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.remote_control_alert_json())
+                insert_data_opensearch(client, logs)
             elif operations[i] == 19:
-                logs.append(random.choice(users).update_system_info_json())
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.update_system_info_json())
+                insert_data_opensearch(client, logs)
             elif operations[i] == 20:
-                logs.append(random.choice(users).update_system_err_json())
-            else:
-                logs.append(random.choice(users).update_system_notice_json())
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.update_system_err_json())
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 21:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.update_system_notice_json())
+                insert_data_opensearch(client, logs)
 
-            if i % 500 == 0 and i != 0:
-                with open("log_basic_v2.txt", "a+") as file:
-                    for log in logs:
-                        file.write(f"{json.dumps(log, indent=4, ensure_ascii=False)}\n")
-                    file.close()
-                logs = []
-            print(i, end=", ")
+        if type(user) == entity.Switch:
+            print("Switch -> ",end="")
+            if operations[i] == 1:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.change_status_port_info())
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 2:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.change_status_port_warning())
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 3:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.change_status_port_crit())
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 4:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.learn_mac_addr_info(list_mac_addr))
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 5:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.learn_mac_addr_warning(list_mac_addr))
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 6:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.learn_mac_addr_debug(list_mac_addr))
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 7:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.violation_port_security_warning())
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 8:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.violation_port_security_crit())
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 9:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.violation_port_security_alert())
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 10:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.stp_event_info())
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 11:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.stp_event_warning())
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 12:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.stp_event_crit())
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 13:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.duplex_error_warning())
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 14:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.duplex_error_err())
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 15:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.duplex_error_crit())
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 16:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.vlan_event_info())
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 17:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.vlan_event_warning())
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 18:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.vlan_event_debug())
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 19:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.auth_802_1x_info(list_mac_addr))
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 20:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.auth_802_1x_warning(list_mac_addr))
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 21:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.auth_802_1x_alert(list_mac_addr))
+                insert_data_opensearch(client, logs)
+
+        if type(user) == entity.Router:
+            print("Router -> ", end="")
+            if operations[i] == 1:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.change_status_int_info())
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 2:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.change_status_int_warning())
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 3:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.change_status_int_crit())
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 4:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.change_roadmap_info(list_ip_addr))
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 5:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.change_roadmap_warning(list_ip_addr))
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 6:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.change_roadmap_alert())
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 7:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.dynamic_routing_event_info())
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 8:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.dynamic_routing_event_warning(list_ip_addr))
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 9:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.dynamic_routing_event_crit())
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 10:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.acl_activity_info(list_ip_addr))
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 11:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.acl_activity_warning(list_ip_addr))
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 12:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.acl_activity_debug())
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 13:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.nat_event_info(list_ip_addr))
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 14:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.nat_event_warning(list_ip_addr))
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 15:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.nat_event_debug(list_ip_addr))
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 16:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.icmp_message_info(list_ip_addr))
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 17:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.icmp_message_warning(list_ip_addr))
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 18:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.icmp_message_debug(list_ip_addr))
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 19:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.violation_traffic_info(list_mac_addr))
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 20:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.violation_traffic_warning())
+                insert_data_opensearch(client, logs)
+            elif operations[i] == 21:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.violation_traffic_debug())
+                insert_data_opensearch(client, logs)
+
+        if type(user) == entity.Firewall:
+            print("Firewall -> ", end="")
+            if (operations[i] % 10) == 1 or operations[i]  == 1:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.allow_traffic_info(list_ip_addr))
+                insert_data_opensearch(client, logs)
+            elif (operations[i] % 10) == 2 or operations[i]  == 2:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.allow_traffic_debug(list_ip_addr))
+                insert_data_opensearch(client, logs)
+            elif (operations[i] % 10) == 3 or operations[i]  == 3:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.lock_traffic_warning(list_ip_addr))
+                insert_data_opensearch(client, logs)
+            elif (operations[i] % 10) == 4 or operations[i]  == 4:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.lock_traffic_alert(list_ip_addr))
+                insert_data_opensearch(client, logs)
+            elif (operations[i] % 10) == 5 or operations[i]  == 5:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.lock_traffic_debug())
+                insert_data_opensearch(client, logs)
+            elif (operations[i] % 10) == 6 or operations[i]  == 6:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.change_session_info_connect(list_ip_addr))
+                insert_data_opensearch(client, logs)
+            elif (operations[i] % 10) == 7 or operations[i]  == 7:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.change_session_info_breakup(list_ip_addr))
+                insert_data_opensearch(client, logs)
+            elif (operations[i] % 10) == 8 or operations[i]  == 8:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.change_session_debug(list_ip_addr))
+                insert_data_opensearch(client, logs)
+            elif (operations[i] % 10) == 9 or operations[i]  == 9:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.vpn_tunnel_info())
+                insert_data_opensearch(client, logs)
+            elif (operations[i] % 10) == 0 or operations[i]  == 10:
+                print(f"{i}, {operations[i]} |", end=", ")
+                logs=(user.vpn_tunnel_warning())
+                insert_data_opensearch(client, logs)
 
 
 
+def connect_opensearch():
+    # Настройки подключения
+    host = '192.168.245.134'
+    port = 9200
+    auth = ('admin', 'MySecret123@')  # Для базовой аутентификации (если включена)
 
+    # Создание клиента
+    client = opensearchpy.OpenSearch(
+        hosts=[{'host': host, 'port': port}],
+        http_auth=auth,
+        use_ssl=True,
+        verify_certs=False,  # Только для тестов! В продакшене — True
+        ssl_show_warn=False
+    )
+
+    # Проверка подключения
+    info = client.info()
+    print(f"OpenSearch Info: {info}")
+    return client
+
+
+
+def create_index_opensearch(client):
+
+    index_name = 'siem_index'
+
+    # Опционально: задать настройки и маппинг
+    # index_body = {
+    #     "settings": {
+    #         "index": {
+    #             "number_of_shards": 1,
+    #             "number_of_replicas": 0
+    #         }
+    #     },
+    #     "mappings": {
+    #         "properties": {
+    #             "@timestamp": {
+    #                 "type": "date",
+    #                 "format": "strict_date_optional_time||epoch_millis"
+    #             },
+    #             "host": {
+    #                 "properties": {
+    #                     "hostname": {"type": "keyword"}
+    #                 }
+    #             },
+    #             "process": {
+    #                 "properties": {
+    #                     "name": {"type": "keyword"},
+    #                     "pid": {"type": "integer"}
+    #                 }
+    #             },
+    #             "event": {
+    #                 "properties": {
+    #                     "action": {"type": "keyword"},
+    #                     "category": {"type": "keyword"},
+    #                     "type": {"type": "keyword"},
+    #                     "outcome": {"type": "keyword"},
+    #                     "severity": {"type": "integer"}
+    #                 }
+    #             },
+    #             "user": {
+    #                 "properties": {
+    #                     "name": {"type": "keyword"}
+    #                 }
+    #             },
+    #             "source": {
+    #                 "properties": {
+    #                     "ip": {"type": "ip"}
+    #                 }
+    #             }
+    #         }
+    #     }
+    # }
+
+
+
+    # Создаём индекс
+    if not client.indices.exists(index=index_name):
+        response = client.indices.create(index=index_name)
+        print("Индекс создан:", response)
+
+    else:
+        print("Индекс уже существует")
+
+
+
+def insert_data_opensearch(client, data):
+
+    doc = data
+    client.index(index='siem_index', body=doc)
+    print("Документ добавлен.")
 
 
 

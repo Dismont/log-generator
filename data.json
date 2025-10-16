@@ -1,0 +1,43 @@
+          {
+            "@timestamp" : "datada",
+            "hostname": "hostname",
+            "process": {
+              "name": "process",
+              "pid": 123
+            },
+            "event": {
+              "action": "action",
+              "category": "PC",
+              "type": [" ", " "],
+              "outcome": "success",
+              "severity": 6
+            },
+            "user": {
+              "name": "user"
+            },
+            "source": {
+                    "ip": "0.0.0.0",
+                    "port": 123,
+                    "user": "user",
+                    "executable": "sshd",
+                    "file": "/bin/ssh"
+            },
+            "destination": {
+                    "ip": "8.8.8.8",
+                    "port": 123
+            },
+            "network": {
+              "protocol": "tcp"
+            },
+            "file": {
+              "path": "path/to/file"
+            },
+            "package": {
+              "name": "name",
+              "size": "12564 KB"
+            },
+            "app": "name"
+        }
+
+
+
