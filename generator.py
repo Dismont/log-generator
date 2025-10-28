@@ -3,6 +3,7 @@ import entity
 import json
 import random
 import opensearchpy
+from time import sleep
 
 
 
@@ -179,7 +180,7 @@ def generator_device(count_users: int, category: dict[str,str] | dict [str, None
 
 def generator_protocols(client, users, list_ip_addr, list_mac_addr):
     operations = []
-    for i in range(200000):
+    for i in range(500000):
         operations.append(random.randint(1, 21))
 
     for i in range(len(operations)):
@@ -582,8 +583,7 @@ def create_index_opensearch(client):
 
 def insert_data_opensearch(client, data):
 
-    doc = data
-    client.index(index='siem_index', body=doc)
+    client.index(index='siem_index', body=data)
     print("Документ добавлен.")
 
 
