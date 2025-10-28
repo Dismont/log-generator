@@ -4,3 +4,5 @@
 __pycache__/
 log_basic.txt
 progressbar.py
+entity.txt
+generator.txt
