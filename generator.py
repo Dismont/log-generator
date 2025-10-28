@@ -183,6 +183,9 @@ def generator_protocols(client, users, list_ip_addr, list_mac_addr):
         operations.append(random.randint(1, 21))
 
     for i in range(len(operations)):
+        count_sec = random.uniform(0.1, 4)
+        print(f"Спим {count_sec} сек.")
+        sleep(count_sec)
         user = random.choice(users)
 
         if type(user) == entity.PersonalComputerLinux or type(user) == entity.PersonalComputerWindows:
