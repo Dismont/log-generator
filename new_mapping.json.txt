@@ -1,0 +1,106 @@
+{
+  "@timestamp": "2025-10-20T14:30:00.000Z",
+  // Обязательное поле: временная метка в ISO 8601 UTC
+
+  "host": {
+    "hostname": "PC-3",
+
+    "ip": "192.168.2.3",
+    // IP-адрес хоста (из Device.ip_addr)
+    "os": {
+      "name": "Linux",
+      // ОС: "Linux", "Windows", "IOS" и т.д. (из Device.os)
+      "platform": "ubuntu"
+      // Опционально: детализация ОС (можно генерировать по шаблону)
+    }
+  },
+  "observer": {
+    "hostname": "FW-1",
+    // Устройство, зафиксировавшее событие (если не совпадает с host)
+    "ip": "192.168.3.1",
+    "type": "firewall"
+    // Возможные значения: "host", "switch", "router", "firewall", "ids"
+  },
+  "event": {
+    "kind": "event",
+    // "event", "alert", "state", "metric"
+    "category": [
+      "authentication"
+    ],
+    // ECS-совместимые категории:
+    // ["authentication"], ["network"], ["process"], ["file"], ["intrusion_detection"], ["settings"], ["web"]
+    "type": [
+      "access",
+      "start"
+    ],
+    // Подтипы: ["start", "end"], ["access", "denied"], ["creation"], ["change"], ["attack"]
+    "action": "ssh_login",
+    // Конкретное действие: "rdp_connection", "file_open", "route_added", "acl_denied"
+    "outcome": "success",
+    // "success", "failure", "unknown"
+    "severity": 6,
+    // Число от 1 (critical) до 10 (info); рекомендуется шкала: 1–3 — critical/high, 4–6 — medium, 7–10 — low/info
+    "severity_label": "medium",
+    // Человекочитаемый уровень
+    "provider": "simulated-linux",
+    // Источник события: "simulated-windows", "cisco-ios", "panos", "syslog"
+    "rule": {
+      "id": "SIM-AUTH-001",
+      // Уникальный ID правила (если событие — результат срабатывания)
+      "name": "Multiple failed SSH logins"
+      // Название правила для SOC-аналитика
+    }
+  },
+  "user": {
+    "name": "user-12345678"
+    // Имя пользователя-субъекта действия (из users_attr)
+  },
+  "source": {
+    "ip": "192.168.1.100",
+    // IP-источник соединения
+    "port": 51234
+    // Порт источника (если применимо)
+  },
+  "destination": {
+    "ip": "8.8.8.8",
+    // IP-назначение
+    "port": 53
+    // Порт назначения
+  },
+  "network": {
+    "protocol": "tcp",
+    // Протокол: "tcp", "udp", "icmp", "ospf", "bgp", "ipsec", "ethernet"
+    "direction": "outbound"
+    // "inbound", "outbound", "internal"
+  },
+  "process": {
+    "name": "sshd",
+    // Имя процесса (из software_attr или process.name)
+    "pid": 12345,
+    // PID (целое число)
+    "executable": "/usr/sbin/sshd"
+    // Полный путь к исполняемому файлу (опционально)
+  },
+  "file": {
+    "path": "/home/user-12345678/.bash_history"
+    // Путь к файлу (если событие связано с файлом)
+  },
+  "service": {
+    "name": "SSH",
+    // Имя сервиса: "SSH", "RDP", "HTTP", "OSPF", "ACL"
+    "type": "ssh"
+    // Технический тип: "ssh", "rdp", "http", "ospf", "acl"
+  },
+  "related": {
+    "ip": [
+      "192.168.1.100",
+      "8.8.8.8",
+      "192.168.2.3"
+    ],
+    // Все IP, связанные с событием — упрощает поиск
+    "user": [
+      "user-12345678",
+      "root"
+    ]
+  }
+}
