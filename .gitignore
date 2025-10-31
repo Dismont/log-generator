@@ -1,5 +1,6 @@
 .obsidian/
 .venv/
+.py_venv/
 .idea/
 __pycache__/
 log_basic.txt
