@@ -31,6 +31,7 @@ def main():
         "ip": [],
         "mac": []
     }
+    
     linux_data = generator_device(5, {"PC": "Linux"}, 2)
     windows_data = generator_device(5, {"PC": "Windows"}, 2)
     switch_data = generator_device(2, {"Switch": None}, 2)
