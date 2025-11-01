@@ -488,5 +488,26 @@ def mac_addr_generator():
 
 
 
+def ui_console_menu():
+
+        print("\t---\tMENU:\t---\t")
+        print(
+            "1. Создать персональный компьютер\n2. Создать коммутатор\n3. Создать роутер\n4. Создать межсетевой экран\n5. Начать генерацию\n6. Выход\n\tПример ->\tPC ( кол-во устройств ) ( Windows \ Linux ) ( номер подсети ) ")
+        number = input().strip().split(" ")
+        if number[0] == "6":
+            exit()
+        if number[0] == "1":
+            if number[2].lower() in ["linux"]:
+                linux_data = generator_device(int(number[1]), {"PC": "Linux"}, int(number[3]))
+            if number[2].lower() in ["windows"]:
+                windows_data = generator_device(int(number[1]), {"PC": "Windows"}, int(number[3]))
+        if number[0] == "2":
+            switch_data = generator_device(int(number[1]), {"Switch": None}, int(number[3]))
+        if number[0] == "3":
+            router_data = generator_device(int(number[1]), {"Router": None}, int(number[3]))
+        if number[0] == "4":
+            firewall_data = generator_device(int(number[1]), {"Firewall": None}, int(number[3]))
+
+
 if __name__ == "__main__":
     main()
