@@ -1,82 +1,42 @@
 import opensearchpy
-
+from opensearchpy import AuthenticationException
 
 # --- Libraries ---
 
-def initialization_opensearch():
-    index_name = input("Enter index name: ")
-    index_mapping = {
-        "settings": {
-            "index": {
-                "number_of_shards": 1,
-                "number_of_replicas": 0
-            }
-        },
-        "mappings": {
-            "properties": {
-                "@timestamp": {
-                    "type": "date",
-                    "format": "strict_date_optional_time||epoch_millis"
-                },
-                "host": {
-                    "properties": {
-                        "hostname": {"type": "keyword"}
-                    }
-                },
-                "process": {
-                    "properties": {
-                        "name": {"type": "keyword"},
-                        "pid": {"type": "integer"}
-                    }
-                },
-                "event": {
-                    "properties": {
-                        "action": {"type": "keyword"},
-                        "category": {"type": "keyword"},
-                        "type": {"type": "keyword"},
-                        "outcome": {"type": "keyword"},
-                        "severity": {"type": "integer"}
-                    }
-                },
-                "user": {
-                    "properties": {
-                        "name": {"type": "keyword"}
-                    }
-                },
-                "source": {
-                    "properties": {
-                        "ip": {"type": "ip"}
-                    }
-                }
-            }
-        }
-    }
+def initialization_opensearch(host , login , password):
 
-    host = input("Enter IP-address: ")
     port = 9200
-    auth = ('admin', 'MySecret123@')
+    auth = (login, password)
+    try:
+        client = opensearchpy.OpenSearch(
+            hosts=[{'host': host, 'port': port}],
+            http_auth=auth,
+            use_ssl=True,
+            verify_certs=False,
+            ssl_show_warn=False
+        )
 
-    client = opensearchpy.OpenSearch(
-        hosts=[{'host': host, 'port': port}],
-        http_auth=auth,
-        use_ssl=True,
-        verify_certs=False,
-        ssl_show_warn=False
-    )
+        info = client.info()
+        print(f"OpenSearch Info: {info}")
+        return 200, client
 
-    # info = client.info()
-    # print(f"OpenSearch Info: {info}")
+    except AuthenticationException:
+        return 401, None
+    except ConnectionError:
+        return 400, None
+    except Exception as e:
+        print(f"Error:{e}")
+        return [404, e],None
 
-    return client, index_name, index_mapping
 
-
-def create_index_opensearch(client, index_name, index_mapping) -> None:
+def create_index_opensearch(client, index_name, index_mapping):
     if not client.indices.exists(index=index_name):
         response = client.indices.create(index=index_name, body=index_mapping)
-        print("Индекс создан ...")
-
+        print(f"Индекс {index_name} создан")
+        return 200
     else:
-        print("Индекс уже существует!")
+        print(f"Индекс {index_name} уже существует!")
+        return 201
 
 
 def insert_index_opensearch(client, index_name, index_data):
