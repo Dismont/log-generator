@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 
 class Device:
 
-    def __init__(self, hostname, os, category,log_format, asset_number, ip_addr, mac_addr, domain):
+    def __init__(self, hostname, os, category, log_format, asset_number, ip_addr, mac_addr, domain):
         self.hostname = hostname
         self.os = os
         self.category = category
@@ -39,10 +39,9 @@ class Device:
         return timestamp
 
 
-
 class PersonalComputerLinux(Device):
 
-    def __init__(self, hostname, os, category,log_format, asset_number, ip_addr, mac_addr, domain):
+    def __init__(self, hostname, os, category, log_format, asset_number, ip_addr, mac_addr, domain):
         super().__init__(
             hostname,
             os,
@@ -228,6 +227,7 @@ class PersonalComputerLinux(Device):
             },
             "app": "-"
         }
+
     def auth_warning_json(self, list_ip_addr):
         other_ips = [ip for ip in list_ip_addr if ip != self.get_ip_addr()] + self.destination_ip
         return {
@@ -270,6 +270,7 @@ class PersonalComputerLinux(Device):
             },
             "app": "-"
         }
+
     def auth_crit_json(self, list_ip_addr):
         other_ips = [ip for ip in list_ip_addr if ip != self.get_ip_addr()] + self.destination_ip
         return {
@@ -357,50 +358,52 @@ class PersonalComputerLinux(Device):
             },
             "app": "-"
         }
+
     def start_process_warning_json(self):
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
         all_files_attr = self.software_files_attr
         return {
-                "@timestamp": f"{self.get_timestamp()}",
-                "hostname": f"{self.hostname}",
-                "process": {
-                    "name": f"{app_name}",
-                    "pid": random.randint(115, 1999)
-                },
-                "event": {
-                    "action": "process_suspicious",
-                    "category": "process",
-                    "type": ["process", "stoped"],
-                    "outcome": "success",
-                    "severity": 6
-                },
-                "user": {
-                    "name": f"{random.choice(self.users_attr)}",
-                },
-                "source": {
-                    "ip": "-",
-                    "port": 0,
-                    "user": "-",
-                    "executable": f"{random.choice(all_files_attr)}",
-                    "file": "-"
-                },
-                "destination": {
-                    "ip": "-",
-                    "port": 0
-                },
-                "network": {
-                    "protocol": "-"
-                },
-                "file": {
-                    "path": "-"
-                },
-                "package": {
-                    "name": "-",
-                    "size": "-"
-                },
-                "app": "-"
-            }
+            "@timestamp": f"{self.get_timestamp()}",
+            "hostname": f"{self.hostname}",
+            "process": {
+                "name": f"{app_name}",
+                "pid": random.randint(115, 1999)
+            },
+            "event": {
+                "action": "process_suspicious",
+                "category": "process",
+                "type": ["process", "stoped"],
+                "outcome": "success",
+                "severity": 6
+            },
+            "user": {
+                "name": f"{random.choice(self.users_attr)}",
+            },
+            "source": {
+                "ip": "-",
+                "port": 0,
+                "user": "-",
+                "executable": f"{random.choice(all_files_attr)}",
+                "file": "-"
+            },
+            "destination": {
+                "ip": "-",
+                "port": 0
+            },
+            "network": {
+                "protocol": "-"
+            },
+            "file": {
+                "path": "-"
+            },
+            "package": {
+                "name": "-",
+                "size": "-"
+            },
+            "app": "-"
+        }
+
     def start_process_debug_json(self):
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
@@ -491,51 +494,53 @@ class PersonalComputerLinux(Device):
             },
             "app": "-"
         }
+
     def open_file_warning_json(self):
         all_files_attr = self.home_files_attr + self.config_files_attr + self.socket_files_attr + self.system_files_attr
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
         facility = severity_software[app_name]
         return {
-        "@timestamp": f"{self.get_timestamp()}",
-        "hostname": f"{self.hostname}",
-        "process": {
-            "name": f"{app_name}",
-            "pid": random.randint(115, 1999)
-        },
-        "event": {
-            "action": "file_access",
-            "category": "file",
-            "type": ["file", "access"],
-            "outcome": "success",
-            "severity": 6
-        },
-        "user": {
-            "name": f"user-{self.asset_number.replace('IN-', '')}"
-        },
-        "source": {
-            "ip": "-",
-            "port": 0,
-            "user": "-",
-            "executable": "-",
-            "file": "-"
-        },
-        "destination": {
-            "ip": "-",
-            "port": 0
-        },
-        "network": {
-            "protocol": "-"
-        },
-        "file": {
-            "path": f"{random.choice(all_files_attr)}"
-        },
-        "package": {
-            "name": "-",
-            "size": "-"
-        },
-        "app": "-"
-    }
+            "@timestamp": f"{self.get_timestamp()}",
+            "hostname": f"{self.hostname}",
+            "process": {
+                "name": f"{app_name}",
+                "pid": random.randint(115, 1999)
+            },
+            "event": {
+                "action": "file_access",
+                "category": "file",
+                "type": ["file", "access"],
+                "outcome": "success",
+                "severity": 6
+            },
+            "user": {
+                "name": f"user-{self.asset_number.replace('IN-', '')}"
+            },
+            "source": {
+                "ip": "-",
+                "port": 0,
+                "user": "-",
+                "executable": "-",
+                "file": "-"
+            },
+            "destination": {
+                "ip": "-",
+                "port": 0
+            },
+            "network": {
+                "protocol": "-"
+            },
+            "file": {
+                "path": f"{random.choice(all_files_attr)}"
+            },
+            "package": {
+                "name": "-",
+                "size": "-"
+            },
+            "app": "-"
+        }
+
     def open_file_crit_json(self):
         all_files_attr = self.home_files_attr + self.config_files_attr + self.socket_files_attr + self.system_files_attr
         severity_software = random.choice(self.software_attr)
@@ -614,7 +619,7 @@ class PersonalComputerLinux(Device):
             },
             "destination": {
                 "ip": f"{random.choice(self.destination_ip)}",
-                "port":random.randint(8080, 25500),
+                "port": random.randint(8080, 25500),
             },
             "network": {
                 "protocol": f"{random.choice(['tcp', 'udp'])}"
@@ -628,6 +633,7 @@ class PersonalComputerLinux(Device):
             },
             "app": "-"
         }
+
     def network_activity_warning_json(self):
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
@@ -674,6 +680,7 @@ class PersonalComputerLinux(Device):
             },
             "app": "-"
         }
+
     def network_activity_debug_json(self):
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
@@ -763,8 +770,8 @@ class PersonalComputerLinux(Device):
             },
             "app": "systemd"
         }
-    def edit_policies_warning_json(self):
 
+    def edit_policies_warning_json(self):
         app = "systemd"
         return {
             "@timestamp": f"{self.get_timestamp()}",
@@ -806,6 +813,7 @@ class PersonalComputerLinux(Device):
             },
             "app": "systemd"
         }
+
     def edit_policies_info_json(self):
         app = "systemd"
         return {
@@ -890,6 +898,7 @@ class PersonalComputerLinux(Device):
             },
             "app": "-"
         }
+
     def remote_control_warning_json(self):
         return {
             "@timestamp": f"{self.get_timestamp()}",
@@ -931,6 +940,7 @@ class PersonalComputerLinux(Device):
             },
             "app": "-"
         }
+
     def remote_control_alert_json(self):
         return {
             "@timestamp": f"{self.get_timestamp()}",
@@ -1016,6 +1026,7 @@ class PersonalComputerLinux(Device):
             },
             "app": "-"
         }
+
     def update_system_err_json(self):
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
@@ -1059,6 +1070,7 @@ class PersonalComputerLinux(Device):
             },
             "app": "-"
         }
+
     def update_system_notice_json(self):
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
@@ -1102,7 +1114,6 @@ class PersonalComputerLinux(Device):
             },
             "app": "-"
         }
-
 
 
 class PersonalComputerWindows(Device):
@@ -1248,921 +1259,934 @@ class PersonalComputerWindows(Device):
         self.socket_files_attr = []
 
     def auth_info_json(self, list_ip_addr):
-            other_ips = [ip for ip in list_ip_addr if ip != self.get_ip_addr()] + self.destination_ip
-            return {
-                "@timestamp": f"{self.get_timestamp()}",
-                "hostname": f"{self.hostname}",
-                "process": {
-                    "name": "sshd",
-                    "pid": random.randint(115, 1999)
-                },
-                "event": {
-                    "action": "user_login",
-                    "category": "authentication",
-                    "type": ["connection", "access"],
-                    "outcome": "success",
-                    "severity": 6
-                },
-                "user": {
-                    "name": f"{random.choice(self.users_attr)}"
-                },
-                "source": {
-                    "ip": f"{random.choice(other_ips)}",
-                    "port": 0,
-                    "user": "-",
-                    "executable": "-",
-                    "file": "-"
-                },
-                "destination": {
-                    "ip": "-",
-                    "port": 0
-                },
-                "network": {
-                    "protocol": "-"
-                },
-                "file": {
-                    "path": "-"
-                },
-                "package": {
-                    "name": "-",
-                    "size": "-"
-                },
-                "app": "-"
-            }
+        other_ips = [ip for ip in list_ip_addr if ip != self.get_ip_addr()] + self.destination_ip
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "hostname": f"{self.hostname}",
+            "process": {
+                "name": "sshd",
+                "pid": random.randint(115, 1999)
+            },
+            "event": {
+                "action": "user_login",
+                "category": "authentication",
+                "type": ["connection", "access"],
+                "outcome": "success",
+                "severity": 6
+            },
+            "user": {
+                "name": f"{random.choice(self.users_attr)}"
+            },
+            "source": {
+                "ip": f"{random.choice(other_ips)}",
+                "port": 0,
+                "user": "-",
+                "executable": "-",
+                "file": "-"
+            },
+            "destination": {
+                "ip": "-",
+                "port": 0
+            },
+            "network": {
+                "protocol": "-"
+            },
+            "file": {
+                "path": "-"
+            },
+            "package": {
+                "name": "-",
+                "size": "-"
+            },
+            "app": "-"
+        }
+
     def auth_warning_json(self, list_ip_addr):
-            other_ips = [ip for ip in list_ip_addr if ip != self.get_ip_addr()] + self.destination_ip
-            return {
-                "@timestamp": f"{self.get_timestamp()}",
-                "hostname": f"{self.hostname}",
-                "process": {
-                    "name": "sshd",
-                    "pid": random.randint(115, 1999)
-                },
-                "event": {
-                    "action": "user_login",
-                    "category": "authentication",
-                    "type": ["connection", "failed"],
-                    "outcome": "failure",
-                    "severity": 6
-                },
-                "user": {
-                    "name": f"{random.choice(self.users_attr)}"
-                },
-                "source": {
-                    "ip": f"{random.choice(other_ips)}",
-                    "port": 0,
-                    "user": "-",
-                    "executable": "-",
-                    "file": "-"
-                },
-                "destination": {
-                    "ip": "-",
-                    "port": 0
-                },
-                "network": {
-                    "protocol": "-"
-                },
-                "file": {
-                    "path": "-"
-                },
-                "package": {
-                    "name": "-",
-                    "size": "-"
-                },
-                "app": "-"
-            }
+        other_ips = [ip for ip in list_ip_addr if ip != self.get_ip_addr()] + self.destination_ip
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "hostname": f"{self.hostname}",
+            "process": {
+                "name": "sshd",
+                "pid": random.randint(115, 1999)
+            },
+            "event": {
+                "action": "user_login",
+                "category": "authentication",
+                "type": ["connection", "failed"],
+                "outcome": "failure",
+                "severity": 6
+            },
+            "user": {
+                "name": f"{random.choice(self.users_attr)}"
+            },
+            "source": {
+                "ip": f"{random.choice(other_ips)}",
+                "port": 0,
+                "user": "-",
+                "executable": "-",
+                "file": "-"
+            },
+            "destination": {
+                "ip": "-",
+                "port": 0
+            },
+            "network": {
+                "protocol": "-"
+            },
+            "file": {
+                "path": "-"
+            },
+            "package": {
+                "name": "-",
+                "size": "-"
+            },
+            "app": "-"
+        }
+
     def auth_crit_json(self, list_ip_addr):
-            other_ips = [ip for ip in list_ip_addr if ip != self.get_ip_addr()] + self.destination_ip
-            return {
-                "@timestamp": f"{self.get_timestamp()}",
-                "hostname": f"{self.hostname}",
-                "process": {
-                    "name": "sshd",
-                    "pid": random.randint(115, 1999)
-                },
-                "event": {
-                    "action": "intrusion_attempt",
-                    "category": "intrusion_detection",
-                    "type": ["connection", "failed"],
-                    "outcome": "failure",
-                    "severity": 2
-                },
-                "user": {
-                    "name": f"{random.choice(self.users_attr)}"
-                },
-                "source": {
-                    "ip": f"{random.choice(other_ips)}",
-                    "port": 0,
-                    "user": "-",
-                    "executable": "-",
-                    "file": "-"
-                },
-                "destination": {
-                    "ip": "-",
-                    "port": 0
-                },
-                "network": {
-                    "protocol": "-"
-                },
-                "file": {
-                    "path": "-"
-                },
-                "package": {
-                    "name": "-",
-                    "size": "-"
-                },
-                "app": "-"
-            }
+        other_ips = [ip for ip in list_ip_addr if ip != self.get_ip_addr()] + self.destination_ip
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "hostname": f"{self.hostname}",
+            "process": {
+                "name": "sshd",
+                "pid": random.randint(115, 1999)
+            },
+            "event": {
+                "action": "intrusion_attempt",
+                "category": "intrusion_detection",
+                "type": ["connection", "failed"],
+                "outcome": "failure",
+                "severity": 2
+            },
+            "user": {
+                "name": f"{random.choice(self.users_attr)}"
+            },
+            "source": {
+                "ip": f"{random.choice(other_ips)}",
+                "port": 0,
+                "user": "-",
+                "executable": "-",
+                "file": "-"
+            },
+            "destination": {
+                "ip": "-",
+                "port": 0
+            },
+            "network": {
+                "protocol": "-"
+            },
+            "file": {
+                "path": "-"
+            },
+            "package": {
+                "name": "-",
+                "size": "-"
+            },
+            "app": "-"
+        }
 
     def start_process_info_json(self):
-            severity_software = random.choice(self.software_attr)
-            app_name = list(severity_software.keys())[0]
-            all_files_attr = self.software_files_attr
-            return {
-                "@timestamp": f"{self.get_timestamp()}",
-                "hostname": f"{self.hostname}",
-                "process": {
-                    "name": f"{app_name}",
-                    "pid": random.randint(115, 1999)
-                },
-                "event": {
-                    "action": "process_started",
-                    "category": "process",
-                    "type": ["process", "access"],
-                    "outcome": "success",
-                    "severity": 6
-                },
-                "user": {
-                    "name": f"{random.choice(self.users_attr)}",
-                },
-                "source": {
-                    "ip": "-",
-                    "port": 0,
-                    "user": "-",
-                    "executable": f"{random.choice(all_files_attr)}",
-                    "file": "-"
-                },
-                "destination": {
-                    "ip": "-",
-                    "port": 0
-                },
-                "network": {
-                    "protocol": "-"
-                },
-                "file": {
-                    "path": "-"
-                },
-                "package": {
-                    "name": "-",
-                    "size": "-"
-                },
-                "app": "-"
-            }
+        severity_software = random.choice(self.software_attr)
+        app_name = list(severity_software.keys())[0]
+        all_files_attr = self.software_files_attr
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "hostname": f"{self.hostname}",
+            "process": {
+                "name": f"{app_name}",
+                "pid": random.randint(115, 1999)
+            },
+            "event": {
+                "action": "process_started",
+                "category": "process",
+                "type": ["process", "access"],
+                "outcome": "success",
+                "severity": 6
+            },
+            "user": {
+                "name": f"{random.choice(self.users_attr)}",
+            },
+            "source": {
+                "ip": "-",
+                "port": 0,
+                "user": "-",
+                "executable": f"{random.choice(all_files_attr)}",
+                "file": "-"
+            },
+            "destination": {
+                "ip": "-",
+                "port": 0
+            },
+            "network": {
+                "protocol": "-"
+            },
+            "file": {
+                "path": "-"
+            },
+            "package": {
+                "name": "-",
+                "size": "-"
+            },
+            "app": "-"
+        }
+
     def start_process_warning_json(self):
-            severity_software = random.choice(self.software_attr)
-            app_name = list(severity_software.keys())[0]
-            all_files_attr = self.software_files_attr
-            return {
-                "@timestamp": f"{self.get_timestamp()}",
-                "hostname": f"{self.hostname}",
-                "process": {
-                    "name": f"{app_name}",
-                    "pid": random.randint(115, 1999)
-                },
-                "event": {
-                    "action": "process_suspicious",
-                    "category": "process",
-                    "type": ["process", "stoped"],
-                    "outcome": "success",
-                    "severity": 6
-                },
-                "user": {
-                    "name": f"{random.choice(self.users_attr)}",
-                },
-                "source": {
-                    "ip": "-",
-                    "port": 0,
-                    "user": "-",
-                    "executable": f"{random.choice(all_files_attr)}",
-                    "file": "-"
-                },
-                "destination": {
-                    "ip": "-",
-                    "port": 0
-                },
-                "network": {
-                    "protocol": "-"
-                },
-                "file": {
-                    "path": "-"
-                },
-                "package": {
-                    "name": "-",
-                    "size": "-"
-                },
-                "app": "-"
-            }
+        severity_software = random.choice(self.software_attr)
+        app_name = list(severity_software.keys())[0]
+        all_files_attr = self.software_files_attr
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "hostname": f"{self.hostname}",
+            "process": {
+                "name": f"{app_name}",
+                "pid": random.randint(115, 1999)
+            },
+            "event": {
+                "action": "process_suspicious",
+                "category": "process",
+                "type": ["process", "stoped"],
+                "outcome": "success",
+                "severity": 6
+            },
+            "user": {
+                "name": f"{random.choice(self.users_attr)}",
+            },
+            "source": {
+                "ip": "-",
+                "port": 0,
+                "user": "-",
+                "executable": f"{random.choice(all_files_attr)}",
+                "file": "-"
+            },
+            "destination": {
+                "ip": "-",
+                "port": 0
+            },
+            "network": {
+                "protocol": "-"
+            },
+            "file": {
+                "path": "-"
+            },
+            "package": {
+                "name": "-",
+                "size": "-"
+            },
+            "app": "-"
+        }
+
     def start_process_debug_json(self):
-            severity_software = random.choice(self.software_attr)
-            app_name = list(severity_software.keys())[0]
-            all_files_attr = self.software_files_attr
-            return {
-                "@timestamp": f"{self.get_timestamp()}",
-                "hostname": f"{self.hostname}",
-                "process": {
-                    "name": f"{app_name}",
-                    "pid": random.randint(115, 1999)
-                },
-                "event": {
-                    "action": "debug_process",
-                    "category": "process",
-                    "type": ["process", "debug"],
-                    "outcome": "success",
-                    "severity": 6
-                },
-                "user": {
-                    "name": f"{random.choice(self.users_attr)}",
-                },
-                "source": {
-                    "ip": "-",
-                    "port": 0,
-                    "user": "-",
-                    "executable": f"{random.choice(all_files_attr)}",
-                    "file": "-"
-                },
-                "destination": {
-                    "ip": "-",
-                    "port": 0
-                },
-                "network": {
-                    "protocol": "-"
-                },
-                "file": {
-                    "path": "-"
-                },
-                "package": {
-                    "name": "-",
-                    "size": "-"
-                },
-                "app": "-"
-            }
+        severity_software = random.choice(self.software_attr)
+        app_name = list(severity_software.keys())[0]
+        all_files_attr = self.software_files_attr
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "hostname": f"{self.hostname}",
+            "process": {
+                "name": f"{app_name}",
+                "pid": random.randint(115, 1999)
+            },
+            "event": {
+                "action": "debug_process",
+                "category": "process",
+                "type": ["process", "debug"],
+                "outcome": "success",
+                "severity": 6
+            },
+            "user": {
+                "name": f"{random.choice(self.users_attr)}",
+            },
+            "source": {
+                "ip": "-",
+                "port": 0,
+                "user": "-",
+                "executable": f"{random.choice(all_files_attr)}",
+                "file": "-"
+            },
+            "destination": {
+                "ip": "-",
+                "port": 0
+            },
+            "network": {
+                "protocol": "-"
+            },
+            "file": {
+                "path": "-"
+            },
+            "package": {
+                "name": "-",
+                "size": "-"
+            },
+            "app": "-"
+        }
 
     def open_file_info_json(self):
-            all_files_attr = self.home_files_attr + self.config_files_attr + self.socket_files_attr + self.system_files_attr
-            severity_software = random.choice(self.software_attr)
-            app_name = list(severity_software.keys())[0]
-            facility = severity_software[app_name]
-            return {
-                "@timestamp": f"{self.get_timestamp()}",
-                "hostname": f"{self.hostname}",
-                "process": {
-                    "name": f"{app_name}",
-                    "pid": random.randint(115, 1999)
-                },
-                "event": {
-                    "action": "file_open",
-                    "category": "file",
-                    "type": ["file", "opened"],
-                    "outcome": "success",
-                    "severity": 6
-                },
-                "user": {
-                    "name": f"user-{self.asset_number.replace('IN-', '')}"
-                },
-                "source": {
-                    "ip": "-",
-                    "port": 0,
-                    "user": "-",
-                    "executable": "-",
-                    "file": "-"
-                },
-                "destination": {
-                    "ip": "-",
-                    "port": 0
-                },
-                "network": {
-                    "protocol": "-"
-                },
-                "file": {
-                    "path": f"{random.choice(all_files_attr)}"
-                },
-                "package": {
-                    "name": "-",
-                    "size": "-"
-                },
-                "app": "-"
-            }
+        all_files_attr = self.home_files_attr + self.config_files_attr + self.socket_files_attr + self.system_files_attr
+        severity_software = random.choice(self.software_attr)
+        app_name = list(severity_software.keys())[0]
+        facility = severity_software[app_name]
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "hostname": f"{self.hostname}",
+            "process": {
+                "name": f"{app_name}",
+                "pid": random.randint(115, 1999)
+            },
+            "event": {
+                "action": "file_open",
+                "category": "file",
+                "type": ["file", "opened"],
+                "outcome": "success",
+                "severity": 6
+            },
+            "user": {
+                "name": f"user-{self.asset_number.replace('IN-', '')}"
+            },
+            "source": {
+                "ip": "-",
+                "port": 0,
+                "user": "-",
+                "executable": "-",
+                "file": "-"
+            },
+            "destination": {
+                "ip": "-",
+                "port": 0
+            },
+            "network": {
+                "protocol": "-"
+            },
+            "file": {
+                "path": f"{random.choice(all_files_attr)}"
+            },
+            "package": {
+                "name": "-",
+                "size": "-"
+            },
+            "app": "-"
+        }
+
     def open_file_warning_json(self):
-            all_files_attr = self.home_files_attr + self.config_files_attr + self.socket_files_attr + self.system_files_attr
-            severity_software = random.choice(self.software_attr)
-            app_name = list(severity_software.keys())[0]
-            facility = severity_software[app_name]
-            return {
-                "@timestamp": f"{self.get_timestamp()}",
-                "hostname": f"{self.hostname}",
-                "process": {
-                    "name": f"{app_name}",
-                    "pid": random.randint(115, 1999)
-                },
-                "event": {
-                    "action": "file_access",
-                    "category": "file",
-                    "type": ["file", "access"],
-                    "outcome": "success",
-                    "severity": 6
-                },
-                "user": {
-                    "name": f"user-{self.asset_number.replace('IN-', '')}"
-                },
-                "source": {
-                    "ip": "-",
-                    "port": 0,
-                    "user": "-",
-                    "executable": "-",
-                    "file": "-"
-                },
-                "destination": {
-                    "ip": "-",
-                    "port": 0
-                },
-                "network": {
-                    "protocol": "-"
-                },
-                "file": {
-                    "path": f"{random.choice(all_files_attr)}"
-                },
-                "package": {
-                    "name": "-",
-                    "size": "-"
-                },
-                "app": "-"
-            }
+        all_files_attr = self.home_files_attr + self.config_files_attr + self.socket_files_attr + self.system_files_attr
+        severity_software = random.choice(self.software_attr)
+        app_name = list(severity_software.keys())[0]
+        facility = severity_software[app_name]
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "hostname": f"{self.hostname}",
+            "process": {
+                "name": f"{app_name}",
+                "pid": random.randint(115, 1999)
+            },
+            "event": {
+                "action": "file_access",
+                "category": "file",
+                "type": ["file", "access"],
+                "outcome": "success",
+                "severity": 6
+            },
+            "user": {
+                "name": f"user-{self.asset_number.replace('IN-', '')}"
+            },
+            "source": {
+                "ip": "-",
+                "port": 0,
+                "user": "-",
+                "executable": "-",
+                "file": "-"
+            },
+            "destination": {
+                "ip": "-",
+                "port": 0
+            },
+            "network": {
+                "protocol": "-"
+            },
+            "file": {
+                "path": f"{random.choice(all_files_attr)}"
+            },
+            "package": {
+                "name": "-",
+                "size": "-"
+            },
+            "app": "-"
+        }
+
     def open_file_crit_json(self):
-            all_files_attr = self.home_files_attr + self.config_files_attr + self.socket_files_attr + self.system_files_attr
-            severity_software = random.choice(self.software_attr)
-            app_name = list(severity_software.keys())[0]
-            facility = severity_software[app_name]
-            second_software = random.choice(self.software_attr)
-            second_app_name = list(second_software.keys())[0]
-            return {
-                "@timestamp": f"{self.get_timestamp()}",
-                "hostname": f"{self.hostname}",
-                "process": {
-                    "name": f"{app_name}",
-                    "pid": random.randint(115, 1999)
-                },
-                "event": {
-                    "action": "critical",
-                    "category": "file",
-                    "type": ["file", "broken"],
-                    "outcome": "success",
-                    "severity": 6
-                },
-                "user": {
-                    "name": f"user-{self.asset_number.replace('IN-', '')}"
-                },
-                "source": {
-                    "ip": "-",
-                    "port": 0,
-                    "user": "-",
-                    "executable": "-",
-                    "file": "-"
-                },
-                "destination": {
-                    "ip": "-",
-                    "port": 0
-                },
-                "network": {
-                    "protocol": "-"
-                },
-                "file": {
-                    "path": f"{random.choice(all_files_attr)}"
-                },
-                "package": {
-                    "name": "-",
-                    "size": "-"
-                },
-                "app": "-"
-            }
+        all_files_attr = self.home_files_attr + self.config_files_attr + self.socket_files_attr + self.system_files_attr
+        severity_software = random.choice(self.software_attr)
+        app_name = list(severity_software.keys())[0]
+        facility = severity_software[app_name]
+        second_software = random.choice(self.software_attr)
+        second_app_name = list(second_software.keys())[0]
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "hostname": f"{self.hostname}",
+            "process": {
+                "name": f"{app_name}",
+                "pid": random.randint(115, 1999)
+            },
+            "event": {
+                "action": "critical",
+                "category": "file",
+                "type": ["file", "broken"],
+                "outcome": "success",
+                "severity": 6
+            },
+            "user": {
+                "name": f"user-{self.asset_number.replace('IN-', '')}"
+            },
+            "source": {
+                "ip": "-",
+                "port": 0,
+                "user": "-",
+                "executable": "-",
+                "file": "-"
+            },
+            "destination": {
+                "ip": "-",
+                "port": 0
+            },
+            "network": {
+                "protocol": "-"
+            },
+            "file": {
+                "path": f"{random.choice(all_files_attr)}"
+            },
+            "package": {
+                "name": "-",
+                "size": "-"
+            },
+            "app": "-"
+        }
 
     def network_activity_info_json(self):
-            severity_software = random.choice(self.software_attr)
-            app_name = list(severity_software.keys())[0]
-            facility = severity_software[app_name]
-            return {
-                "@timestamp": f"{self.get_timestamp()}",
-                "hostname": f"{self.hostname}",
-                "process": {
-                    "name": f"{app_name}",
-                    "pid": random.randint(115, 1999)
-                },
-                "event": {
-                    "action": "network_connection",
-                    "category": "network",
-                    "type": ["network", "access"],
-                    "outcome": "success",
-                    "severity": 6
-                },
-                "user": {
-                    "name": f"user-{self.asset_number.replace('IN-', '')}"
-                },
-                "source": {
-                    "ip": f"{self.get_ip_addr()}",
-                    "port": random.randint(8080, 25500),
-                    "user": f"user-{self.asset_number.replace('IN-', '')}",
-                    "executable": f"{app_name}",
-                    "file": "-"
-                },
-                "destination": {
-                    "ip": f"{random.choice(self.destination_ip)}",
-                    "port": random.randint(8080, 25500),
-                },
-                "network": {
-                    "protocol": f"{random.choice(['tcp', 'udp'])}"
-                },
-                "file": {
-                    "path": "-"
-                },
-                "package": {
-                    "name": "-",
-                    "size": "-"
-                },
-                "app": "-"
-            }
+        severity_software = random.choice(self.software_attr)
+        app_name = list(severity_software.keys())[0]
+        facility = severity_software[app_name]
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "hostname": f"{self.hostname}",
+            "process": {
+                "name": f"{app_name}",
+                "pid": random.randint(115, 1999)
+            },
+            "event": {
+                "action": "network_connection",
+                "category": "network",
+                "type": ["network", "access"],
+                "outcome": "success",
+                "severity": 6
+            },
+            "user": {
+                "name": f"user-{self.asset_number.replace('IN-', '')}"
+            },
+            "source": {
+                "ip": f"{self.get_ip_addr()}",
+                "port": random.randint(8080, 25500),
+                "user": f"user-{self.asset_number.replace('IN-', '')}",
+                "executable": f"{app_name}",
+                "file": "-"
+            },
+            "destination": {
+                "ip": f"{random.choice(self.destination_ip)}",
+                "port": random.randint(8080, 25500),
+            },
+            "network": {
+                "protocol": f"{random.choice(['tcp', 'udp'])}"
+            },
+            "file": {
+                "path": "-"
+            },
+            "package": {
+                "name": "-",
+                "size": "-"
+            },
+            "app": "-"
+        }
+
     def network_activity_warning_json(self):
-            severity_software = random.choice(self.software_attr)
-            app_name = list(severity_software.keys())[0]
-            facility = severity_software[app_name]
-            second_software = random.choice(self.software_attr)
-            second_app_name = list(second_software.keys())[0]
-            return {
-                "@timestamp": f"{self.get_timestamp()}",
-                "hostname": f"{self.hostname}",
-                "process": {
-                    "name": f"{app_name}",
-                    "pid": random.randint(115, 1999)
-                },
-                "event": {
-                    "action": "network_connection_app",
-                    "category": "network",
-                    "type": ["network", "app_connection"],
-                    "outcome": "success",
-                    "severity": 6
-                },
-                "user": {
-                    "name": f"user-{self.asset_number.replace('IN-', '')}"
-                },
-                "source": {
-                    "ip": f"{self.get_ip_addr()}",
-                    "port": random.randint(8080, 25500),
-                    "user": f"user-{self.asset_number.replace('IN-', '')}",
-                    "executable": f"{app_name}",
-                    "file": "-"
-                },
-                "destination": {
-                    "ip": f"{random.choice(self.destination_ip)}",
-                    "port": random.randint(8080, 25500),
-                },
-                "network": {
-                    "protocol": f"{random.choice(['tcp', 'udp'])}"
-                },
-                "file": {
-                    "path": "-"
-                },
-                "package": {
-                    "name": "-",
-                    "size": "-"
-                },
-                "app": "-"
-            }
+        severity_software = random.choice(self.software_attr)
+        app_name = list(severity_software.keys())[0]
+        facility = severity_software[app_name]
+        second_software = random.choice(self.software_attr)
+        second_app_name = list(second_software.keys())[0]
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "hostname": f"{self.hostname}",
+            "process": {
+                "name": f"{app_name}",
+                "pid": random.randint(115, 1999)
+            },
+            "event": {
+                "action": "network_connection_app",
+                "category": "network",
+                "type": ["network", "app_connection"],
+                "outcome": "success",
+                "severity": 6
+            },
+            "user": {
+                "name": f"user-{self.asset_number.replace('IN-', '')}"
+            },
+            "source": {
+                "ip": f"{self.get_ip_addr()}",
+                "port": random.randint(8080, 25500),
+                "user": f"user-{self.asset_number.replace('IN-', '')}",
+                "executable": f"{app_name}",
+                "file": "-"
+            },
+            "destination": {
+                "ip": f"{random.choice(self.destination_ip)}",
+                "port": random.randint(8080, 25500),
+            },
+            "network": {
+                "protocol": f"{random.choice(['tcp', 'udp'])}"
+            },
+            "file": {
+                "path": "-"
+            },
+            "package": {
+                "name": "-",
+                "size": "-"
+            },
+            "app": "-"
+        }
+
     def network_activity_debug_json(self):
-            severity_software = random.choice(self.software_attr)
-            app_name = list(severity_software.keys())[0]
-            facility = severity_software[app_name]
-            second_software = random.choice(self.software_attr)
-            second_app_name = list(second_software.keys())[0]
-            return {
-                "@timestamp": f"{self.get_timestamp()}",
-                "hostname": f"{self.hostname}",
-                "process": {
-                    "name": f"{app_name}",
-                    "pid": random.randint(115, 1999)
-                },
-                "event": {
-                    "action": "tcp_connection",
-                    "category": "network",
-                    "type": ["network", "tcp"],
-                    "outcome": "success",
-                    "severity": 6
-                },
-                "user": {
-                    "name": f"user-{self.asset_number.replace('IN-', '')}"
-                },
-                "source": {
-                    "ip": f"{self.get_ip_addr()}",
-                    "port": random.randint(8080, 25500),
-                    "user": f"user-{self.asset_number.replace('IN-', '')}",
-                    "executable": f"{app_name}",
-                    "file": "-"
-                },
-                "destination": {
-                    "ip": f"{random.choice(self.destination_ip)}",
-                    "port": random.randint(8080, 25500),
-                },
-                "network": {
-                    "protocol": f"{random.choice(['tcp', 'udp'])}"
-                },
-                "file": {
-                    "path": "-"
-                },
-                "package": {
-                    "name": "-",
-                    "size": "-"
-                },
-                "app": "-"
-            }
+        severity_software = random.choice(self.software_attr)
+        app_name = list(severity_software.keys())[0]
+        facility = severity_software[app_name]
+        second_software = random.choice(self.software_attr)
+        second_app_name = list(second_software.keys())[0]
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "hostname": f"{self.hostname}",
+            "process": {
+                "name": f"{app_name}",
+                "pid": random.randint(115, 1999)
+            },
+            "event": {
+                "action": "tcp_connection",
+                "category": "network",
+                "type": ["network", "tcp"],
+                "outcome": "success",
+                "severity": 6
+            },
+            "user": {
+                "name": f"user-{self.asset_number.replace('IN-', '')}"
+            },
+            "source": {
+                "ip": f"{self.get_ip_addr()}",
+                "port": random.randint(8080, 25500),
+                "user": f"user-{self.asset_number.replace('IN-', '')}",
+                "executable": f"{app_name}",
+                "file": "-"
+            },
+            "destination": {
+                "ip": f"{random.choice(self.destination_ip)}",
+                "port": random.randint(8080, 25500),
+            },
+            "network": {
+                "protocol": f"{random.choice(['tcp', 'udp'])}"
+            },
+            "file": {
+                "path": "-"
+            },
+            "package": {
+                "name": "-",
+                "size": "-"
+            },
+            "app": "-"
+        }
 
     def edit_policies_notice_json(self):
-            app = "GroupPolicy"
-            return {
-                "@timestamp": f"{self.get_timestamp()}",
-                "hostname": f"{self.hostname}",
-                "process": {
-                    "name": f"{app}",
-                    "pid": random.randint(115, 1999)
-                },
-                "event": {
-                    "action": "applied_policy",
-                    "category": "settings",
-                    "type": ["policy", "info"],
-                    "outcome": "success",
-                    "severity": 6
-                },
-                "user": {
-                    "name": f"user-{self.asset_number.replace('IN-', '')}",
-                },
-                "source": {
-                    "ip": "-",
-                    "port": 0,
-                    "user": "-",
-                    "executable": "-",
-                    "file": "-"
-                },
-                "destination": {
-                    "ip": "-",
-                    "port": 0
-                },
-                "network": {
-                    "protocol": "-"
-                },
-                "file": {
-                    "path": "-"
-                },
-                "package": {
-                    "name": "-",
-                    "size": "-"
-                },
-                "app": "systemd"
-            }
+        app = "GroupPolicy"
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "hostname": f"{self.hostname}",
+            "process": {
+                "name": f"{app}",
+                "pid": random.randint(115, 1999)
+            },
+            "event": {
+                "action": "applied_policy",
+                "category": "settings",
+                "type": ["policy", "info"],
+                "outcome": "success",
+                "severity": 6
+            },
+            "user": {
+                "name": f"user-{self.asset_number.replace('IN-', '')}",
+            },
+            "source": {
+                "ip": "-",
+                "port": 0,
+                "user": "-",
+                "executable": "-",
+                "file": "-"
+            },
+            "destination": {
+                "ip": "-",
+                "port": 0
+            },
+            "network": {
+                "protocol": "-"
+            },
+            "file": {
+                "path": "-"
+            },
+            "package": {
+                "name": "-",
+                "size": "-"
+            },
+            "app": "systemd"
+        }
+
     def edit_policies_warning_json(self):
-            app = "GroupPolicy"
-            return {
-                "@timestamp": f"{self.get_timestamp()}",
-                "hostname": f"{self.hostname}",
-                "process": {
-                    "name": f"{app}",
-                    "pid": random.randint(115, 1999)
-                },
-                "event": {
-                    "action": "failed_policy",
-                    "category": "settings",
-                    "type": ["policy", "failed"],
-                    "outcome": "success",
-                    "severity": 6
-                },
-                "user": {
-                    "name": f"user-{self.asset_number.replace('IN-', '')}",
-                },
-                "source": {
-                    "ip": "-",
-                    "port": 0,
-                    "user": "-",
-                    "executable": "-",
-                    "file": "-"
-                },
-                "destination": {
-                    "ip": "-",
-                    "port": 0
-                },
-                "network": {
-                    "protocol": "-"
-                },
-                "file": {
-                    "path": "-"
-                },
-                "package": {
-                    "name": "-",
-                    "size": "-"
-                },
-                "app": "systemd"
-            }
+        app = "GroupPolicy"
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "hostname": f"{self.hostname}",
+            "process": {
+                "name": f"{app}",
+                "pid": random.randint(115, 1999)
+            },
+            "event": {
+                "action": "failed_policy",
+                "category": "settings",
+                "type": ["policy", "failed"],
+                "outcome": "success",
+                "severity": 6
+            },
+            "user": {
+                "name": f"user-{self.asset_number.replace('IN-', '')}",
+            },
+            "source": {
+                "ip": "-",
+                "port": 0,
+                "user": "-",
+                "executable": "-",
+                "file": "-"
+            },
+            "destination": {
+                "ip": "-",
+                "port": 0
+            },
+            "network": {
+                "protocol": "-"
+            },
+            "file": {
+                "path": "-"
+            },
+            "package": {
+                "name": "-",
+                "size": "-"
+            },
+            "app": "systemd"
+        }
+
     def edit_policies_info_json(self):
-            app = "GroupPolicy"
-            return {
-                "@timestamp": f"{self.get_timestamp()}",
-                "hostname": f"{self.hostname}",
-                "process": {
-                    "name": f"{app}",
-                    "pid": random.randint(115, 1999)
-                },
-                "event": {
-                    "action": "reload_policy",
-                    "category": "settings",
-                    "type": ["policy", "reload"],
-                    "outcome": "success",
-                    "severity": 6
-                },
-                "user": {
-                    "name": f"user-{self.asset_number.replace('IN-', '')}",
-                },
-                "source": {
-                    "ip": "-",
-                    "port": 0,
-                    "user": "-",
-                    "executable": "-",
-                    "file": "-"
-                },
-                "destination": {
-                    "ip": "-",
-                    "port": 0
-                },
-                "network": {
-                    "protocol": "-"
-                },
-                "file": {
-                    "path": "-"
-                },
-                "package": {
-                    "name": "-",
-                    "size": "-"
-                },
-                "app": "systemd"
-            }
+        app = "GroupPolicy"
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "hostname": f"{self.hostname}",
+            "process": {
+                "name": f"{app}",
+                "pid": random.randint(115, 1999)
+            },
+            "event": {
+                "action": "reload_policy",
+                "category": "settings",
+                "type": ["policy", "reload"],
+                "outcome": "success",
+                "severity": 6
+            },
+            "user": {
+                "name": f"user-{self.asset_number.replace('IN-', '')}",
+            },
+            "source": {
+                "ip": "-",
+                "port": 0,
+                "user": "-",
+                "executable": "-",
+                "file": "-"
+            },
+            "destination": {
+                "ip": "-",
+                "port": 0
+            },
+            "network": {
+                "protocol": "-"
+            },
+            "file": {
+                "path": "-"
+            },
+            "package": {
+                "name": "-",
+                "size": "-"
+            },
+            "app": "systemd"
+        }
 
     def remote_control_info_json(self):
-            return {
-                "@timestamp": f"{self.get_timestamp()}",
-                "hostname": f"{self.hostname}",
-                "process": {
-                    "name": "TermService",
-                    "pid": 0
-                },
-                "event": {
-                    "action": "rdp_connection",
-                    "category": "remote_desktop_protocol",
-                    "type": ["rdp", "connection"],
-                    "outcome": "success",
-                    "severity": 6
-                },
-                "user": {
-                    "name": f"user-{self.asset_number.replace('IN-', '')}",
-                },
-                "source": {
-                    "ip": f"{self.get_ip_addr()}",
-                    "port": 0,
-                    "user": "-",
-                    "executable": "-",
-                    "file": "-"
-                },
-                "destination": {
-                    "ip": "-",
-                    "port": 0
-                },
-                "network": {
-                    "protocol": "-"
-                },
-                "file": {
-                    "path": "-"
-                },
-                "package": {
-                    "name": "-",
-                    "size": "-"
-                },
-                "app": "-"
-            }
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "hostname": f"{self.hostname}",
+            "process": {
+                "name": "TermService",
+                "pid": 0
+            },
+            "event": {
+                "action": "rdp_connection",
+                "category": "remote_desktop_protocol",
+                "type": ["rdp", "connection"],
+                "outcome": "success",
+                "severity": 6
+            },
+            "user": {
+                "name": f"user-{self.asset_number.replace('IN-', '')}",
+            },
+            "source": {
+                "ip": f"{self.get_ip_addr()}",
+                "port": 0,
+                "user": "-",
+                "executable": "-",
+                "file": "-"
+            },
+            "destination": {
+                "ip": "-",
+                "port": 0
+            },
+            "network": {
+                "protocol": "-"
+            },
+            "file": {
+                "path": "-"
+            },
+            "package": {
+                "name": "-",
+                "size": "-"
+            },
+            "app": "-"
+        }
+
     def remote_control_warning_json(self):
-            return {
-                "@timestamp": f"{self.get_timestamp()}",
-                "hostname": f"{self.hostname}",
-                "process": {
-                    "name": "TermService",
-                    "pid": 0
-                },
-                "event": {
-                    "action": "rdp_failed_login",
-                    "category": "remote_desktop_protocol",
-                    "type": ["rdp", "failed"],
-                    "outcome": "success",
-                    "severity": 6
-                },
-                "user": {
-                    "name": f"user-{self.asset_number.replace('IN-', '')}",
-                },
-                "source": {
-                    "ip": f"{self.get_ip_addr()}",
-                    "port": 0,
-                    "user": "-",
-                    "executable": "-",
-                    "file": "-"
-                },
-                "destination": {
-                    "ip": "-",
-                    "port": 0
-                },
-                "network": {
-                    "protocol": "-"
-                },
-                "file": {
-                    "path": "-"
-                },
-                "package": {
-                    "name": "-",
-                    "size": "-"
-                },
-                "app": "-"
-            }
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "hostname": f"{self.hostname}",
+            "process": {
+                "name": "TermService",
+                "pid": 0
+            },
+            "event": {
+                "action": "rdp_failed_login",
+                "category": "remote_desktop_protocol",
+                "type": ["rdp", "failed"],
+                "outcome": "success",
+                "severity": 6
+            },
+            "user": {
+                "name": f"user-{self.asset_number.replace('IN-', '')}",
+            },
+            "source": {
+                "ip": f"{self.get_ip_addr()}",
+                "port": 0,
+                "user": "-",
+                "executable": "-",
+                "file": "-"
+            },
+            "destination": {
+                "ip": "-",
+                "port": 0
+            },
+            "network": {
+                "protocol": "-"
+            },
+            "file": {
+                "path": "-"
+            },
+            "package": {
+                "name": "-",
+                "size": "-"
+            },
+            "app": "-"
+        }
+
     def remote_control_alert_json(self):
-            return {
-                "@timestamp": f"{self.get_timestamp()}",
-                "hostname": f"{self.hostname}",
-                "process": {
-                    "name": "TermService",
-                    "pid": 0
-                },
-                "event": {
-                    "action": "rdp_brute-force_detected",
-                    "category": "remote_desktop_protocol",
-                    "type": ["rdp", "attacked"],
-                    "outcome": "success",
-                    "severity": 6
-                },
-                "user": {
-                    "name": f"user-{self.asset_number.replace('IN-', '')}",
-                },
-                "source": {
-                    "ip": f"{self.get_ip_addr()}",
-                    "port": 0,
-                    "user": f"{random.choice(self.users_attr)}",
-                    "executable": "-",
-                    "file": "-"
-                },
-                "destination": {
-                    "ip": f"{random.choice(self.destination_ip)}",
-                    "port": 0
-                },
-                "network": {
-                    "protocol": "-"
-                },
-                "file": {
-                    "path": "-"
-                },
-                "package": {
-                    "name": "-",
-                    "size": "-"
-                },
-                "app": "-"
-            }
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "hostname": f"{self.hostname}",
+            "process": {
+                "name": "TermService",
+                "pid": 0
+            },
+            "event": {
+                "action": "rdp_brute-force_detected",
+                "category": "remote_desktop_protocol",
+                "type": ["rdp", "attacked"],
+                "outcome": "success",
+                "severity": 6
+            },
+            "user": {
+                "name": f"user-{self.asset_number.replace('IN-', '')}",
+            },
+            "source": {
+                "ip": f"{self.get_ip_addr()}",
+                "port": 0,
+                "user": f"{random.choice(self.users_attr)}",
+                "executable": "-",
+                "file": "-"
+            },
+            "destination": {
+                "ip": f"{random.choice(self.destination_ip)}",
+                "port": 0
+            },
+            "network": {
+                "protocol": "-"
+            },
+            "file": {
+                "path": "-"
+            },
+            "package": {
+                "name": "-",
+                "size": "-"
+            },
+            "app": "-"
+        }
 
     def update_system_info_json(self):
-            severity_software = random.choice(self.software_attr)
-            app_name = list(severity_software.keys())[0]
-            return {
-                "@timestamp": f"{self.get_timestamp()}",
-                "hostname": f"{self.hostname}",
-                "process": {
-                    "name": "TermService",
-                    "pid": 0
-                },
-                "event": {
-                    "action": "installation_package",
-                    "category": "update_system",
-                    "type": ["WindowsUpdate", "install"],
-                    "outcome": "success",
-                    "severity": 6
-                },
-                "user": {
-                    "name": f"user-{self.asset_number.replace('IN-', '')}",
-                },
-                "source": {
-                    "ip": "-",
-                    "port": 0,
-                    "user": "-",
-                    "executable": "-",
-                    "file": "-"
-                },
-                "destination": {
-                    "ip": "-",
-                    "port": 0
-                },
-                "network": {
-                    "protocol": "-"
-                },
-                "file": {
-                    "path": "-"
-                },
-                "package": {
-                    "name": f"{app_name}",
-                    "size": "-"
-                },
-                "app": "-"
-            }
-    def update_system_err_json(self):
-            severity_software = random.choice(self.software_attr)
-            app_name = list(severity_software.keys())[0]
-            return {
-                "@timestamp": f"{self.get_timestamp()}",
-                "hostname": f"{self.hostname}",
-                "process": {
-                    "name": "TermService",
-                    "pid": 0
-                },
-                "event": {
-                    "action": "failed_installation_package",
-                    "category": "update_system",
-                    "type": ["WindowsUpdate", "failed"],
-                    "outcome": "success",
-                    "severity": 6
-                },
-                "user": {
-                    "name": f"user-{self.asset_number.replace('IN-', '')}",
-                },
-                "source": {
-                    "ip": "-",
-                    "port": 0,
-                    "user": "-",
-                    "executable": "-",
-                    "file": "-"
-                },
-                "destination": {
-                    "ip": "-",
-                    "port": 0
-                },
-                "network": {
-                    "protocol": "-"
-                },
-                "file": {
-                    "path": "-"
-                },
-                "package": {
-                    "name": f"{app_name}",
-                    "size": "-"
-                },
-                "app": "-"
-            }
-    def update_system_notice_json(self):
-            severity_software = random.choice(self.software_attr)
-            app_name = list(severity_software.keys())[0]
-            return {
-                "@timestamp": f"{self.get_timestamp()}",
-                "hostname": f"{self.hostname}",
-                "process": {
-                    "name": "TermService",
-                    "pid": 0
-                },
-                "event": {
-                    "action": "security_update",
-                    "category": "update_system",
-                    "type": ["WindowsUpdate", "upgrade"],
-                    "outcome": "success",
-                    "severity": 6
-                },
-                "user": {
-                    "name": f"user-{self.asset_number.replace('IN-', '')}",
-                },
-                "source": {
-                    "ip": "-",
-                    "port": 0,
-                    "user": "-",
-                    "executable": "-",
-                    "file": "-"
-                },
-                "destination": {
-                    "ip": "-",
-                    "port": 0
-                },
-                "network": {
-                    "protocol": "-"
-                },
-                "file": {
-                    "path": "-"
-                },
-                "package": {
-                    "name": f"{app_name}",
-                    "size": f"{random.randint(1000, 9999)}{random.randint(100, 999)} KB"
-                },
-                "app": "-"
-            }
+        severity_software = random.choice(self.software_attr)
+        app_name = list(severity_software.keys())[0]
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "hostname": f"{self.hostname}",
+            "process": {
+                "name": "TermService",
+                "pid": 0
+            },
+            "event": {
+                "action": "installation_package",
+                "category": "update_system",
+                "type": ["WindowsUpdate", "install"],
+                "outcome": "success",
+                "severity": 6
+            },
+            "user": {
+                "name": f"user-{self.asset_number.replace('IN-', '')}",
+            },
+            "source": {
+                "ip": "-",
+                "port": 0,
+                "user": "-",
+                "executable": "-",
+                "file": "-"
+            },
+            "destination": {
+                "ip": "-",
+                "port": 0
+            },
+            "network": {
+                "protocol": "-"
+            },
+            "file": {
+                "path": "-"
+            },
+            "package": {
+                "name": f"{app_name}",
+                "size": "-"
+            },
+            "app": "-"
+        }
 
+    def update_system_err_json(self):
+        severity_software = random.choice(self.software_attr)
+        app_name = list(severity_software.keys())[0]
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "hostname": f"{self.hostname}",
+            "process": {
+                "name": "TermService",
+                "pid": 0
+            },
+            "event": {
+                "action": "failed_installation_package",
+                "category": "update_system",
+                "type": ["WindowsUpdate", "failed"],
+                "outcome": "success",
+                "severity": 6
+            },
+            "user": {
+                "name": f"user-{self.asset_number.replace('IN-', '')}",
+            },
+            "source": {
+                "ip": "-",
+                "port": 0,
+                "user": "-",
+                "executable": "-",
+                "file": "-"
+            },
+            "destination": {
+                "ip": "-",
+                "port": 0
+            },
+            "network": {
+                "protocol": "-"
+            },
+            "file": {
+                "path": "-"
+            },
+            "package": {
+                "name": f"{app_name}",
+                "size": "-"
+            },
+            "app": "-"
+        }
+
+    def update_system_notice_json(self):
+        severity_software = random.choice(self.software_attr)
+        app_name = list(severity_software.keys())[0]
+        return {
+            "@timestamp": f"{self.get_timestamp()}",
+            "hostname": f"{self.hostname}",
+            "process": {
+                "name": "TermService",
+                "pid": 0
+            },
+            "event": {
+                "action": "security_update",
+                "category": "update_system",
+                "type": ["WindowsUpdate", "upgrade"],
+                "outcome": "success",
+                "severity": 6
+            },
+            "user": {
+                "name": f"user-{self.asset_number.replace('IN-', '')}",
+            },
+            "source": {
+                "ip": "-",
+                "port": 0,
+                "user": "-",
+                "executable": "-",
+                "file": "-"
+            },
+            "destination": {
+                "ip": "-",
+                "port": 0
+            },
+            "network": {
+                "protocol": "-"
+            },
+            "file": {
+                "path": "-"
+            },
+            "package": {
+                "name": f"{app_name}",
+                "size": f"{random.randint(1000, 9999)}{random.randint(100, 999)} KB"
+            },
+            "app": "-"
+        }
 
 
 class Switch(Device):
@@ -2301,6 +2325,7 @@ class Switch(Device):
             },
             "app": "network-device"
         }
+
     def change_status_port_warning(self):
         port = random.choice(self.port)
         return {
@@ -2343,6 +2368,7 @@ class Switch(Device):
             },
             "app": "network-device"
         }
+
     def change_status_port_crit(self):
         port = random.choice(self.port)
         return {
@@ -2431,6 +2457,7 @@ class Switch(Device):
             },
             "app": "network-device"
         }
+
     def learn_mac_addr_warning(self, list_mac_addr):
         other_mac = [mac for mac in list_mac_addr if mac != self.get_mac_addr()]
         mac_addr = random.choice(other_mac)
@@ -2477,6 +2504,7 @@ class Switch(Device):
             },
             "app": "network-device"
         }
+
     def learn_mac_addr_debug(self, list_mac_addr):
         other_mac = [mac for mac in list_mac_addr if mac != self.get_mac_addr()]
         mac_addr = random.choice(other_mac)
@@ -2565,6 +2593,7 @@ class Switch(Device):
             },
             "app": "network-device"
         }
+
     def violation_port_security_crit(self):
         return {
             "@timestamp": self.get_timestamp(),
@@ -2606,6 +2635,7 @@ class Switch(Device):
             },
             "app": "network-device"
         }
+
     def violation_port_security_alert(self):
         return {
             "@timestamp": self.get_timestamp(),
@@ -2691,6 +2721,7 @@ class Switch(Device):
             },
             "app": "network-device"
         }
+
     def stp_event_warning(self):
         return {
             "@timestamp": self.get_timestamp(),
@@ -2732,6 +2763,7 @@ class Switch(Device):
             },
             "app": "network-device"
         }
+
     def stp_event_crit(self):
         vlan = random.randint(2, 19)
 
@@ -2819,6 +2851,7 @@ class Switch(Device):
             },
             "app": "network-device"
         }
+
     def duplex_error_err(self):
         port = random.choice(self.port)
 
@@ -2862,6 +2895,7 @@ class Switch(Device):
             },
             "app": "network-device"
         }
+
     def duplex_error_crit(self):
         port = random.choice(self.port)
 
@@ -2950,6 +2984,7 @@ class Switch(Device):
             },
             "app": "network-device"
         }
+
     def vlan_event_warning(self):
         port = random.choice(self.port)
 
@@ -2993,6 +3028,7 @@ class Switch(Device):
             },
             "app": "network-device"
         }
+
     def vlan_event_debug(self):
         port = random.choice(self.port)
 
@@ -3081,6 +3117,7 @@ class Switch(Device):
             },
             "app": "network-device"
         }
+
     def auth_802_1x_warning(self, list_mac_addr):
         other_mac = [mac for mac in list_mac_addr if mac != self.get_mac_addr()]
         mac_addr = random.choice(other_mac)
@@ -3125,6 +3162,7 @@ class Switch(Device):
             },
             "app": "network-device"
         }
+
     def auth_802_1x_alert(self, list_mac_addr):
         return {
             "@timestamp": self.get_timestamp(),
@@ -3166,7 +3204,6 @@ class Switch(Device):
             },
             "app": "network-device"
         }
-
 
 
 class Router(Device):
@@ -3258,6 +3295,7 @@ class Router(Device):
             },
             "app": "router"
         }
+
     def change_status_int_warning(self):
         interface = random.choice(self.port)
 
@@ -3301,6 +3339,7 @@ class Router(Device):
             },
             "app": "router"
         }
+
     def change_status_int_crit(self):
         interface = random.choice(self.port)
 
@@ -3389,6 +3428,7 @@ class Router(Device):
             },
             "app": "router"
         }
+
     def change_roadmap_warning(self, list_ip_addr):
         other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
         route = random.choice(self.destination_ip + other_ip)
@@ -3433,6 +3473,7 @@ class Router(Device):
             },
             "app": "router"
         }
+
     def change_roadmap_alert(self):
         return {
             "@timestamp": self.get_timestamp(),
@@ -3518,6 +3559,7 @@ class Router(Device):
             },
             "app": "router"
         }
+
     def dynamic_routing_event_warning(self, list_ip_addr):
         other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
         neighbor = random.choice(other_ip)
@@ -3562,6 +3604,7 @@ class Router(Device):
             },
             "app": "router"
         }
+
     def dynamic_routing_event_crit(self):
         interface = random.choice(self.port)
 
@@ -3651,6 +3694,7 @@ class Router(Device):
             },
             "app": "router"
         }
+
     def acl_activity_warning(self, list_ip_addr):
         other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
         src_ip = random.choice(self.destination_ip)
@@ -3696,6 +3740,7 @@ class Router(Device):
             },
             "app": "router"
         }
+
     def acl_activity_debug(self):
         rule_id = random.randint(100, 187)
         protocol = random.choice(['tcp', 'udp'])
@@ -3789,6 +3834,7 @@ class Router(Device):
             },
             "app": "router"
         }
+
     def nat_event_warning(self, list_ip_addr):
         return {
             "@timestamp": self.get_timestamp(),
@@ -3830,6 +3876,7 @@ class Router(Device):
             },
             "app": "router"
         }
+
     def nat_event_debug(self, list_ip_addr):
         other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
         src_ip = random.choice(other_ip)
@@ -3922,6 +3969,7 @@ class Router(Device):
             },
             "app": "router"
         }
+
     def icmp_message_warning(self, list_ip_addr):
         other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
         dst_ip = random.choice(other_ip)
@@ -3966,6 +4014,7 @@ class Router(Device):
             },
             "app": "router"
         }
+
     def icmp_message_debug(self, list_ip_addr):
         other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
         src_ip = random.choice(other_ip)
@@ -4057,6 +4106,7 @@ class Router(Device):
             },
             "app": "router"
         }
+
     def violation_traffic_warning(self):
         interface = random.choice(self.port)
 
@@ -4100,6 +4150,7 @@ class Router(Device):
             },
             "app": "router"
         }
+
     def violation_traffic_debug(self):
         marking = random.choice(['DSCP', 'COS'])
 
@@ -4143,7 +4194,6 @@ class Router(Device):
             },
             "app": "router"
         }
-
 
 
 class Firewall(Device):
@@ -4237,6 +4287,7 @@ class Firewall(Device):
             },
             "app": "firewall"
         }
+
     def allow_traffic_debug(self, list_ip_addr):
         other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
         src_ip = random.choice(self.destination_ip)
@@ -4330,6 +4381,7 @@ class Firewall(Device):
             },
             "app": "firewall"
         }
+
     def lock_traffic_alert(self, list_ip_addr):
         return {
             "@timestamp": self.get_timestamp(),
@@ -4371,6 +4423,7 @@ class Firewall(Device):
             },
             "app": "firewall"
         }
+
     def lock_traffic_debug(self):
         rule_app = random.choice(['ssh', 'ssl', 'tls', 'http', 'telnet'])
 
@@ -4459,6 +4512,7 @@ class Firewall(Device):
             },
             "app": "firewall"
         }
+
     def change_session_info_breakup(self, list_ip_addr):
         protocol = random.choice(['TCP', 'UDP'])
         conn_id = random.randint(1000, 20000)
@@ -4504,6 +4558,7 @@ class Firewall(Device):
             },
             "app": "firewall"
         }
+
     def change_session_debug(self, list_ip_addr):
         bytes_in = random.randint(10000, 200000)
         bytes_out = random.randint(10000, 200000)
@@ -4592,6 +4647,7 @@ class Firewall(Device):
             },
             "app": "firewall"
         }
+
     def vpn_tunnel_warning(self):
         peer_ip = random.choice(self.destination_ip)
 
