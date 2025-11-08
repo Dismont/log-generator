@@ -3,13 +3,12 @@ from opensearchpy import AuthenticationException
 
 # --- Libraries ---
 
-def initialization_opensearch(host , login , password):
+def initialization_opensearch(ip ,port, login , password):
 
-    port = 9200
     auth = (login, password)
     try:
         client = opensearchpy.OpenSearch(
-            hosts=[{'host': host, 'port': port}],
+            hosts=[{'host': ip, 'port': port}],
             http_auth=auth,
             use_ssl=True,
             verify_certs=False,
