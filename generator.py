@@ -1,3 +1,5 @@
+from itertools import count
+
 import entity
 import network
 import json
@@ -5,20 +7,33 @@ import random
 import opensearchpy
 from time import sleep
 
-
+def check_ip_address_list(ip_address, ip_address_list):
+    if ip_address not in ip_address_list:
+        return True
+    else: return False
 
 def generation_ip_address(header, subnetwork, tail=0, ip_address_list=[] ):
     if 10 == header:
-        ip_address = f"10.0.{subnetwork}.{random.randint(1,10)}"
-        return ip_address
-    elif 192 == header:
-        if tail == 1:
-            ip_address = f"192.168.{subnetwork}.{tail}"
-            return ip_address
-        else:
-            ip_address = f"192.168.{subnetwork}.{random.randint(2, 255)}"
-            return ip_address
+        while True:
+            if  tail == 1:
+                ip_address = f"10.0.{subnetwork}.{tail}"
+                if check_ip_address_list(ip_address, ip_address_list):
+                    return ip_address
+            else:
+                ip_address = f"10.0.{subnetwork}.{random.randint(2, 30)}"
+                if check_ip_address_list(ip_address, ip_address_list):
+                    return ip_address
 
+    elif 192 == header:
+        while True:
+            if tail == 1:
+                ip_address = f"192.168.{subnetwork}.{tail}"
+                if check_ip_address_list(ip_address, ip_address_list):
+                    return ip_address
+            else:
+                ip_address = f"192.168.{subnetwork}.{random.randint(2, 255)}"
+                if check_ip_address_list(ip_address, ip_address_list):
+                    return ip_address
     else:
         return None
 
@@ -65,7 +80,7 @@ def generation_topology(topology_name, subnetwork_list):
             switch["ip"] += switch_data["ip"]
             switch["mac"] += switch_data["mac"]
 
-        router_data = generator_device(1, {"Router": None},10, 10)
+        router_data = generator_device(1, {"Router": None},10, 10,1)
         router["users"] += router_data["users"]
         router["ip"] += router_data["ip"]
         router["mac"] += router_data["mac"]
@@ -82,7 +97,7 @@ def generation_topology(topology_name, subnetwork_list):
             pc["ip"] += windows_data["ip"]
             pc["mac"] += windows_data["mac"]
 
-            switch_data = generator_device(1, {"Switch": None},192, subnetwork_list[i])
+            switch_data = generator_device(1, {"Switch": None},192, subnetwork_list[i],1)
             switch["users"] += switch_data["users"]
             switch["ip"] += switch_data["ip"]
             switch["mac"] += switch_data["mac"]
@@ -94,24 +109,25 @@ def generation_topology(topology_name, subnetwork_list):
         pc["ip"] += linux_data["ip"]
         pc["mac"] += linux_data["mac"]
 
-        windows_data = generator_device(2, {"PC": "Windows"},192, subnetwork_list[i])
+        windows_data = generator_device(2, {"PC": "Windows"},192, subnetwork_list[2])
         pc["users"] += windows_data["users"]
         pc["ip"] += windows_data["ip"]
         pc["mac"] += windows_data["mac"]
 
-        firewall_data = generator_device(1, {"Firewall": None}, 192,subnetwork_list[i])
-        firewall["users"] += firewall_data["users"]
-        firewall["ip"] += firewall_data["ip"]
-        firewall["mac"] += firewall_data["mac"]
-
-        switch_data = generator_device(1, {"Switch": None},192, subnetwork_list[i], 1)
+        switch_data = generator_device(1, {"Switch": None},192, subnetwork_list[2], 1)
         switch["users"] += switch_data["users"]
         switch["ip"] += switch_data["ip"]
         switch["mac"] += switch_data["mac"]
 
+        firewall_data = generator_device(1, {"Firewall": None}, 192,subnetwork_list[2])
+        firewall["users"] += firewall_data["users"]
+        firewall["ip"] += firewall_data["ip"]
+        firewall["mac"] += firewall_data["mac"]
+
+
         # --- 3 SUBNET <L + 2W> ---
 
-        router_data = generator_device(1, {"Router": None}, 10,10)
+        router_data = generator_device(1, {"Router": None}, 10,10,1)
         router["users"] += router_data["users"]
         router["ip"] += router_data["ip"]
         router["mac"] += router_data["mac"]
@@ -138,7 +154,7 @@ def generation_topology(topology_name, subnetwork_list):
             firewall["ip"] += firewall_data["ip"]
             firewall["mac"] += firewall_data["mac"]
 
-        router_data = generator_device(1, {"Router": None},10,10)
+        router_data = generator_device(1, {"Router": None}, 10, 10, 1)
         router["users"] += router_data["users"]
         router["ip"] += router_data["ip"]
         router["mac"] += router_data["mac"]
@@ -155,6 +171,11 @@ def generation_topology(topology_name, subnetwork_list):
             switch["ip"] += switch_data["ip"]
             switch["mac"] += switch_data["mac"]
 
+            firewall_data = generator_device(1, {"Firewall": None}, 10, 10)
+            firewall["users"] += firewall_data["users"]
+            firewall["ip"] += firewall_data["ip"]
+            firewall["mac"] += firewall_data["mac"]
+
         linux_data = generator_device(1, {"PC": "Linux"}, 192, subnetwork_list[2])
         pc["users"] += linux_data["users"]
         pc["ip"] += linux_data["ip"]
@@ -165,6 +186,11 @@ def generation_topology(topology_name, subnetwork_list):
         pc["ip"] += windows_data["ip"]
         pc["mac"] += windows_data["mac"]
 
+        switch_data = generator_device(1, {"Switch": None}, 192, subnetwork_list[2], 1)
+        switch["users"] += switch_data["users"]
+        switch["ip"] += switch_data["ip"]
+        switch["mac"] += switch_data["mac"]
+
         firewall_data = generator_device(1, {"Firewall": None}, 192,subnetwork_list[2])
         firewall["users"] += firewall_data["users"]
         firewall["ip"] += firewall_data["ip"]
@@ -172,29 +198,27 @@ def generation_topology(topology_name, subnetwork_list):
 
         # --- 3 SUBNET <L + 2W> ---
 
-        router_data = generator_device(1, {"Router": None},10, 10)
+        router_data = generator_device(1, {"Router": None}, 10, 10, 1)
         router["users"] += router_data["users"]
         router["ip"] += router_data["ip"]
         router["mac"] += router_data["mac"]
 
-        firewall_data = generator_device(2, {"Firewall": None}, 10, 10)
-        firewall["users"] += firewall_data["users"]
-        firewall["ip"] += firewall_data["ip"]
-        firewall["mac"] += firewall_data["mac"]
 
 # --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
     elif topology_name == "images/top-4A.jpg":
-        for subnet in range(len(subnetwork_list)-1):
-            windows_data = generator_device(3, {"PC": "Windows"}, 192, subnet)
+        for i in range(len(subnetwork_list)-1):
+            windows_data = generator_device(3, {"PC": "Windows"}, 192, subnetwork_list[i])
             pc["users"] += windows_data["users"]
             pc["ip"] += windows_data["ip"]
             pc["mac"] += windows_data["mac"]
 
-            switch_data = generator_device(1, {"Switch": None}, 192, subnet, 1)
+            switch_data = generator_device(1, {"Switch": None}, 192, subnetwork_list[i], 1)
             switch["users"] += switch_data["users"]
             switch["ip"] += switch_data["ip"]
             switch["mac"] += switch_data["mac"]
+
+        print(f"> DEBUG: {subnetwork_list[3]}")
 
         linux_data = generator_device(3, {"PC": "Linux"}, 192, subnetwork_list[3])
         pc["users"] += linux_data["users"]
@@ -206,7 +230,7 @@ def generation_topology(topology_name, subnetwork_list):
         switch["ip"] += switch_data["ip"]
         switch["mac"] += switch_data["mac"]
 
-        router_data = generator_device(1, {"Router": None}, 10, 10)
+        router_data = generator_device(1, {"Router": None}, 10, 10, 1)
         router["users"] += router_data["users"]
         router["ip"] += router_data["ip"]
         router["mac"] += router_data["mac"]
@@ -217,16 +241,18 @@ def generation_topology(topology_name, subnetwork_list):
         firewall["mac"] += firewall_data["mac"]
 
     elif topology_name == "images/top-4AV.jpg":
-        for subnet in range(len(subnetwork_list) - 1):
-            windows_data = generator_device(3, {"PC": "Windows"}, 192, subnet)
+        for i in range(len(subnetwork_list) - 2):
+            windows_data = generator_device(3, {"PC": "Windows"}, 192, subnetwork_list[i])
             pc["users"] += windows_data["users"]
             pc["ip"] += windows_data["ip"]
             pc["mac"] += windows_data["mac"]
 
-            switch_data = generator_device(1, {"Switch": None}, 192, subnet, 1)
+            switch_data = generator_device(1, {"Switch": None}, 192, subnetwork_list[i], 1)
             switch["users"] += switch_data["users"]
             switch["ip"] += switch_data["ip"]
             switch["mac"] += switch_data["mac"]
+
+        # --- 3 SUBNET ---
 
         linux_data = generator_device(1, {"PC": "Linux"}, 192, subnetwork_list[2])
         pc["users"] += linux_data["users"]
@@ -243,7 +269,12 @@ def generation_topology(topology_name, subnetwork_list):
         pc["ip"] += windows_data["ip"]
         pc["mac"] += windows_data["mac"]
 
-        # --- 3 SUBNET ---
+        firewall_data = generator_device(1, {"Firewall": None}, 192, subnetwork_list[2])
+        firewall["users"] += firewall_data["users"]
+        firewall["ip"] += firewall_data["ip"]
+        firewall["mac"] += firewall_data["mac"]
+
+        # --- 4 SUBNET ---
 
         linux_data = generator_device(1, {"PC": "Linux"}, 192, subnetwork_list[3])
         pc["users"] += linux_data["users"]
@@ -260,9 +291,14 @@ def generation_topology(topology_name, subnetwork_list):
         pc["ip"] += windows_data["ip"]
         pc["mac"] += windows_data["mac"]
 
-        # --- 4 SUBNET ---
+        firewall_data = generator_device(1, {"Firewall": None}, 192, subnetwork_list[3])
+        firewall["users"] += firewall_data["users"]
+        firewall["ip"] += firewall_data["ip"]
+        firewall["mac"] += firewall_data["mac"]
 
-        router_data = generator_device(1, {"Router": None}, 10, 10)
+        # --- END ---
+
+        router_data = generator_device(1, {"Router": None}, 10,10,1)
         router["users"] += router_data["users"]
         router["ip"] += router_data["ip"]
         router["mac"] += router_data["mac"]
@@ -273,13 +309,55 @@ def generation_topology(topology_name, subnetwork_list):
         firewall["mac"] += firewall_data["mac"]
 
     elif topology_name == "images/top-4B.jpg":
-        for subnet in range(len(subnetwork_list)):
-            windows_data = generator_device(3, {"PC": "Windows"}, 192, subnet)
+        for i in range(len(subnetwork_list)-1):
+
+            windows_data = generator_device(3, {"PC": "Windows"}, 192, subnetwork_list[i])
             pc["users"] += windows_data["users"]
             pc["ip"] += windows_data["ip"]
             pc["mac"] += windows_data["mac"]
 
-            switch_data = generator_device(1, {"Switch": None}, 192, subnet)
+            switch_data = generator_device(1, {"Switch": None}, 192, subnetwork_list[i],1)
+            switch["users"] += switch_data["users"]
+            switch["ip"] += switch_data["ip"]
+            switch["mac"] += switch_data["mac"]
+
+            firewall_data = generator_device(1, {"Firewall": None}, 10, 10)
+            firewall["users"] += firewall_data["users"]
+            firewall["ip"] += firewall_data["ip"]
+            firewall["mac"] += firewall_data["mac"]
+
+        # --- 4 SUBNET ---
+
+        linux_data = generator_device(3, {"PC": "Linux"}, 192, subnetwork_list[3])
+        pc["users"] += linux_data["users"]
+        pc["ip"] += linux_data["ip"]
+        pc["mac"] += linux_data["mac"]
+
+        switch_data = generator_device(1, {"Switch": None}, 192, subnetwork_list[3], 1)
+        switch["users"] += switch_data["users"]
+        switch["ip"] += switch_data["ip"]
+        switch["mac"] += switch_data["mac"]
+
+        firewall_data = generator_device(1, {"Firewall": None}, 10, 10)
+        firewall["users"] += firewall_data["users"]
+        firewall["ip"] += firewall_data["ip"]
+        firewall["mac"] += firewall_data["mac"]
+
+        # --- END ---
+
+        router_data = generator_device(1, {"Router": None}, 10, 10, 1)
+        router["users"] += router_data["users"]
+        router["ip"] += router_data["ip"]
+        router["mac"] += router_data["mac"]
+
+    elif topology_name == "images/top-4BV.jpg":
+        for i in range(len(subnetwork_list) - 1):
+            windows_data = generator_device(3, {"PC": "Windows"}, 192, subnetwork_list[i])
+            pc["users"] += windows_data["users"]
+            pc["ip"] += windows_data["ip"]
+            pc["mac"] += windows_data["mac"]
+
+            switch_data = generator_device(1, {"Switch": None}, 192, subnetwork_list[i], 1)
             switch["users"] += switch_data["users"]
             switch["ip"] += switch_data["ip"]
             switch["mac"] += switch_data["mac"]
@@ -299,47 +377,12 @@ def generation_topology(topology_name, subnetwork_list):
         switch["ip"] += switch_data["ip"]
         switch["mac"] += switch_data["mac"]
 
-        router_data = generator_device(1, {"Router": None}, 10, 10)
-        router["users"] += router_data["users"]
-        router["ip"] += router_data["ip"]
-        router["mac"] += router_data["mac"]
-
-
-        # --- 4 SUBNET ---
-
-    elif topology_name == "images/top-4BV.jpg":
-        for subnet in range(len(subnetwork_list) - 1):
-            windows_data = generator_device(3, {"PC": "Windows"}, 192, subnet)
-            pc["users"] += windows_data["users"]
-            pc["ip"] += windows_data["ip"]
-            pc["mac"] += windows_data["mac"]
-
-            switch_data = generator_device(1, {"Switch": None}, 192, subnet, 1)
-            switch["users"] += switch_data["users"]
-            switch["ip"] += switch_data["ip"]
-            switch["mac"] += switch_data["mac"]
-
-            router_data = generator_device(1, {"Router": None}, 10, 10)
-            router["users"] += router_data["users"]
-            router["ip"] += router_data["ip"]
-            router["mac"] += router_data["mac"]
-
         firewall_data = generator_device(1, {"Firewall": None}, 192, subnetwork_list[1])
         firewall["users"] += firewall_data["users"]
         firewall["ip"] += firewall_data["ip"]
         firewall["mac"] += firewall_data["mac"]
 
-        linux_data = generator_device(3, {"PC": "Linux"}, 192, subnetwork_list[3])
-        pc["users"] += linux_data["users"]
-        pc["ip"] += linux_data["ip"]
-        pc["mac"] += linux_data["mac"]
-
-        switch_data = generator_device(1, {"Switch": None}, 192, subnetwork_list[3], 1)
-        switch["users"] += switch_data["users"]
-        switch["ip"] += switch_data["ip"]
-        switch["mac"] += switch_data["mac"]
-
-        router_data = generator_device(1, {"Router": None}, 10, 10)
+        router_data = generator_device(1, {"Router": None}, 10, 10, 1)
         router["users"] += router_data["users"]
         router["ip"] += router_data["ip"]
         router["mac"] += router_data["mac"]
@@ -347,13 +390,13 @@ def generation_topology(topology_name, subnetwork_list):
 # --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
     elif topology_name == "images/top-5A.jpg":
-        for subnet in range(len(subnetwork_list)-2):
-            windows_data = generator_device(3, {"PC": "Windows"}, 192, subnet)
+        for i in range(len(subnetwork_list)-2):
+            windows_data = generator_device(3, {"PC": "Windows"}, 192, subnetwork_list[i])
             pc["users"] += windows_data["users"]
             pc["ip"] += windows_data["ip"]
             pc["mac"] += windows_data["mac"]
 
-            switch_data = generator_device(1, {"Switch": None}, 192, subnet, 1)
+            switch_data = generator_device(1, {"Switch": None}, 192, subnetwork_list[i], 1)
             switch["users"] += switch_data["users"]
             switch["ip"] += switch_data["ip"]
             switch["mac"] += switch_data["mac"]
@@ -383,7 +426,7 @@ def generation_topology(topology_name, subnetwork_list):
 
         # --- 5 SUBNET ---
 
-        router_data = generator_device(1, {"Router": None}, 10, 10)
+        router_data = generator_device(1, {"Router": None}, 10, 10, 1)
         router["users"] += router_data["users"]
         router["ip"] += router_data["ip"]
         router["mac"] += router_data["mac"]
@@ -394,16 +437,18 @@ def generation_topology(topology_name, subnetwork_list):
         firewall["mac"] += firewall_data["mac"]
 
     elif topology_name == "images/top-5AV.jpg":
-        for subnet in range(len(subnetwork_list)-2):
-            windows_data = generator_device(3, {"PC": "Windows"}, 192, subnet)
+        for i in range(len(subnetwork_list)-2):
+            windows_data = generator_device(3, {"PC": "Windows"}, 192, subnetwork_list[i])
             pc["users"] += windows_data["users"]
             pc["ip"] += windows_data["ip"]
             pc["mac"] += windows_data["mac"]
 
-            switch_data = generator_device(1, {"Switch": None}, 192, subnet)
+            switch_data = generator_device(1, {"Switch": None}, 192, subnetwork_list[i],1)
             switch["users"] += switch_data["users"]
             switch["ip"] += switch_data["ip"]
             switch["mac"] += switch_data["mac"]
+
+        # --- 4 SUBNET ---
 
         linux_data = generator_device(3, {"PC": "Linux"}, 192, subnetwork_list[3])
         pc["users"] += linux_data["users"]
@@ -420,7 +465,7 @@ def generation_topology(topology_name, subnetwork_list):
         firewall["ip"] += firewall_data["ip"]
         firewall["mac"] += firewall_data["mac"]
 
-        # --- 4 SUBNET ---
+        # --- 5 SUBNET ---
 
         linux_data = generator_device(3, {"PC": "Linux"}, 192, subnetwork_list[4])
         pc["users"] += linux_data["users"]
@@ -437,9 +482,9 @@ def generation_topology(topology_name, subnetwork_list):
         firewall["ip"] += firewall_data["ip"]
         firewall["mac"] += firewall_data["mac"]
 
-        # --- 5 SUBNET ---
+        # --- END ---
 
-        router_data = generator_device(1, {"Router": None}, 10, 10)
+        router_data = generator_device(1, {"Router": None}, 10, 10, 1)
         router["users"] += router_data["users"]
         router["ip"] += router_data["ip"]
         router["mac"] += router_data["mac"]
@@ -450,13 +495,13 @@ def generation_topology(topology_name, subnetwork_list):
         firewall["mac"] += firewall_data["mac"]
 
     elif topology_name == "images/top-5B.jpg":
-        for subnet in range(len(subnetwork_list) - 2):
-            windows_data = generator_device(3, {"PC": "Windows"}, 192, subnet)
+        for i in range(len(subnetwork_list) - 2):
+            windows_data = generator_device(3, {"PC": "Windows"}, 192, subnetwork_list[i])
             pc["users"] += windows_data["users"]
             pc["ip"] += windows_data["ip"]
             pc["mac"] += windows_data["mac"]
 
-            switch_data = generator_device(1, {"Switch": None}, 192, subnet, 1)
+            switch_data = generator_device(1, {"Switch": None}, 192, subnetwork_list[i], 1)
             switch["users"] += switch_data["users"]
             switch["ip"] += switch_data["ip"]
             switch["mac"] += switch_data["mac"]
@@ -500,19 +545,19 @@ def generation_topology(topology_name, subnetwork_list):
 
         # --- 5 SUBNET ---
 
-        router_data = generator_device(1, {"Router": None}, 10, 10)
+        router_data = generator_device(1, {"Router": None}, 10, 10, 1)
         router["users"] += router_data["users"]
         router["ip"] += router_data["ip"]
         router["mac"] += router_data["mac"]
 
     elif topology_name == "images/top-5BV.jpg":
-        for subnet in range(len(subnetwork_list) - 2):
-            windows_data = generator_device(3, {"PC": "Windows"}, 192, subnet)
+        for i in range(len(subnetwork_list) - 2):
+            windows_data = generator_device(3, {"PC": "Windows"}, 192, subnetwork_list[i])
             pc["users"] += windows_data["users"]
             pc["ip"] += windows_data["ip"]
             pc["mac"] += windows_data["mac"]
 
-            switch_data = generator_device(1, {"Switch": None}, 192, subnet, 1)
+            switch_data = generator_device(1, {"Switch": None}, 192, subnetwork_list[i], 1)
             switch["users"] += switch_data["users"]
             switch["ip"] += switch_data["ip"]
             switch["mac"] += switch_data["mac"]
@@ -556,7 +601,7 @@ def generation_topology(topology_name, subnetwork_list):
 
         # --- 5 SUBNET ---
 
-        router_data = generator_device(1, {"Router": None}, 10, 10)
+        router_data = generator_device(1, {"Router": None}, 10, 10, 1)
         router["users"] += router_data["users"]
         router["ip"] += router_data["ip"]
         router["mac"] += router_data["mac"]
@@ -568,19 +613,23 @@ def generation_topology(topology_name, subnetwork_list):
         print("Ошибка передачи топологии!")
 
     print(
-    f" --- Personal Computers ---\n"    
+    f" --- Personal Computers ---\n"
+    f"PC = {len(pc['users'])}\n"
     f"{pc['users']}\n"
     f"{pc['ip']}\n"
     f"{pc['mac']}\n"
     f" --- Switches ---\n"
+    f"SW = {len(switch['users'])}\n"
     f"{switch['users']}\n"
     f"{switch['ip']}\n"
     f"{switch['mac']}\n"
-    f" --- Routers ---"
+    f" --- Routers ---\n"
+    f"RT = {len(router['users'])}\n"
     f"{router['users']}\n"
     f"{router['ip']}\n"
     f"{router['mac']}\n"
     f" --- Firewalls ---\n"
+    f"FW = {len(firewall['users'])}\n"
     f"{firewall['users']}\n"
     f"{firewall['ip']}\n"
     f"{firewall['mac']}\n"
@@ -599,7 +648,7 @@ def generator_device(count_users, category, header, subnetwork, tail=0):
                 entity.PersonalComputerLinux(
                     hostname=f"PC-{random.randint(2,30)}",
                     ip_addr=generation_ip_address(header, subnetwork, tail, ip_address_list),
-                    mac_addr=generation_mac_address,
+                    mac_addr=generation_mac_address(),
                     category="PC",
                     log_format="syslog",
                     os="Linux",
@@ -621,7 +670,7 @@ def generator_device(count_users, category, header, subnetwork, tail=0):
                 entity.PersonalComputerWindows(
                     hostname=f"PC-{random.randint(2,30)}",
                     ip_addr=generation_ip_address(header, subnetwork, tail, ip_address_list),
-                    mac_addr=generation_mac_address,
+                    mac_addr=generation_mac_address(),
                     category="PC",
                     log_format="syslog",
                     os="Windows",
@@ -642,7 +691,7 @@ def generator_device(count_users, category, header, subnetwork, tail=0):
                 entity.Switch(
                     hostname=f"SW-{random.randint(2,30)}",
                     ip_addr=generation_ip_address(header, subnetwork, tail, ip_address_list),
-                    mac_addr=generation_mac_address,
+                    mac_addr=generation_mac_address(),
                     category="Switch",
                     log_format="systemd",
                     os="IOS",
@@ -663,7 +712,7 @@ def generator_device(count_users, category, header, subnetwork, tail=0):
                 entity.Router(
                     hostname=f"RT-{i + 1}",
                     ip_addr=generation_ip_address(header, subnetwork, tail, ip_address_list),
-                    mac_addr=generation_mac_address,
+                    mac_addr=generation_mac_address(),
                     category="Router",
                     log_format="systemd",
                     os="IOS",
@@ -684,7 +733,7 @@ def generator_device(count_users, category, header, subnetwork, tail=0):
                 entity.Firewall(
                     hostname=f"FW-{i + 1}",
                     ip_addr=generation_ip_address(header, subnetwork, tail, ip_address_list),
-                    mac_addr=generation_mac_address,
+                    mac_addr=generation_mac_address(),
                     category="Firewall",
                     log_format="systemd",
                     os="IOS",
@@ -1104,3 +1153,10 @@ def generator_protocols(client, index_name, users, list_ip_addr, list_mac_addr):
         else:
             print("Stop!")
             break
+
+
+def unit_test():
+    pass
+
+if __name__ == "__main__":
+    unit_test()
