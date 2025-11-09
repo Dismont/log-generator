@@ -4,25 +4,38 @@ import random
 import network
 import generator
 
+# --- FOR 2nd WINDOW ---
+
+import threading
 
 class MainWindow(Tk):
 
     def __init__(self):
         super().__init__()
+
+        # --- GENERATOR & NETWORK FIELDS ---
+
         self.segment_subnetwork_number = None
         self.random_link_image = None
-        self.app_font = font.Font(family="Courier New", size=14, weight="bold")
-        self['bg'] = "darkgray"
-        self.title("Электронный тренажер")
-        self.geometry("1200x650")
-        self.resizable(False, False)
-        self.option_add("*Font", self.app_font)
         self.is_get_task = False
         self.link_images = [
             "images/top-3A.jpg", "images/top-3AV.jpg", "images/top-3B.jpg", "images/top-3BV.jpg",
             "images/top-4A.jpg", "images/top-4AV.jpg", "images/top-4B.jpg", "images/top-4BV.jpg",
             "images/top-5A.jpg", "images/top-5AV.jpg", "images/top-5B.jpg", "images/top-5BV.jpg",
         ]
+        self.users = []
+        self.ip_address_list = []
+        self.mac_address_list = []
+        self.index_name = None
+
+        # --- UI FIELDS ---
+
+        self.app_font = font.Font(family="Courier New", size=14, weight="bold")
+        self['bg'] = "darkgray"
+        self.title("Электронный тренажер")
+        self.geometry("1200x650")
+        self.resizable(False, False)
+        self.option_add("*Font", self.app_font)
         self.index_mapping = {
             "settings": {
                 "index": {
@@ -242,28 +255,28 @@ class MainWindow(Tk):
                 else:
                     continue
 
-        index_name = word + '_' + str(id_student)
+        self.index_name = word + '_' + str(id_student)
         self.label_status_create_index.config(text="Создание индекса")
         code = network.create_index_opensearch(
             client=self.client,
-            index_name=index_name,
+            index_name=self.index_name,
             index_mapping=self.index_mapping)
         if code == 200:
-            self.label_status_create_index.config(text="Индекс создан")
-            messagebox.showinfo(f"Индекс {index_name}", f"Индекс {index_name} создан!")
+            self.label_status_create_index.config(text="Индекс создан   ")
+            messagebox.showinfo(f"Индекс {self.index_name}", f"Индекс {self.index_name} создан!")
             self.button_get_task.config(state="normal")
         if code == 201:
-            answer = messagebox.askquestion(f"Индекс {index_name}",
-                                            f"Индекс {index_name} уже существует!\n Удалить индекс?")
+            answer = messagebox.askquestion(f"Индекс {self.index_name}",
+                                            f"Индекс {self.index_name} уже существует!\n Удалить индекс?")
             if answer == "yes":
                 network.delete_index_opensearch(client=self.client,
-                                                index_name=index_name)
+                                                index_name=self.index_name)
                 self.label_status_create_index.config(text="Индекс удален")
-                messagebox.showinfo(f"Индекс {index_name}", f"Индекс {index_name} успешно удалён!")
+                messagebox.showinfo(f"Индекс {self.index_name}", f"Индекс {self.index_name} успешно удалён!")
                 self.button_get_task.config(state="disabled")
             else:
                 self.label_status_create_index.config(text="Индекс без изменений")
-                messagebox.showinfo(f"Индекс {index_name}", f"Состояние индекса {index_name} не изменилось!")
+                messagebox.showinfo(f"Индекс {self.index_name}", f"Состояние индекса {self.index_name} не изменилось!")
                 self.button_get_task.config(state="normal")
 
     def get_task_ui(self):
@@ -276,16 +289,16 @@ class MainWindow(Tk):
 
         self.segment_subnetwork_number = []
         if "3" in self.random_link_image:
-            print("3 сегмента")
+            print(f"3 Seg. {self.random_link_image}")
             for i in range(3):
                 self.segment_subnetwork_number.append(random.randint(1, 50))
 
         elif "4" in self.random_link_image:
-            print("4 сегмента!")
+            print(f"4 Seg. {self.random_link_image}")
             for i in range(4):
                 self.segment_subnetwork_number.append(random.randint(1, 50))
         else:
-            print("5 сегментов!")
+            print(f"5 Seg. {self.random_link_image}")
             for i in range(5):
                 self.segment_subnetwork_number.append(random.randint(1, 50))
 
@@ -293,15 +306,77 @@ class MainWindow(Tk):
         for i in range(len(self.segment_subnetwork_number)):
             text_seg += f"Seg.{i + 1} | 192.168.{self.segment_subnetwork_number[i]}.0/24\n"
 
+        self.users, self.ip_address_list, self.mac_address_list = generator.generation_topology(self.random_link_image, self.segment_subnetwork_number)
         self.label_task.config(text=text_seg)
-
         self.is_get_task = True
         self.button_get_task.config(state="disabled")
         self.button_generation.config(state="normal")
 
     def generation_ui(self):
 
-        generator.generation_topology(self.random_link_image, self.segment_subnetwork_number)
+        additional_window = AdditionalWindow(self.app_font, self.client, self.index_name, self.index_mapping, self.users, self.ip_address_list, self.mac_address_list)
+        additional_window.mainloop()
+
+
+class AdditionalWindow(Tk):
+
+    def __init__(self,app_font, client, index_name, index_mapping, users, ip_address_list, mac_address_list):
+        super().__init__()
+
+        # --- GENERATOR FIELDS ---
+
+        self.client = client
+        self.index_name = index_name
+        self.index_mapping = index_mapping
+        self.users = users
+        self.ip_address_list = ip_address_list
+        self.mac_address_list = mac_address_list
+
+        # --- UI FIELDS ---
+
+        self.app_font = app_font
+        self.title("Генерация")
+        self.geometry("400x300")
+        self.option_add("*Font", self.app_font)
+        self['bg'] = 'darkgray'
+
+        # --- THREAD FIELD ---
+
+        self.is_generating = False
+        self.stop_event = None
+        self.generator_thread = None
+
+        # --- BUTTON <GENERATION_PROTOCOLS> ---
+
+        self.button_generation_protocols = Button(self,text="Начать генерацию", state="normal", command=self.toggle_generation_protocols)
+        self.button_generation_protocols.place(x=100, y=50, width=200, height=50)
+
+    def toggle_generation_protocols(self):
+        if self.is_generating:
+            # Остановка
+            self.stop_event.set()
+            self.generator_thread.join(timeout=1.0)  # Ждём завершения (макс. 1 сек)
+            self.is_generating = False
+            self.button_generation_protocols.config(text="Запустить генерацию")
+        else:
+            # Запуск
+            self.stop_event = threading.Event()
+            self.generator_thread = threading.Thread(
+                target=generator.generator_protocols,
+                args=(
+                    self.client,
+                    self.index_name,
+                    self.users,
+                    self.ip_address_list,
+                    self.mac_address_list,
+                    self.stop_event
+                ),
+                daemon=True  # Поток завершится при закрытии окна
+            )
+            self.generator_thread.start()
+            self.is_generating = True
+            self.button_generation_protocols.config(text="Остановить генерацию")
+
 
 
 def main():

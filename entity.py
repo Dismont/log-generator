@@ -38,6 +38,7 @@ class Device:
         timestamp = now.strftime("%Y-%m-%dT%H:%M:%SZ")
         return timestamp
 
+# --- NEW GENERATION ENTITIES ---
 
 class PersonalComputerLinux(Device):
 
@@ -186,933 +187,1247 @@ class PersonalComputerLinux(Device):
         ]
 
     def auth_info_json(self, list_ip_addr):
+        # Выбираем IP-адрес источника из внешних хостов (не самого себя)
         other_ips = [ip for ip in list_ip_addr if ip != self.get_ip_addr()] + self.destination_ip
+        src_ip = random.choice(other_ips)
+        dst_ip = self.get_ip_addr()
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": "sshd",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ubuntu"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "host"
             },
             "event": {
-                "action": "user_login",
-                "category": "authentication",
-                "type": ["connection", "access"],
+                "kind": "event",
+                "category": ["authentication"],
+                "type": ["access", "start"],
+                "action": "ssh_login",
                 "outcome": "success",
-                "severity": 6
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-linux",
+                "rule": {
+                    "id": "SIM-AUTH-001",
+                    "name": "SSH login successful"
+                }
             },
             "user": {
-                "name": f"{random.choice(self.users_attr)}"
+                "name": random.choice(self.users_attr)
             },
             "source": {
-                "ip": f"{random.choice(other_ips)}",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+                "ip": src_ip,
+                "port": random.randint(32768, 65535)
             },
             "destination": {
-                "ip": "-",
-                "port": 0
+                "ip": dst_ip,
+                "port": 22
             },
             "network": {
-                "protocol": "-"
+                "protocol": "tcp",
+                "direction": "inbound"
             },
-            "file": {
-                "path": "-"
+            "process": {
+                "name": "sshd",
+                "pid": random.randint(115, 1999),
+                "executable": "/usr/sbin/sshd"
             },
-            "package": {
-                "name": "-",
-                "size": "-"
+            "service": {
+                "name": "SSH",
+                "type": "ssh"
             },
-            "app": "-"
+            "related": {
+                "ip": [src_ip, dst_ip],
+                "user": [random.choice(self.users_attr)]
+            }
         }
 
     def auth_warning_json(self, list_ip_addr):
         other_ips = [ip for ip in list_ip_addr if ip != self.get_ip_addr()] + self.destination_ip
+        src_ip = random.choice(other_ips)
+        dst_ip = self.get_ip_addr()
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": "sshd",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ubuntu"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "host"
             },
             "event": {
-                "action": "user_login",
-                "category": "authentication",
-                "type": ["connection", "failed"],
+                "kind": "event",
+                "category": ["authentication"],
+                "type": ["access", "end"],
+                "action": "ssh_login_failed",
                 "outcome": "failure",
-                "severity": 6
+                "severity": 4,
+                "severity_label": "medium",  # или "high", но 4 → medium по вашей шкале
+                "provider": "simulated-linux",
+                "rule": {
+                    "id": "SIM-AUTH-002",
+                    "name": "Failed SSH login attempt"
+                }
             },
             "user": {
-                "name": f"{random.choice(self.users_attr)}"
+                "name": random.choice(self.users_attr)
             },
             "source": {
-                "ip": f"{random.choice(other_ips)}",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+                "ip": src_ip,
+                "port": random.randint(32768, 65535)
             },
             "destination": {
-                "ip": "-",
-                "port": 0
+                "ip": dst_ip,
+                "port": 22
             },
             "network": {
-                "protocol": "-"
+                "protocol": "tcp",
+                "direction": "inbound"
             },
-            "file": {
-                "path": "-"
+            "process": {
+                "name": "sshd",
+                "pid": random.randint(115, 1999),
+                "executable": "/usr/sbin/sshd"
             },
-            "package": {
-                "name": "-",
-                "size": "-"
+            "service": {
+                "name": "SSH",
+                "type": "ssh"
             },
-            "app": "-"
+            "related": {
+                "ip": [src_ip, dst_ip],
+                "user": [random.choice(self.users_attr)]
+            }
         }
 
     def auth_crit_json(self, list_ip_addr):
         other_ips = [ip for ip in list_ip_addr if ip != self.get_ip_addr()] + self.destination_ip
+        src_ip = random.choice(other_ips)
+        dst_ip = self.get_ip_addr()
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": "sshd",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ubuntu"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "host"
             },
             "event": {
-                "action": "intrusion_attempt",
-                "category": "intrusion_detection",
-                "type": ["connection", "failed"],
+                "kind": "alert",
+                "category": ["intrusion_detection"],
+                "type": ["access", "attempt"],
+                "action": "ssh_brute_force_detected",
                 "outcome": "failure",
-                "severity": 2
+                "severity": 2,
+                "severity_label": "critical",
+                "provider": "simulated-linux",
+                "rule": {
+                    "id": "SIM-AUTH-003",
+                    "name": "SSH brute-force attack detected"
+                }
             },
             "user": {
-                "name": f"{random.choice(self.users_attr)}"
+                "name": random.choice(self.users_attr)
             },
             "source": {
-                "ip": f"{random.choice(other_ips)}",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+                "ip": src_ip,
+                "port": random.randint(32768, 65535)
             },
             "destination": {
-                "ip": "-",
-                "port": 0
+                "ip": dst_ip,
+                "port": 22
             },
             "network": {
-                "protocol": "-"
+                "protocol": "tcp",
+                "direction": "inbound"
             },
-            "file": {
-                "path": "-"
+            "process": {
+                "name": "sshd",
+                "pid": random.randint(115, 1999),
+                "executable": "/usr/sbin/sshd"
             },
-            "package": {
-                "name": "-",
-                "size": "-"
+            "service": {
+                "name": "SSH",
+                "type": "ssh"
             },
-            "app": "-"
+            "related": {
+                "ip": [src_ip, dst_ip],
+                "user": [random.choice(self.users_attr)]
+            }
         }
 
     def start_process_info_json(self):
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
-        all_files_attr = self.software_files_attr
+        executable = random.choice(self.software_files_attr)
+        user = random.choice(self.users_attr)
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": f"{app_name}",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ubuntu"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["process"],
+                "type": ["start", "access"],
                 "action": "process_started",
-                "category": "process",
-                "type": ["process", "access"],
                 "outcome": "success",
-                "severity": 6
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-linux",
+                "rule": {
+                    "id": "SIM-PROC-001",
+                    "name": "Process started successfully"
+                }
             },
             "user": {
-                "name": f"{random.choice(self.users_attr)}",
+                "name": user
             },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": f"{random.choice(all_files_attr)}",
-                "file": "-"
+            "process": {
+                "name": app_name,
+                "pid": random.randint(115, 1999),
+                "executable": executable
             },
-            "destination": {
-                "ip": "-",
-                "port": 0
+            "service": {
+                "name": app_name,
+                "type": app_name.lower()
             },
-            "network": {
-                "protocol": "-"
-            },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "-",
-                "size": "-"
-            },
-            "app": "-"
+            "related": {
+                "user": [user]
+            }
         }
 
     def start_process_warning_json(self):
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
-        all_files_attr = self.software_files_attr
+        executable = random.choice(self.software_files_attr)
+        user = random.choice(self.users_attr)
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": f"{app_name}",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ubuntu"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["process"],
+                "type": ["end", "denied"],
                 "action": "process_suspicious",
-                "category": "process",
-                "type": ["process", "stoped"],
-                "outcome": "success",
-                "severity": 6
+                "outcome": "failure",
+                "severity": 4,
+                "severity_label": "medium",
+                "provider": "simulated-linux",
+                "rule": {
+                    "id": "SIM-PROC-002",
+                    "name": "Suspicious process terminated"
+                }
             },
             "user": {
-                "name": f"{random.choice(self.users_attr)}",
+                "name": user
             },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": f"{random.choice(all_files_attr)}",
-                "file": "-"
+            "process": {
+                "name": app_name,
+                "pid": random.randint(115, 1999),
+                "executable": executable
             },
-            "destination": {
-                "ip": "-",
-                "port": 0
+            "service": {
+                "name": app_name,
+                "type": app_name.lower()
             },
-            "network": {
-                "protocol": "-"
-            },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "-",
-                "size": "-"
-            },
-            "app": "-"
+            "related": {
+                "user": [user]
+            }
         }
 
     def start_process_debug_json(self):
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
-        all_files_attr = self.software_files_attr
+        executable = random.choice(self.software_files_attr)
+        user = random.choice(self.users_attr)
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": f"{app_name}",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ubuntu"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["process"],
+                "type": ["info", "debug"],
                 "action": "debug_process",
-                "category": "process",
-                "type": ["process", "debug"],
                 "outcome": "success",
-                "severity": 6
+                "severity": 7,
+                "severity_label": "low",
+                "provider": "simulated-linux",
+                "rule": {
+                    "id": "SIM-PROC-003",
+                    "name": "Process debug event"
+                }
             },
             "user": {
-                "name": f"{random.choice(self.users_attr)}",
+                "name": user
             },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": f"{random.choice(all_files_attr)}",
-                "file": "-"
+            "process": {
+                "name": app_name,
+                "pid": random.randint(115, 1999),
+                "executable": executable
             },
-            "destination": {
-                "ip": "-",
-                "port": 0
+            "service": {
+                "name": app_name,
+                "type": app_name.lower()
             },
-            "network": {
-                "protocol": "-"
-            },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "-",
-                "size": "-"
-            },
-            "app": "-"
+            "related": {
+                "user": [user]
+            }
         }
 
     def open_file_info_json(self):
         all_files_attr = self.home_files_attr + self.config_files_attr + self.socket_files_attr + self.system_files_attr
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
-        facility = severity_software[app_name]
+        executable = random.choice(self.software_files_attr)
+        user = f"user-{self.asset_number.replace('IN-', '')}"
+        file_path = random.choice(all_files_attr)
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": f"{app_name}",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ubuntu"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["file"],
+                "type": ["access", "opened"],
                 "action": "file_open",
-                "category": "file",
-                "type": ["file", "opened"],
                 "outcome": "success",
-                "severity": 6
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-linux",
+                "rule": {
+                    "id": "SIM-FILE-001",
+                    "name": "File opened successfully"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}"
+                "name": user
             },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
-            "network": {
-                "protocol": "-"
+            "process": {
+                "name": app_name,
+                "pid": random.randint(115, 1999),
+                "executable": executable
             },
             "file": {
-                "path": f"{random.choice(all_files_attr)}"
+                "path": file_path
             },
-            "package": {
-                "name": "-",
-                "size": "-"
+            "service": {
+                "name": app_name,
+                "type": app_name.lower()
             },
-            "app": "-"
+            "related": {
+                "user": [user]
+            }
         }
 
     def open_file_warning_json(self):
         all_files_attr = self.home_files_attr + self.config_files_attr + self.socket_files_attr + self.system_files_attr
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
-        facility = severity_software[app_name]
+        executable = random.choice(self.software_files_attr)
+        user = f"user-{self.asset_number.replace('IN-', '')}"
+        file_path = random.choice(all_files_attr)
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": f"{app_name}",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ubuntu"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "host"
             },
             "event": {
-                "action": "file_access",
-                "category": "file",
-                "type": ["file", "access"],
-                "outcome": "success",
-                "severity": 6
+                "kind": "event",
+                "category": ["file"],
+                "type": ["access", "denied"],
+                "action": "file_access_denied",
+                "outcome": "failure",
+                "severity": 4,
+                "severity_label": "medium",
+                "provider": "simulated-linux",
+                "rule": {
+                    "id": "SIM-FILE-002",
+                    "name": "File access attempt denied"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}"
+                "name": user
             },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
-            "network": {
-                "protocol": "-"
+            "process": {
+                "name": app_name,
+                "pid": random.randint(115, 1999),
+                "executable": executable
             },
             "file": {
-                "path": f"{random.choice(all_files_attr)}"
+                "path": file_path
             },
-            "package": {
-                "name": "-",
-                "size": "-"
+            "service": {
+                "name": app_name,
+                "type": app_name.lower()
             },
-            "app": "-"
+            "related": {
+                "user": [user]
+            }
         }
 
     def open_file_crit_json(self):
         all_files_attr = self.home_files_attr + self.config_files_attr + self.socket_files_attr + self.system_files_attr
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
-        facility = severity_software[app_name]
-        second_software = random.choice(self.software_attr)
-        second_app_name = list(second_software.keys())[0]
+        executable = random.choice(self.software_files_attr)
+        user = f"user-{self.asset_number.replace('IN-', '')}"
+        file_path = random.choice(all_files_attr)
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": f"{app_name}",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ubuntu"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "host"
             },
             "event": {
-                "action": "critical",
-                "category": "file",
-                "type": ["file", "broken"],
-                "outcome": "success",
-                "severity": 6
+                "kind": "alert",
+                "category": ["file"],
+                "type": ["deletion", "corruption"],
+                "action": "file_corrupted_or_deleted",
+                "outcome": "failure",
+                "severity": 2,
+                "severity_label": "critical",
+                "provider": "simulated-linux",
+                "rule": {
+                    "id": "SIM-FILE-003",
+                    "name": "Critical system file modified or missing"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}"
+                "name": user
             },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
-            "network": {
-                "protocol": "-"
+            "process": {
+                "name": app_name,
+                "pid": random.randint(115, 1999),
+                "executable": executable
             },
             "file": {
-                "path": f"{random.choice(all_files_attr)}"
+                "path": file_path
             },
-            "package": {
-                "name": "-",
-                "size": "-"
+            "service": {
+                "name": app_name,
+                "type": app_name.lower()
             },
-            "app": "-"
+            "related": {
+                "user": [user]
+            }
         }
 
     def network_activity_info_json(self):
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
-        facility = severity_software[app_name]
+        executable = random.choice(self.software_files_attr)
+        user = f"user-{self.asset_number.replace('IN-', '')}"
+        src_ip = self.get_ip_addr()
+        dst_ip = random.choice(self.destination_ip)
+        src_port = random.randint(32768, 65535)
+        dst_port = random.randint(1, 65535)
+        protocol = random.choice(['tcp', 'udp'])
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": f"{app_name}",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": src_ip,
+                "os": {
+                    "name": self.os,
+                    "platform": "ubuntu"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": src_ip,
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["connection", "access"],
                 "action": "network_connection",
-                "category": "network",
-                "type": ["network", "access"],
                 "outcome": "success",
-                "severity": 6
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-linux",
+                "rule": {
+                    "id": "SIM-NET-001",
+                    "name": "Outbound network connection established"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}"
+                "name": user
+            },
+            "process": {
+                "name": app_name,
+                "pid": random.randint(115, 1999),
+                "executable": executable
             },
             "source": {
-                "ip": f"{self.get_ip_addr()}",
-                "port": random.randint(8080, 25500),
-                "user": f"user-{self.asset_number.replace('IN-', '')}",
-                "executable": f"{app_name}",
-                "file": "-"
+                "ip": src_ip,
+                "port": src_port
             },
             "destination": {
-                "ip": f"{random.choice(self.destination_ip)}",
-                "port": random.randint(8080, 25500),
+                "ip": dst_ip,
+                "port": dst_port
             },
             "network": {
-                "protocol": f"{random.choice(['tcp', 'udp'])}"
+                "protocol": protocol,
+                "direction": "outbound"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": app_name,
+                "type": app_name.lower()
             },
-            "package": {
-                "name": "-",
-                "size": "-"
-            },
-            "app": "-"
+            "related": {
+                "ip": [src_ip, dst_ip],
+                "user": [user]
+            }
         }
 
     def network_activity_warning_json(self):
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
-        facility = severity_software[app_name]
-        second_software = random.choice(self.software_attr)
-        second_app_name = list(second_software.keys())[0]
+        executable = random.choice(self.software_files_attr)
+        user = f"user-{self.asset_number.replace('IN-', '')}"
+        src_ip = self.get_ip_addr()
+        dst_ip = random.choice(self.destination_ip)
+        src_port = random.randint(32768, 65535)
+        dst_port = random.randint(1, 65535)
+        protocol = random.choice(['tcp', 'udp'])
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": f"{app_name}",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": src_ip,
+                "os": {
+                    "name": self.os,
+                    "platform": "ubuntu"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": src_ip,
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["connection", "unusual"],
                 "action": "network_connection_app",
-                "category": "network",
-                "type": ["network", "app_connection"],
                 "outcome": "success",
-                "severity": 6
+                "severity": 4,
+                "severity_label": "medium",
+                "provider": "simulated-linux",
+                "rule": {
+                    "id": "SIM-NET-002",
+                    "name": "Unusual application network activity"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}"
+                "name": user
+            },
+            "process": {
+                "name": app_name,
+                "pid": random.randint(115, 1999),
+                "executable": executable
             },
             "source": {
-                "ip": f"{self.get_ip_addr()}",
-                "port": random.randint(8080, 25500),
-                "user": f"user-{self.asset_number.replace('IN-', '')}",
-                "executable": f"{app_name}",
-                "file": "-"
+                "ip": src_ip,
+                "port": src_port
             },
             "destination": {
-                "ip": f"{random.choice(self.destination_ip)}",
-                "port": random.randint(8080, 25500),
+                "ip": dst_ip,
+                "port": dst_port
             },
             "network": {
-                "protocol": f"{random.choice(['tcp', 'udp'])}"
+                "protocol": protocol,
+                "direction": "outbound"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": app_name,
+                "type": app_name.lower()
             },
-            "package": {
-                "name": "-",
-                "size": "-"
-            },
-            "app": "-"
+            "related": {
+                "ip": [src_ip, dst_ip],
+                "user": [user]
+            }
         }
 
     def network_activity_debug_json(self):
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
-        facility = severity_software[app_name]
-        second_software = random.choice(self.software_attr)
-        second_app_name = list(second_software.keys())[0]
+        executable = random.choice(self.software_files_attr)
+        user = f"user-{self.asset_number.replace('IN-', '')}"
+        src_ip = self.get_ip_addr()
+        dst_ip = random.choice(self.destination_ip)
+        src_port = random.randint(32768, 65535)
+        dst_port = random.randint(1, 65535)
+        protocol = "tcp"  # так как действие — "tcp_connection"
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": f"{app_name}",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": src_ip,
+                "os": {
+                    "name": self.os,
+                    "platform": "ubuntu"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": src_ip,
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["connection", "info"],
                 "action": "tcp_connection",
-                "category": "network",
-                "type": ["network", "tcp"],
                 "outcome": "success",
-                "severity": 6
+                "severity": 7,
+                "severity_label": "low",
+                "provider": "simulated-linux",
+                "rule": {
+                    "id": "SIM-NET-003",
+                    "name": "TCP connection debug event"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}"
+                "name": user
+            },
+            "process": {
+                "name": app_name,
+                "pid": random.randint(115, 1999),
+                "executable": executable
             },
             "source": {
-                "ip": f"{self.get_ip_addr()}",
-                "port": random.randint(8080, 25500),
-                "user": f"user-{self.asset_number.replace('IN-', '')}",
-                "executable": f"{app_name}",
-                "file": "-"
+                "ip": src_ip,
+                "port": src_port
             },
             "destination": {
-                "ip": f"{random.choice(self.destination_ip)}",
-                "port": random.randint(8080, 25500),
+                "ip": dst_ip,
+                "port": dst_port
             },
             "network": {
-                "protocol": f"{random.choice(['tcp', 'udp'])}"
+                "protocol": protocol,
+                "direction": "outbound"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": app_name,
+                "type": app_name.lower()
             },
-            "package": {
-                "name": "-",
-                "size": "-"
-            },
-            "app": "-"
+            "related": {
+                "ip": [src_ip, dst_ip],
+                "user": [user]
+            }
         }
 
     def edit_policies_notice_json(self):
         app = "systemd"
+        executable = "/usr/bin/systemctl"
+        user = f"user-{self.asset_number.replace('IN-', '')}"
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": f"{app}",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ubuntu"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["settings"],
+                "type": ["change", "info"],
                 "action": "applied_policy",
-                "category": "settings",
-                "type": ["policy", "info"],
                 "outcome": "success",
-                "severity": 6
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-linux",
+                "rule": {
+                    "id": "SIM-POL-001",
+                    "name": "System policy applied successfully"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}",
+                "name": user
             },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+            "process": {
+                "name": app,
+                "pid": random.randint(115, 1999),
+                "executable": executable
             },
-            "destination": {
-                "ip": "-",
-                "port": 0
+            "service": {
+                "name": "systemd",
+                "type": "system"
             },
-            "network": {
-                "protocol": "-"
-            },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "-",
-                "size": "-"
-            },
-            "app": "systemd"
+            "related": {
+                "user": [user]
+            }
         }
 
     def edit_policies_warning_json(self):
         app = "systemd"
+        executable = "/usr/bin/systemctl"
+        user = f"user-{self.asset_number.replace('IN-', '')}"
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": f"{app}",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ubuntu"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["settings"],
+                "type": ["change", "denied"],
                 "action": "failed_policy",
-                "category": "settings",
-                "type": ["policy", "failed"],
-                "outcome": "success",
-                "severity": 6
+                "outcome": "failure",
+                "severity": 4,
+                "severity_label": "medium",
+                "provider": "simulated-linux",
+                "rule": {
+                    "id": "SIM-POL-002",
+                    "name": "System policy application failed"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}",
+                "name": user
             },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+            "process": {
+                "name": app,
+                "pid": random.randint(115, 1999),
+                "executable": executable
             },
-            "destination": {
-                "ip": "-",
-                "port": 0
+            "service": {
+                "name": "systemd",
+                "type": "system"
             },
-            "network": {
-                "protocol": "-"
-            },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "-",
-                "size": "-"
-            },
-            "app": "systemd"
+            "related": {
+                "user": [user]
+            }
         }
 
     def edit_policies_info_json(self):
         app = "systemd"
+        executable = "/usr/bin/systemctl"
+        user = f"user-{self.asset_number.replace('IN-', '')}"
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": f"{app}",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ubuntu"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["settings"],
+                "type": ["change", "reload"],
                 "action": "reload_policy",
-                "category": "settings",
-                "type": ["policy", "reload"],
                 "outcome": "success",
-                "severity": 6
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-linux",
+                "rule": {
+                    "id": "SIM-POL-003",
+                    "name": "System policy reloaded"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}",
+                "name": user
             },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+            "process": {
+                "name": app,
+                "pid": random.randint(115, 1999),
+                "executable": executable
             },
-            "destination": {
-                "ip": "-",
-                "port": 0
+            "service": {
+                "name": "systemd",
+                "type": "system"
             },
-            "network": {
-                "protocol": "-"
-            },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "-",
-                "size": "-"
-            },
-            "app": "systemd"
+            "related": {
+                "user": [user]
+            }
         }
 
     def remote_control_info_json(self):
+        user = f"user-{self.asset_number.replace('IN-', '')}"
+        src_ip = random.choice(self.destination_ip)  # внешний источник подключения
+        dst_ip = self.get_ip_addr()
+        src_port = random.randint(32768, 65535)
+        dst_port = 3389  # стандартный порт RDP
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": "TermService",
-                "pid": 0
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": dst_ip,
+                "os": {
+                    "name": self.os,
+                    "platform": "ubuntu"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": dst_ip,
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["authentication", "network"],
+                "type": ["connection", "access"],
                 "action": "rdp_connection",
-                "category": "remote_desktop_protocol",
-                "type": ["rdp", "connection"],
                 "outcome": "success",
-                "severity": 6
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-linux",
+                "rule": {
+                    "id": "SIM-RDP-001",
+                    "name": "RDP connection established"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}",
+                "name": user
+            },
+            "process": {
+                "name": "xrdp",  # или "TermService" для Windows, но Linux → xrdp
+                "pid": random.randint(1000, 5000),
+                "executable": "/usr/sbin/xrdp"
             },
             "source": {
-                "ip": f"{self.get_ip_addr()}",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+                "ip": src_ip,
+                "port": src_port
             },
             "destination": {
-                "ip": "-",
-                "port": 0
+                "ip": dst_ip,
+                "port": dst_port
             },
             "network": {
-                "protocol": "-"
+                "protocol": "tcp",
+                "direction": "inbound"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": "RDP",
+                "type": "rdp"
             },
-            "package": {
-                "name": "-",
-                "size": "-"
-            },
-            "app": "-"
+            "related": {
+                "ip": [src_ip, dst_ip],
+                "user": [user]
+            }
         }
 
     def remote_control_warning_json(self):
+        user = f"user-{self.asset_number.replace('IN-', '')}"
+        src_ip = random.choice(self.destination_ip)
+        dst_ip = self.get_ip_addr()
+        src_port = random.randint(32768, 65535)
+        dst_port = 3389
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": "TermService",
-                "pid": 0
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": dst_ip,
+                "os": {
+                    "name": self.os,
+                    "platform": "ubuntu"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": dst_ip,
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["authentication", "network"],
+                "type": ["connection", "denied"],
                 "action": "rdp_failed_login",
-                "category": "remote_desktop_protocol",
-                "type": ["rdp", "failed"],
-                "outcome": "success",
-                "severity": 6
+                "outcome": "failure",
+                "severity": 4,
+                "severity_label": "medium",
+                "provider": "simulated-linux",
+                "rule": {
+                    "id": "SIM-RDP-002",
+                    "name": "Failed RDP login attempt"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}",
+                "name": user
+            },
+            "process": {
+                "name": "xrdp",
+                "pid": random.randint(1000, 5000),
+                "executable": "/usr/sbin/xrdp"
             },
             "source": {
-                "ip": f"{self.get_ip_addr()}",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+                "ip": src_ip,
+                "port": src_port
             },
             "destination": {
-                "ip": "-",
-                "port": 0
+                "ip": dst_ip,
+                "port": dst_port
             },
             "network": {
-                "protocol": "-"
+                "protocol": "tcp",
+                "direction": "inbound"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": "RDP",
+                "type": "rdp"
             },
-            "package": {
-                "name": "-",
-                "size": "-"
-            },
-            "app": "-"
+            "related": {
+                "ip": [src_ip, dst_ip],
+                "user": [user]
+            }
         }
 
     def remote_control_alert_json(self):
+        user = f"user-{self.asset_number.replace('IN-', '')}"
+        src_ip = random.choice(self.destination_ip)
+        dst_ip = self.get_ip_addr()
+        src_port = random.randint(32768, 65535)
+        dst_port = 3389
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": "TermService",
-                "pid": 0
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": dst_ip,
+                "os": {
+                    "name": self.os,
+                    "platform": "ubuntu"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": dst_ip,
+                "type": "host"
             },
             "event": {
+                "kind": "alert",
+                "category": ["intrusion_detection", "authentication", "network"],
+                "type": ["connection", "attack"],
                 "action": "rdp_brute-force_detected",
-                "category": "remote_desktop_protocol",
-                "type": ["rdp", "attacked"],
-                "outcome": "success",
-                "severity": 6
+                "outcome": "failure",
+                "severity": 2,
+                "severity_label": "critical",
+                "provider": "simulated-linux",
+                "rule": {
+                    "id": "SIM-RDP-003",
+                    "name": "RDP brute-force attack detected"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}",
+                "name": user
+            },
+            "process": {
+                "name": "xrdp",
+                "pid": random.randint(1000, 5000),
+                "executable": "/usr/sbin/xrdp"
             },
             "source": {
-                "ip": f"{self.get_ip_addr()}",
-                "port": 0,
-                "user": f"{random.choice(self.users_attr)}",
-                "executable": "-",
-                "file": "-"
+                "ip": src_ip,
+                "port": src_port
             },
             "destination": {
-                "ip": f"{random.choice(self.destination_ip)}",
-                "port": 0
+                "ip": dst_ip,
+                "port": dst_port
             },
             "network": {
-                "protocol": "-"
+                "protocol": "tcp",
+                "direction": "inbound"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": "RDP",
+                "type": "rdp"
             },
-            "package": {
-                "name": "-",
-                "size": "-"
-            },
-            "app": "-"
+            "related": {
+                "ip": [src_ip, dst_ip],
+                "user": [user]
+            }
         }
 
     def update_system_info_json(self):
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
+        user = f"user-{self.asset_number.replace('IN-', '')}"
+        package_size_bytes = random.randint(1_000_000, 50_000_000)  # 1 MB – 50 MB
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": "TermService",
-                "pid": 0
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ubuntu"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["package"],
+                "type": ["install", "change"],
                 "action": "installation_package",
-                "category": "update_system",
-                "type": ["apt", "install"],
                 "outcome": "success",
-                "severity": 6
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-linux",
+                "rule": {
+                    "id": "SIM-UPD-001",
+                    "name": "Software package installed"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}",
+                "name": user
             },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
-            "network": {
-                "protocol": "-"
-            },
-            "file": {
-                "path": "-"
+            "process": {
+                "name": "apt",
+                "pid": random.randint(1000, 5000),
+                "executable": "/usr/bin/apt"
             },
             "package": {
-                "name": f"{app_name}",
-                "size": "-"
+                "name": app_name,
+                "size": package_size_bytes  # в байтах (число!)
             },
-            "app": "-"
+            "service": {
+                "name": "Package Manager",
+                "type": "apt"
+            },
+            "related": {
+                "user": [user]
+            }
         }
 
     def update_system_err_json(self):
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
+        user = f"user-{self.asset_number.replace('IN-', '')}"
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": "TermService",
-                "pid": 0
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ubuntu"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["package"],
+                "type": ["install", "error"],
                 "action": "failed_installation_package",
-                "category": "update_system",
-                "type": ["apt", "failed"],
-                "outcome": "success",
-                "severity": 6
+                "outcome": "failure",
+                "severity": 3,
+                "severity_label": "high",
+                "provider": "simulated-linux",
+                "rule": {
+                    "id": "SIM-UPD-002",
+                    "name": "Failed to install software package"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}",
+                "name": user
             },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
-            "network": {
-                "protocol": "-"
-            },
-            "file": {
-                "path": "-"
+            "process": {
+                "name": "apt",
+                "pid": random.randint(1000, 5000),
+                "executable": "/usr/bin/apt"
             },
             "package": {
-                "name": f"{app_name}",
-                "size": "-"
+                "name": app_name
             },
-            "app": "-"
+            "service": {
+                "name": "Package Manager",
+                "type": "apt"
+            },
+            "related": {
+                "user": [user]
+            }
         }
 
     def update_system_notice_json(self):
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
+        user = f"user-{self.asset_number.replace('IN-', '')}"
+        package_size_bytes = random.randint(500_000, 10_000_000)  # 0.5–10 MB
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": "TermService",
-                "pid": 0
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ubuntu"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["package"],
+                "type": ["upgrade", "change"],
                 "action": "security_update",
-                "category": "update_system",
-                "type": ["apt", "upgrade"],
                 "outcome": "success",
-                "severity": 6
+                "severity": 5,
+                "severity_label": "medium",
+                "provider": "simulated-linux",
+                "rule": {
+                    "id": "SIM-UPD-003",
+                    "name": "Security update applied"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}",
+                "name": user
             },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
-            "network": {
-                "protocol": "-"
-            },
-            "file": {
-                "path": "-"
+            "process": {
+                "name": "apt",
+                "pid": random.randint(1000, 5000),
+                "executable": "/usr/bin/apt"
             },
             "package": {
-                "name": f"{app_name}",
-                "size": f"{random.randint(1000, 9999)}{random.randint(100, 999)} KB"
+                "name": app_name,
+                "size": package_size_bytes
             },
-            "app": "-"
+            "service": {
+                "name": "Package Manager",
+                "type": "apt"
+            },
+            "related": {
+                "user": [user]
+            }
         }
 
 
@@ -1260,932 +1575,1252 @@ class PersonalComputerWindows(Device):
 
     def auth_info_json(self, list_ip_addr):
         other_ips = [ip for ip in list_ip_addr if ip != self.get_ip_addr()] + self.destination_ip
+        src_ip = random.choice(other_ips)
+        dst_ip = self.get_ip_addr()
+        user = random.choice(self.users_attr)
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": "sshd",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": dst_ip,
+                "os": {
+                    "name": self.os,
+                    "platform": "windows"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": dst_ip,
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["authentication"],
+                "type": ["access", "start"],
                 "action": "user_login",
-                "category": "authentication",
-                "type": ["connection", "access"],
                 "outcome": "success",
-                "severity": 6
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-windows",
+                "rule": {
+                    "id": "SIM-AUTH-WIN-001",
+                    "name": "Windows user login successful"
+                }
             },
             "user": {
-                "name": f"{random.choice(self.users_attr)}"
+                "name": user
+            },
+            "process": {
+                "name": "lsass.exe",
+                "pid": random.randint(500, 2000),
+                "executable": "C:\\Windows\\System32\\lsass.exe"
             },
             "source": {
-                "ip": f"{random.choice(other_ips)}",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+                "ip": src_ip,
+                "port": random.randint(32768, 65535)
             },
             "destination": {
-                "ip": "-",
-                "port": 0
+                "ip": dst_ip,
+                "port": 445  # или 3389 для RDP, но общий вход — через SMB/NetLogon
             },
             "network": {
-                "protocol": "-"
+                "protocol": "tcp",
+                "direction": "inbound"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": "Windows Authentication",
+                "type": "windows"
             },
-            "package": {
-                "name": "-",
-                "size": "-"
-            },
-            "app": "-"
+            "related": {
+                "ip": [src_ip, dst_ip],
+                "user": [user]
+            }
         }
 
     def auth_warning_json(self, list_ip_addr):
         other_ips = [ip for ip in list_ip_addr if ip != self.get_ip_addr()] + self.destination_ip
+        src_ip = random.choice(other_ips)
+        dst_ip = self.get_ip_addr()
+        user = random.choice(self.users_attr)
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": "sshd",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": dst_ip,
+                "os": {
+                    "name": self.os,
+                    "platform": "windows"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": dst_ip,
+                "type": "host"
             },
             "event": {
-                "action": "user_login",
-                "category": "authentication",
-                "type": ["connection", "failed"],
+                "kind": "event",
+                "category": ["authentication"],
+                "type": ["access", "end"],
+                "action": "user_login_failed",
                 "outcome": "failure",
-                "severity": 6
+                "severity": 4,
+                "severity_label": "medium",
+                "provider": "simulated-windows",
+                "rule": {
+                    "id": "SIM-AUTH-WIN-002",
+                    "name": "Failed Windows login attempt"
+                }
             },
             "user": {
-                "name": f"{random.choice(self.users_attr)}"
+                "name": user
+            },
+            "process": {
+                "name": "lsass.exe",
+                "pid": random.randint(500, 2000),
+                "executable": "C:\\Windows\\System32\\lsass.exe"
             },
             "source": {
-                "ip": f"{random.choice(other_ips)}",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+                "ip": src_ip,
+                "port": random.randint(32768, 65535)
             },
             "destination": {
-                "ip": "-",
-                "port": 0
+                "ip": dst_ip,
+                "port": 445
             },
             "network": {
-                "protocol": "-"
+                "protocol": "tcp",
+                "direction": "inbound"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": "Windows Authentication",
+                "type": "windows"
             },
-            "package": {
-                "name": "-",
-                "size": "-"
-            },
-            "app": "-"
+            "related": {
+                "ip": [src_ip, dst_ip],
+                "user": [user]
+            }
         }
 
     def auth_crit_json(self, list_ip_addr):
         other_ips = [ip for ip in list_ip_addr if ip != self.get_ip_addr()] + self.destination_ip
+        src_ip = random.choice(other_ips)
+        dst_ip = self.get_ip_addr()
+        user = random.choice(self.users_attr)
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": "sshd",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": dst_ip,
+                "os": {
+                    "name": self.os,
+                    "platform": "windows"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": dst_ip,
+                "type": "host"
             },
             "event": {
-                "action": "intrusion_attempt",
-                "category": "intrusion_detection",
-                "type": ["connection", "failed"],
+                "kind": "alert",
+                "category": ["intrusion_detection", "authentication"],
+                "type": ["access", "attack"],
+                "action": "brute_force_detected",
                 "outcome": "failure",
-                "severity": 2
+                "severity": 2,
+                "severity_label": "critical",
+                "provider": "simulated-windows",
+                "rule": {
+                    "id": "SIM-AUTH-WIN-003",
+                    "name": "Windows brute-force attack detected"
+                }
             },
             "user": {
-                "name": f"{random.choice(self.users_attr)}"
+                "name": user
+            },
+            "process": {
+                "name": "lsass.exe",
+                "pid": random.randint(500, 2000),
+                "executable": "C:\\Windows\\System32\\lsass.exe"
             },
             "source": {
-                "ip": f"{random.choice(other_ips)}",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+                "ip": src_ip,
+                "port": random.randint(32768, 65535)
             },
             "destination": {
-                "ip": "-",
-                "port": 0
+                "ip": dst_ip,
+                "port": 445
             },
             "network": {
-                "protocol": "-"
+                "protocol": "tcp",
+                "direction": "inbound"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": "Windows Authentication",
+                "type": "windows"
             },
-            "package": {
-                "name": "-",
-                "size": "-"
-            },
-            "app": "-"
+            "related": {
+                "ip": [src_ip, dst_ip],
+                "user": [user]
+            }
         }
 
     def start_process_info_json(self):
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
-        all_files_attr = self.software_files_attr
+        executable = random.choice(self.software_files_attr)
+        user = random.choice(self.users_attr)
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": f"{app_name}",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "windows"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["process"],
+                "type": ["start", "access"],
                 "action": "process_started",
-                "category": "process",
-                "type": ["process", "access"],
                 "outcome": "success",
-                "severity": 6
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-windows",
+                "rule": {
+                    "id": "SIM-WIN-PROC-001",
+                    "name": "Windows process started successfully"
+                }
             },
             "user": {
-                "name": f"{random.choice(self.users_attr)}",
+                "name": user
             },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": f"{random.choice(all_files_attr)}",
-                "file": "-"
+            "process": {
+                "name": app_name,
+                "pid": random.randint(1000, 5000),
+                "executable": executable
             },
-            "destination": {
-                "ip": "-",
-                "port": 0
+            "service": {
+                "name": app_name,
+                "type": app_name.replace(".exe", "").lower()
             },
-            "network": {
-                "protocol": "-"
-            },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "-",
-                "size": "-"
-            },
-            "app": "-"
+            "related": {
+                "user": [user]
+            }
         }
 
     def start_process_warning_json(self):
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
-        all_files_attr = self.software_files_attr
+        executable = random.choice(self.software_files_attr)
+        user = random.choice(self.users_attr)
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": f"{app_name}",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "windows"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["process"],
+                "type": ["end", "denied"],
                 "action": "process_suspicious",
-                "category": "process",
-                "type": ["process", "stoped"],
-                "outcome": "success",
-                "severity": 6
+                "outcome": "failure",
+                "severity": 4,
+                "severity_label": "medium",
+                "provider": "simulated-windows",
+                "rule": {
+                    "id": "SIM-WIN-PROC-002",
+                    "name": "Suspicious Windows process terminated"
+                }
             },
             "user": {
-                "name": f"{random.choice(self.users_attr)}",
+                "name": user
             },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": f"{random.choice(all_files_attr)}",
-                "file": "-"
+            "process": {
+                "name": app_name,
+                "pid": random.randint(1000, 5000),
+                "executable": executable
             },
-            "destination": {
-                "ip": "-",
-                "port": 0
+            "service": {
+                "name": app_name,
+                "type": app_name.replace(".exe", "").lower()
             },
-            "network": {
-                "protocol": "-"
-            },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "-",
-                "size": "-"
-            },
-            "app": "-"
+            "related": {
+                "user": [user]
+            }
         }
 
     def start_process_debug_json(self):
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
-        all_files_attr = self.software_files_attr
+        executable = random.choice(self.software_files_attr)
+        user = random.choice(self.users_attr)
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": f"{app_name}",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "windows"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["process"],
+                "type": ["info", "debug"],
                 "action": "debug_process",
-                "category": "process",
-                "type": ["process", "debug"],
                 "outcome": "success",
-                "severity": 6
+                "severity": 7,
+                "severity_label": "low",
+                "provider": "simulated-windows",
+                "rule": {
+                    "id": "SIM-WIN-PROC-003",
+                    "name": "Windows process debug event"
+                }
             },
             "user": {
-                "name": f"{random.choice(self.users_attr)}",
+                "name": user
             },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": f"{random.choice(all_files_attr)}",
-                "file": "-"
+            "process": {
+                "name": app_name,
+                "pid": random.randint(1000, 5000),
+                "executable": executable
             },
-            "destination": {
-                "ip": "-",
-                "port": 0
+            "service": {
+                "name": app_name,
+                "type": app_name.replace(".exe", "").lower()
             },
-            "network": {
-                "protocol": "-"
-            },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "-",
-                "size": "-"
-            },
-            "app": "-"
+            "related": {
+                "user": [user]
+            }
         }
 
     def open_file_info_json(self):
-        all_files_attr = self.home_files_attr + self.config_files_attr + self.socket_files_attr + self.system_files_attr
+        user = f"user-{self.asset_number.replace('IN-', '')}"
+        # Подставляем имя пользователя в пути
+        home_files = [path.format(user=user) for path in self.home_files_attr]
+        all_files = home_files + self.config_files_attr + self.system_files_attr  # socket_files_attr пуст у Windows
+        file_path = random.choice(all_files)
+
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
-        facility = severity_software[app_name]
+        executable = random.choice(self.software_files_attr).format(user=user)
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": f"{app_name}",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "windows"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["file"],
+                "type": ["access", "opened"],
                 "action": "file_open",
-                "category": "file",
-                "type": ["file", "opened"],
                 "outcome": "success",
-                "severity": 6
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-windows",
+                "rule": {
+                    "id": "SIM-WIN-FILE-001",
+                    "name": "File opened successfully"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}"
+                "name": user
             },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
-            "network": {
-                "protocol": "-"
+            "process": {
+                "name": app_name,
+                "pid": random.randint(1000, 5000),
+                "executable": executable
             },
             "file": {
-                "path": f"{random.choice(all_files_attr)}"
+                "path": file_path
             },
-            "package": {
-                "name": "-",
-                "size": "-"
+            "service": {
+                "name": app_name.replace(".exe", ""),
+                "type": app_name.replace(".exe", "").lower()
             },
-            "app": "-"
+            "related": {
+                "user": [user]
+            }
         }
 
     def open_file_warning_json(self):
-        all_files_attr = self.home_files_attr + self.config_files_attr + self.socket_files_attr + self.system_files_attr
+        user = f"user-{self.asset_number.replace('IN-', '')}"
+        home_files = [path.format(user=user) for path in self.home_files_attr]
+        all_files = home_files + self.config_files_attr + self.system_files_attr
+        file_path = random.choice(all_files)
+
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
-        facility = severity_software[app_name]
+        executable = random.choice(self.software_files_attr).format(user=user)
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": f"{app_name}",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "windows"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "host"
             },
             "event": {
-                "action": "file_access",
-                "category": "file",
-                "type": ["file", "access"],
-                "outcome": "success",
-                "severity": 6
+                "kind": "event",
+                "category": ["file"],
+                "type": ["access", "denied"],
+                "action": "file_access_denied",
+                "outcome": "failure",
+                "severity": 4,
+                "severity_label": "medium",
+                "provider": "simulated-windows",
+                "rule": {
+                    "id": "SIM-WIN-FILE-002",
+                    "name": "File access attempt denied"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}"
+                "name": user
             },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
-            "network": {
-                "protocol": "-"
+            "process": {
+                "name": app_name,
+                "pid": random.randint(1000, 5000),
+                "executable": executable
             },
             "file": {
-                "path": f"{random.choice(all_files_attr)}"
+                "path": file_path
             },
-            "package": {
-                "name": "-",
-                "size": "-"
+            "service": {
+                "name": app_name.replace(".exe", ""),
+                "type": app_name.replace(".exe", "").lower()
             },
-            "app": "-"
+            "related": {
+                "user": [user]
+            }
         }
 
     def open_file_crit_json(self):
-        all_files_attr = self.home_files_attr + self.config_files_attr + self.socket_files_attr + self.system_files_attr
+        user = f"user-{self.asset_number.replace('IN-', '')}"
+        home_files = [path.format(user=user) for path in self.home_files_attr]
+        all_files = home_files + self.config_files_attr + self.system_files_attr
+        file_path = random.choice(all_files)
+
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
-        facility = severity_software[app_name]
-        second_software = random.choice(self.software_attr)
-        second_app_name = list(second_software.keys())[0]
+        executable = random.choice(self.software_files_attr).format(user=user)
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": f"{app_name}",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "windows"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "host"
             },
             "event": {
-                "action": "critical",
-                "category": "file",
-                "type": ["file", "broken"],
-                "outcome": "success",
-                "severity": 6
+                "kind": "alert",
+                "category": ["file"],
+                "type": ["deletion", "corruption"],
+                "action": "critical_file_modified",
+                "outcome": "failure",
+                "severity": 2,
+                "severity_label": "critical",
+                "provider": "simulated-windows",
+                "rule": {
+                    "id": "SIM-WIN-FILE-003",
+                    "name": "Critical system file modified or deleted"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}"
+                "name": user
             },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
-            "network": {
-                "protocol": "-"
+            "process": {
+                "name": app_name,
+                "pid": random.randint(1000, 5000),
+                "executable": executable
             },
             "file": {
-                "path": f"{random.choice(all_files_attr)}"
+                "path": file_path
             },
-            "package": {
-                "name": "-",
-                "size": "-"
+            "service": {
+                "name": app_name.replace(".exe", ""),
+                "type": app_name.replace(".exe", "").lower()
             },
-            "app": "-"
+            "related": {
+                "user": [user]
+            }
         }
 
     def network_activity_info_json(self):
+        user = f"user-{self.asset_number.replace('IN-', '')}"
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
-        facility = severity_software[app_name]
+        executable = random.choice(self.software_files_attr).format(user=user)
+
+        src_ip = self.get_ip_addr()
+        dst_ip = random.choice(self.destination_ip)
+        src_port = random.randint(32768, 65535)
+        dst_port = random.randint(1, 65535)
+        protocol = random.choice(['tcp', 'udp'])
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": f"{app_name}",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": src_ip,
+                "os": {
+                    "name": self.os,
+                    "platform": "windows"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": src_ip,
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["connection", "access"],
                 "action": "network_connection",
-                "category": "network",
-                "type": ["network", "access"],
                 "outcome": "success",
-                "severity": 6
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-windows",
+                "rule": {
+                    "id": "SIM-WIN-NET-001",
+                    "name": "Outbound network connection established"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}"
+                "name": user
+            },
+            "process": {
+                "name": app_name,
+                "pid": random.randint(1000, 5000),
+                "executable": executable
             },
             "source": {
-                "ip": f"{self.get_ip_addr()}",
-                "port": random.randint(8080, 25500),
-                "user": f"user-{self.asset_number.replace('IN-', '')}",
-                "executable": f"{app_name}",
-                "file": "-"
+                "ip": src_ip,
+                "port": src_port
             },
             "destination": {
-                "ip": f"{random.choice(self.destination_ip)}",
-                "port": random.randint(8080, 25500),
+                "ip": dst_ip,
+                "port": dst_port
             },
             "network": {
-                "protocol": f"{random.choice(['tcp', 'udp'])}"
+                "protocol": protocol,
+                "direction": "outbound"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": app_name.replace(".exe", ""),
+                "type": app_name.replace(".exe", "").lower()
             },
-            "package": {
-                "name": "-",
-                "size": "-"
-            },
-            "app": "-"
+            "related": {
+                "ip": [src_ip, dst_ip],
+                "user": [user]
+            }
         }
 
     def network_activity_warning_json(self):
+        user = f"user-{self.asset_number.replace('IN-', '')}"
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
-        facility = severity_software[app_name]
-        second_software = random.choice(self.software_attr)
-        second_app_name = list(second_software.keys())[0]
+        executable = random.choice(self.software_files_attr).format(user=user)
+
+        src_ip = self.get_ip_addr()
+        dst_ip = random.choice(self.destination_ip)
+        src_port = random.randint(32768, 65535)
+        dst_port = random.randint(1, 65535)
+        protocol = random.choice(['tcp', 'udp'])
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": f"{app_name}",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": src_ip,
+                "os": {
+                    "name": self.os,
+                    "platform": "windows"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": src_ip,
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["connection", "unusual"],
                 "action": "network_connection_app",
-                "category": "network",
-                "type": ["network", "app_connection"],
                 "outcome": "success",
-                "severity": 6
+                "severity": 4,
+                "severity_label": "medium",
+                "provider": "simulated-windows",
+                "rule": {
+                    "id": "SIM-WIN-NET-002",
+                    "name": "Unusual application network activity"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}"
+                "name": user
+            },
+            "process": {
+                "name": app_name,
+                "pid": random.randint(1000, 5000),
+                "executable": executable
             },
             "source": {
-                "ip": f"{self.get_ip_addr()}",
-                "port": random.randint(8080, 25500),
-                "user": f"user-{self.asset_number.replace('IN-', '')}",
-                "executable": f"{app_name}",
-                "file": "-"
+                "ip": src_ip,
+                "port": src_port
             },
             "destination": {
-                "ip": f"{random.choice(self.destination_ip)}",
-                "port": random.randint(8080, 25500),
+                "ip": dst_ip,
+                "port": dst_port
             },
             "network": {
-                "protocol": f"{random.choice(['tcp', 'udp'])}"
+                "protocol": protocol,
+                "direction": "outbound"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": app_name.replace(".exe", ""),
+                "type": app_name.replace(".exe", "").lower()
             },
-            "package": {
-                "name": "-",
-                "size": "-"
-            },
-            "app": "-"
+            "related": {
+                "ip": [src_ip, dst_ip],
+                "user": [user]
+            }
         }
 
     def network_activity_debug_json(self):
+        user = f"user-{self.asset_number.replace('IN-', '')}"
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
-        facility = severity_software[app_name]
-        second_software = random.choice(self.software_attr)
-        second_app_name = list(second_software.keys())[0]
+        executable = random.choice(self.software_files_attr).format(user=user)
+
+        src_ip = self.get_ip_addr()
+        dst_ip = random.choice(self.destination_ip)
+        src_port = random.randint(32768, 65535)
+        dst_port = random.randint(1, 65535)
+        protocol = "tcp"  # действие — "tcp_connection"
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": f"{app_name}",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": src_ip,
+                "os": {
+                    "name": self.os,
+                    "platform": "windows"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": src_ip,
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["connection", "info"],
                 "action": "tcp_connection",
-                "category": "network",
-                "type": ["network", "tcp"],
                 "outcome": "success",
-                "severity": 6
+                "severity": 7,
+                "severity_label": "low",
+                "provider": "simulated-windows",
+                "rule": {
+                    "id": "SIM-WIN-NET-003",
+                    "name": "TCP connection debug event"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}"
+                "name": user
+            },
+            "process": {
+                "name": app_name,
+                "pid": random.randint(1000, 5000),
+                "executable": executable
             },
             "source": {
-                "ip": f"{self.get_ip_addr()}",
-                "port": random.randint(8080, 25500),
-                "user": f"user-{self.asset_number.replace('IN-', '')}",
-                "executable": f"{app_name}",
-                "file": "-"
+                "ip": src_ip,
+                "port": src_port
             },
             "destination": {
-                "ip": f"{random.choice(self.destination_ip)}",
-                "port": random.randint(8080, 25500),
+                "ip": dst_ip,
+                "port": dst_port
             },
             "network": {
-                "protocol": f"{random.choice(['tcp', 'udp'])}"
+                "protocol": protocol,
+                "direction": "outbound"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": app_name.replace(".exe", ""),
+                "type": app_name.replace(".exe", "").lower()
             },
-            "package": {
-                "name": "-",
-                "size": "-"
-            },
-            "app": "-"
+            "related": {
+                "ip": [src_ip, dst_ip],
+                "user": [user]
+            }
         }
 
     def edit_policies_notice_json(self):
-        app = "GroupPolicy"
+        user = f"user-{self.asset_number.replace('IN-', '')}"
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": f"{app}",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "windows"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["settings"],
+                "type": ["change", "info"],
                 "action": "applied_policy",
-                "category": "settings",
-                "type": ["policy", "info"],
                 "outcome": "success",
-                "severity": 6
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-windows",
+                "rule": {
+                    "id": "SIM-WIN-POL-001",
+                    "name": "Group Policy applied successfully"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}",
+                "name": user
             },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+            "process": {
+                "name": "GroupPolicy",
+                "pid": random.randint(1000, 5000),
+                "executable": "C:\\Windows\\System32\\gpsvc.dll"
             },
-            "destination": {
-                "ip": "-",
-                "port": 0
+            "service": {
+                "name": "Group Policy",
+                "type": "gpo"
             },
-            "network": {
-                "protocol": "-"
-            },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "-",
-                "size": "-"
-            },
-            "app": "systemd"
+            "related": {
+                "user": [user]
+            }
         }
 
     def edit_policies_warning_json(self):
-        app = "GroupPolicy"
+        user = f"user-{self.asset_number.replace('IN-', '')}"
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": f"{app}",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "windows"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["settings"],
+                "type": ["change", "error"],
                 "action": "failed_policy",
-                "category": "settings",
-                "type": ["policy", "failed"],
-                "outcome": "success",
-                "severity": 6
+                "outcome": "failure",
+                "severity": 4,
+                "severity_label": "medium",
+                "provider": "simulated-windows",
+                "rule": {
+                    "id": "SIM-WIN-POL-002",
+                    "name": "Group Policy application failed"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}",
+                "name": user
             },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+            "process": {
+                "name": "GroupPolicy",
+                "pid": random.randint(1000, 5000),
+                "executable": "C:\\Windows\\System32\\gpsvc.dll"
             },
-            "destination": {
-                "ip": "-",
-                "port": 0
+            "service": {
+                "name": "Group Policy",
+                "type": "gpo"
             },
-            "network": {
-                "protocol": "-"
-            },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "-",
-                "size": "-"
-            },
-            "app": "systemd"
+            "related": {
+                "user": [user]
+            }
         }
 
     def edit_policies_info_json(self):
-        app = "GroupPolicy"
+        user = f"user-{self.asset_number.replace('IN-', '')}"
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": f"{app}",
-                "pid": random.randint(115, 1999)
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "windows"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["settings"],
+                "type": ["change", "reload"],
                 "action": "reload_policy",
-                "category": "settings",
-                "type": ["policy", "reload"],
                 "outcome": "success",
-                "severity": 6
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-windows",
+                "rule": {
+                    "id": "SIM-WIN-POL-003",
+                    "name": "Group Policy reloaded"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}",
+                "name": user
             },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+            "process": {
+                "name": "GroupPolicy",
+                "pid": random.randint(1000, 5000),
+                "executable": "C:\\Windows\\System32\\gpsvc.dll"
             },
-            "destination": {
-                "ip": "-",
-                "port": 0
+            "service": {
+                "name": "Group Policy",
+                "type": "gpo"
             },
-            "network": {
-                "protocol": "-"
-            },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "-",
-                "size": "-"
-            },
-            "app": "systemd"
+            "related": {
+                "user": [user]
+            }
         }
 
     def remote_control_info_json(self):
+        user = f"user-{self.asset_number.replace('IN-', '')}"
+        src_ip = random.choice(self.destination_ip)  # Внешний клиент
+        dst_ip = self.get_ip_addr()  # Целевой хост
+        src_port = random.randint(32768, 65535)
+        dst_port = 3389  # RDP
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": "TermService",
-                "pid": 0
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": dst_ip,
+                "os": {
+                    "name": self.os,
+                    "platform": "windows"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": dst_ip,
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["authentication", "network"],
+                "type": ["connection", "access"],
                 "action": "rdp_connection",
-                "category": "remote_desktop_protocol",
-                "type": ["rdp", "connection"],
                 "outcome": "success",
-                "severity": 6
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-windows",
+                "rule": {
+                    "id": "SIM-WIN-RDP-001",
+                    "name": "RDP connection established"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}",
+                "name": user
+            },
+            "process": {
+                "name": "TermService",
+                "pid": random.randint(500, 2000),
+                "executable": "C:\\Windows\\System32\\termsrv.dll"
             },
             "source": {
-                "ip": f"{self.get_ip_addr()}",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+                "ip": src_ip,
+                "port": src_port
             },
             "destination": {
-                "ip": "-",
-                "port": 0
+                "ip": dst_ip,
+                "port": dst_port
             },
             "network": {
-                "protocol": "-"
+                "protocol": "tcp",
+                "direction": "inbound"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": "Remote Desktop",
+                "type": "rdp"
             },
-            "package": {
-                "name": "-",
-                "size": "-"
-            },
-            "app": "-"
+            "related": {
+                "ip": [src_ip, dst_ip],
+                "user": [user]
+            }
         }
 
     def remote_control_warning_json(self):
+        user = f"user-{self.asset_number.replace('IN-', '')}"
+        src_ip = random.choice(self.destination_ip)
+        dst_ip = self.get_ip_addr()
+        src_port = random.randint(32768, 65535)
+        dst_port = 3389
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": "TermService",
-                "pid": 0
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": dst_ip,
+                "os": {
+                    "name": self.os,
+                    "platform": "windows"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": dst_ip,
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["authentication", "network"],
+                "type": ["connection", "denied"],
                 "action": "rdp_failed_login",
-                "category": "remote_desktop_protocol",
-                "type": ["rdp", "failed"],
-                "outcome": "success",
-                "severity": 6
+                "outcome": "failure",
+                "severity": 4,
+                "severity_label": "medium",
+                "provider": "simulated-windows",
+                "rule": {
+                    "id": "SIM-WIN-RDP-002",
+                    "name": "Failed RDP login attempt"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}",
+                "name": user
+            },
+            "process": {
+                "name": "TermService",
+                "pid": random.randint(500, 2000),
+                "executable": "C:\\Windows\\System32\\termsrv.dll"
             },
             "source": {
-                "ip": f"{self.get_ip_addr()}",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+                "ip": src_ip,
+                "port": src_port
             },
             "destination": {
-                "ip": "-",
-                "port": 0
+                "ip": dst_ip,
+                "port": dst_port
             },
             "network": {
-                "protocol": "-"
+                "protocol": "tcp",
+                "direction": "inbound"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": "Remote Desktop",
+                "type": "rdp"
             },
-            "package": {
-                "name": "-",
-                "size": "-"
-            },
-            "app": "-"
+            "related": {
+                "ip": [src_ip, dst_ip],
+                "user": [user]
+            }
         }
 
     def remote_control_alert_json(self):
+        user = f"user-{self.asset_number.replace('IN-', '')}"
+        src_ip = random.choice(self.destination_ip)
+        dst_ip = self.get_ip_addr()
+        src_port = random.randint(32768, 65535)
+        dst_port = 3389
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": "TermService",
-                "pid": 0
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": dst_ip,
+                "os": {
+                    "name": self.os,
+                    "platform": "windows"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": dst_ip,
+                "type": "host"
             },
             "event": {
+                "kind": "alert",
+                "category": ["intrusion_detection", "authentication", "network"],
+                "type": ["connection", "attack"],
                 "action": "rdp_brute-force_detected",
-                "category": "remote_desktop_protocol",
-                "type": ["rdp", "attacked"],
-                "outcome": "success",
-                "severity": 6
+                "outcome": "failure",
+                "severity": 2,
+                "severity_label": "critical",
+                "provider": "simulated-windows",
+                "rule": {
+                    "id": "SIM-WIN-RDP-003",
+                    "name": "RDP brute-force attack detected"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}",
+                "name": user
+            },
+            "process": {
+                "name": "TermService",
+                "pid": random.randint(500, 2000),
+                "executable": "C:\\Windows\\System32\\termsrv.dll"
             },
             "source": {
-                "ip": f"{self.get_ip_addr()}",
-                "port": 0,
-                "user": f"{random.choice(self.users_attr)}",
-                "executable": "-",
-                "file": "-"
+                "ip": src_ip,
+                "port": src_port
             },
             "destination": {
-                "ip": f"{random.choice(self.destination_ip)}",
-                "port": 0
+                "ip": dst_ip,
+                "port": dst_port
             },
             "network": {
-                "protocol": "-"
+                "protocol": "tcp",
+                "direction": "inbound"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": "Remote Desktop",
+                "type": "rdp"
             },
-            "package": {
-                "name": "-",
-                "size": "-"
-            },
-            "app": "-"
+            "related": {
+                "ip": [src_ip, dst_ip],
+                "user": [user]
+            }
         }
 
     def update_system_info_json(self):
+        user = f"user-{self.asset_number.replace('IN-', '')}"
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
+        package_size_bytes = random.randint(1_000_000, 50_000_000)  # 1–50 MB
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": "TermService",
-                "pid": 0
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "windows"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["package"],
+                "type": ["install", "change"],
                 "action": "installation_package",
-                "category": "update_system",
-                "type": ["WindowsUpdate", "install"],
                 "outcome": "success",
-                "severity": 6
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-windows",
+                "rule": {
+                    "id": "SIM-WIN-UPD-001",
+                    "name": "Windows software package installed"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}",
+                "name": user
             },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
-            "network": {
-                "protocol": "-"
-            },
-            "file": {
-                "path": "-"
+            "process": {
+                "name": "TiWorker.exe",
+                "pid": random.randint(1000, 5000),
+                "executable": "C:\\Windows\\System32\\TiWorker.exe"
             },
             "package": {
-                "name": f"{app_name}",
-                "size": "-"
+                "name": app_name,
+                "size": package_size_bytes  # число в байтах
             },
-            "app": "-"
+            "service": {
+                "name": "Windows Update",
+                "type": "windows_update"
+            },
+            "related": {
+                "user": [user]
+            }
         }
 
     def update_system_err_json(self):
+        user = f"user-{self.asset_number.replace('IN-', '')}"
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": "TermService",
-                "pid": 0
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "windows"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["package"],
+                "type": ["install", "error"],
                 "action": "failed_installation_package",
-                "category": "update_system",
-                "type": ["WindowsUpdate", "failed"],
-                "outcome": "success",
-                "severity": 6
+                "outcome": "failure",
+                "severity": 3,
+                "severity_label": "high",
+                "provider": "simulated-windows",
+                "rule": {
+                    "id": "SIM-WIN-UPD-002",
+                    "name": "Failed to install Windows software package"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}",
+                "name": user
             },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
-            "network": {
-                "protocol": "-"
-            },
-            "file": {
-                "path": "-"
+            "process": {
+                "name": "TiWorker.exe",
+                "pid": random.randint(1000, 5000),
+                "executable": "C:\\Windows\\System32\\TiWorker.exe"
             },
             "package": {
-                "name": f"{app_name}",
-                "size": "-"
+                "name": app_name
             },
-            "app": "-"
+            "service": {
+                "name": "Windows Update",
+                "type": "windows_update"
+            },
+            "related": {
+                "user": [user]
+            }
         }
 
     def update_system_notice_json(self):
+        user = f"user-{self.asset_number.replace('IN-', '')}"
         severity_software = random.choice(self.software_attr)
         app_name = list(severity_software.keys())[0]
+        package_size_bytes = random.randint(500_000, 10_000_000)  # 0.5–10 MB
+
         return {
-            "@timestamp": f"{self.get_timestamp()}",
-            "hostname": f"{self.hostname}",
-            "process": {
-                "name": "TermService",
-                "pid": 0
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "windows"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "host"
             },
             "event": {
+                "kind": "event",
+                "category": ["package"],
+                "type": ["upgrade", "change"],
                 "action": "security_update",
-                "category": "update_system",
-                "type": ["WindowsUpdate", "upgrade"],
                 "outcome": "success",
-                "severity": 6
+                "severity": 5,
+                "severity_label": "medium",
+                "provider": "simulated-windows",
+                "rule": {
+                    "id": "SIM-WIN-UPD-003",
+                    "name": "Windows security update applied"
+                }
             },
             "user": {
-                "name": f"user-{self.asset_number.replace('IN-', '')}",
+                "name": user
             },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
-            "network": {
-                "protocol": "-"
-            },
-            "file": {
-                "path": "-"
+            "process": {
+                "name": "TiWorker.exe",
+                "pid": random.randint(1000, 5000),
+                "executable": "C:\\Windows\\System32\\TiWorker.exe"
             },
             "package": {
-                "name": f"{app_name}",
-                "size": f"{random.randint(1000, 9999)}{random.randint(100, 999)} KB"
+                "name": app_name,
+                "size": package_size_bytes
             },
-            "app": "-"
+            "service": {
+                "name": "Windows Update",
+                "type": "windows_update"
+            },
+            "related": {
+                "user": [user]
+            }
         }
 
 
@@ -2287,924 +2922,945 @@ class Switch(Device):
         port = random.choice(self.port)
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"  # или "nxos", "cumulus", в зависимости от вашей модели
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "switch"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["change", "info"],
+                "action": f"Interface {port} changed state to up",
+                "outcome": "success",
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-switch",
+                "rule": {
+                    "id": "SIM-SW-PORT-001",
+                    "name": "Switch port state changed to up"
+                }
+            },
             "process": {
                 "name": "LINK-UPDOWN",
                 "pid": 1
             },
-            "event": {
-                "action": f"Interface {port} changed state to up",
-                "category": "network",
-                "type": ["change", "info"],
-                "outcome": "success",
-                "severity": 6
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ethernet"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "network-device"
+            "service": {
+                "name": "Switch Management",
+                "type": "switch"
+            }
         }
 
     def change_status_port_warning(self):
         port = random.choice(self.port)
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "switch"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["change", "warning"],
+                "action": f"Interface {port} flapping",
+                "outcome": "success",
+                "severity": 4,
+                "severity_label": "medium",
+                "provider": "simulated-switch",
+                "rule": {
+                    "id": "SIM-SW-PORT-002",
+                    "name": "Switch port flapping detected"
+                }
+            },
             "process": {
                 "name": "LINK-FLAP",
                 "pid": 1
             },
-            "event": {
-                "action": f"Interface {port} flapping",
-                "category": "network",
-                "type": ["change", "warning"],
-                "outcome": "success",
-                "severity": 4
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ethernet"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "network-device"
+            "service": {
+                "name": "Switch Management",
+                "type": "switch"
+            }
         }
 
     def change_status_port_crit(self):
         port = random.choice(self.port)
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "switch"
+            },
+            "event": {
+                "kind": "alert",
+                "category": ["network"],
+                "type": ["error", "failure"],
+                "action": f"Hardware failure on {port}",
+                "outcome": "failure",
+                "severity": 2,
+                "severity_label": "critical",
+                "provider": "simulated-switch",
+                "rule": {
+                    "id": "SIM-SW-PORT-003",
+                    "name": "Switch hardware port failure"
+                }
+            },
             "process": {
                 "name": "HWIC-PORT_FAIL",
                 "pid": 1
             },
-            "event": {
-                "action": f"Hardware failure on {port}",
-                "category": "network",
-                "type": ["error", "failure"],
-                "outcome": "failure",
-                "severity": 2
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ethernet"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "network-device"
+            "service": {
+                "name": "Switch Management",
+                "type": "switch"
+            }
         }
 
     def learn_mac_addr_info(self, list_mac_addr):
         other_mac = [mac for mac in list_mac_addr if mac != self.get_mac_addr()]
+        if not other_mac:
+            return None  # защита от пустого списка
         mac_addr = random.choice(other_mac)
         port = random.choice(self.port)
 
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "switch"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["info", "change"],
+                "action": f"MAC {mac_addr} learned on {port}",
+                "outcome": "success",
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-switch",
+                "rule": {
+                    "id": "SIM-SW-MAC-001",
+                    "name": "Switch learned new MAC address"
+                }
+            },
             "process": {
                 "name": "MAC-LEARN",
                 "pid": 1
             },
-            "event": {
-                "action": f"MAC {mac_addr} learned on {port}",
-                "category": "network",
-                "type": ["info", "change"],
-                "outcome": "success",
-                "severity": 6
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ethernet"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "network-device"
+            "service": {
+                "name": "Switch Forwarding",
+                "type": "switch"
+            }
         }
 
     def learn_mac_addr_warning(self, list_mac_addr):
         other_mac = [mac for mac in list_mac_addr if mac != self.get_mac_addr()]
+        if not other_mac:
+            return None
         mac_addr = random.choice(other_mac)
         from_port = random.choice(self.port)
-        to_port = random.choice(self.port)
+        to_port = random.choice([p for p in self.port if p != from_port] or self.port)
 
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "switch"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["change", "warning"],
+                "action": f"MAC {mac_addr} moved from {from_port} to {to_port}",
+                "outcome": "success",
+                "severity": 4,
+                "severity_label": "medium",
+                "provider": "simulated-switch",
+                "rule": {
+                    "id": "SIM-SW-MAC-002",
+                    "name": "MAC address moved between switch ports"
+                }
+            },
             "process": {
                 "name": "MAC-MOVE",
                 "pid": 1
             },
-            "event": {
-                "action": f"MAC {mac_addr} move from {from_port} to {to_port}",
-                "category": "network",
-                "type": ["change", "warning"],
-                "outcome": "success",
-                "severity": 4
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ethernet"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "network-device"
+            "service": {
+                "name": "Switch Forwarding",
+                "type": "switch"
+            }
         }
 
     def learn_mac_addr_debug(self, list_mac_addr):
         other_mac = [mac for mac in list_mac_addr if mac != self.get_mac_addr()]
+        if not other_mac:
+            return None
         mac_addr = random.choice(other_mac)
 
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "switch"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["info", "debug"],
+                "action": f"MAC table entry added: {mac_addr}",
+                "outcome": "success",
+                "severity": 7,
+                "severity_label": "low",
+                "provider": "simulated-switch",
+                "rule": {
+                    "id": "SIM-SW-MAC-003",
+                    "name": "Switch MAC table debug entry"
+                }
+            },
             "process": {
                 "name": "MAC-TABLE",
                 "pid": 1
             },
-            "event": {
-                "action": f"MAC table entry added {mac_addr}",
-                "category": "network",
-                "type": ["info", "debug"],
-                "outcome": "success",
-                "severity": 7
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ethernet"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "network-device"
+            "service": {
+                "name": "Switch Forwarding",
+                "type": "switch"
+            }
         }
 
     def violation_port_security_warning(self):
         port = random.choice(self.port)
-
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "switch"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["security", "warning"],
+                "action": f"Security violation on {port}",
+                "outcome": "failure",
+                "severity": 4,
+                "severity_label": "medium",
+                "provider": "simulated-switch",
+                "rule": {
+                    "id": "SIM-SW-PORTSEC-001",
+                    "name": "Port security violation detected"
+                }
+            },
             "process": {
                 "name": "PORTSEC-VIOLATION",
                 "pid": 1
             },
-            "event": {
-                "action": f"Security violation on {port}",
-                "category": "network",
-                "type": ["warning", "security"],
-                "outcome": "failure",
-                "severity": 4
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ethernet"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "network-device"
+            "service": {
+                "name": "Port Security",
+                "type": "switch"
+            }
         }
 
     def violation_port_security_crit(self):
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "switch"
+            },
+            "event": {
+                "kind": "alert",
+                "category": ["network", "intrusion_detection"],
+                "type": ["security", "attack"],
+                "action": "CAM table overflow attack detected",
+                "outcome": "failure",
+                "severity": 2,
+                "severity_label": "critical",
+                "provider": "simulated-switch",
+                "rule": {
+                    "id": "SIM-SW-PORTSEC-002",
+                    "name": "CAM table flooding attack"
+                }
+            },
             "process": {
                 "name": "PORTSEC-CAM_FLOOD",
                 "pid": 1
             },
-            "event": {
-                "action": "CAM table overflow attack detected",
-                "category": "network",
-                "type": ["security", "attack"],
-                "outcome": "failure",
-                "severity": 2
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ethernet"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "network-device"
+            "service": {
+                "name": "Port Security",
+                "type": "switch"
+            }
         }
 
     def violation_port_security_alert(self):
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "switch"
+            },
+            "event": {
+                "kind": "alert",
+                "category": ["network", "intrusion_detection"],
+                "type": ["security", "alert"],
+                "action": "Unauthorized device connected",
+                "outcome": "failure",
+                "severity": 1,
+                "severity_label": "critical",
+                "provider": "simulated-switch",
+                "rule": {
+                    "id": "SIM-SW-PORTSEC-003",
+                    "name": "Unauthorized device detected on switch port"
+                }
+            },
             "process": {
                 "name": "SECURITY-COMPROMISE",
                 "pid": 1
             },
-            "event": {
-                "action": "Unauthorized device connected",
-                "category": "network",
-                "type": ["security", "alert"],
-                "outcome": "failure",
-                "severity": 1
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ethernet"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "network-device"
+            "service": {
+                "name": "Port Security",
+                "type": "switch"
+            }
         }
 
     def stp_event_info(self):
         port = random.choice(self.port)
-
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "switch"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["info", "change"],
+                "action": f"Port {port} to forwarding",
+                "outcome": "success",
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-switch",
+                "rule": {
+                    "id": "SIM-SW-STP-001",
+                    "name": "STP port transitioned to forwarding state"
+                }
+            },
             "process": {
                 "name": "STP-PORTSTATE",
                 "pid": 1
             },
-            "event": {
-                "action": f"Port {port} to forwarding",
-                "category": "network",
-                "type": ["info", "change"],
-                "outcome": "success",
-                "severity": 6
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ethernet"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "network-device"
+            "service": {
+                "name": "Spanning Tree Protocol",
+                "type": "stp"
+            }
         }
 
     def stp_event_warning(self):
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "switch"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["warning", "change"],
+                "action": "Topology change detected",
+                "outcome": "success",
+                "severity": 4,
+                "severity_label": "medium",
+                "provider": "simulated-switch",
+                "rule": {
+                    "id": "SIM-SW-STP-002",
+                    "name": "STP topology change detected"
+                }
+            },
             "process": {
                 "name": "STP-TOPOLOGY_CHANGE",
                 "pid": 1
             },
-            "event": {
-                "action": "Topology change detected",
-                "category": "network",
-                "type": ["warning", "change"],
-                "outcome": "success",
-                "severity": 4
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ethernet"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "network-device"
+            "service": {
+                "name": "Spanning Tree Protocol",
+                "type": "stp"
+            }
         }
 
     def stp_event_crit(self):
         vlan = random.randint(2, 19)
-
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "switch"
+            },
+            "event": {
+                "kind": "alert",
+                "category": ["network", "intrusion_detection"],
+                "type": ["error", "critical"],
+                "action": f"Network loop detected on VLAN {vlan}",
+                "outcome": "failure",
+                "severity": 2,
+                "severity_label": "critical",
+                "provider": "simulated-switch",
+                "rule": {
+                    "id": "SIM-SW-STP-003",
+                    "name": "STP loop detected — potential network outage"
+                }
+            },
             "process": {
                 "name": "STP-LOOP_DETECTED",
                 "pid": 1
             },
-            "event": {
-                "action": f"Network loop detected on VLAN {vlan}",
-                "category": "network",
-                "type": ["error", "critical"],
-                "outcome": "failure",
-                "severity": 2
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ethernet"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "network-device"
+            "service": {
+                "name": "Spanning Tree Protocol",
+                "type": "stp"
+            }
         }
 
     def duplex_error_warning(self):
         port = random.choice(self.port)
-
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "switch"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["warning", "error"],
+                "action": f"CRC errors on {port}",
+                "outcome": "failure",
+                "severity": 4,
+                "severity_label": "medium",
+                "provider": "simulated-switch",
+                "rule": {
+                    "id": "SIM-SW-DUPLEX-001",
+                    "name": "CRC errors detected on switch port"
+                }
+            },
             "process": {
                 "name": "INTERFACE-CRC",
                 "pid": 1
             },
-            "event": {
-                "action": f"CRC errors on {port}",
-                "category": "network",
-                "type": ["warning", "error"],
-                "outcome": "failure",
-                "severity": 4
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ethernet"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "network-device"
+            "service": {
+                "name": "Interface Diagnostics",
+                "type": "switch"
+            }
         }
 
     def duplex_error_err(self):
         port = random.choice(self.port)
-
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "switch"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["error", "failure"],
+                "action": f"Duplex mismatch on {port}",
+                "outcome": "failure",
+                "severity": 3,
+                "severity_label": "high",
+                "provider": "simulated-switch",
+                "rule": {
+                    "id": "SIM-SW-DUPLEX-002",
+                    "name": "Duplex mismatch on switch port"
+                }
+            },
             "process": {
                 "name": "PHY-DUPLEX_MISMATCH",
                 "pid": 1
             },
-            "event": {
-                "action": f"Duplex mismatch on {port}",
-                "category": "network",
-                "type": ["error", "failure"],
-                "outcome": "failure",
-                "severity": 3
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ethernet"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "network-device"
+            "service": {
+                "name": "Interface Diagnostics",
+                "type": "switch"
+            }
         }
 
     def duplex_error_crit(self):
         port = random.choice(self.port)
-
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "switch"
+            },
+            "event": {
+                "kind": "alert",
+                "category": ["network", "hardware"],
+                "type": ["error", "critical"],
+                "action": f"Physical layer failure on {port}",
+                "outcome": "failure",
+                "severity": 2,
+                "severity_label": "critical",
+                "provider": "simulated-switch",
+                "rule": {
+                    "id": "SIM-SW-DUPLEX-003",
+                    "name": "Physical layer failure on switch port"
+                }
+            },
             "process": {
                 "name": "HWIC-HARDWARE_ERR",
                 "pid": 1
             },
-            "event": {
-                "action": f"Physical layer failure on {port}",
-                "category": "network",
-                "type": ["error", "critical"],
-                "outcome": "failure",
-                "severity": 2
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ethernet"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "network-device"
+            "service": {
+                "name": "Interface Diagnostics",
+                "type": "switch"
+            }
         }
 
     def vlan_event_info(self):
         port = random.choice(self.port)
         vlan = random.randint(2, 19)
-
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "switch"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["info", "change"],
+                "action": f"Port {port} assigned to VLAN {vlan}",
+                "outcome": "success",
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-switch",
+                "rule": {
+                    "id": "SIM-SW-VLAN-001",
+                    "name": "Switch port assigned to VLAN"
+                }
+            },
             "process": {
                 "name": "VLAN-ASSIGN",
                 "pid": 1
             },
-            "event": {
-                "action": f"Port {port} assigned to VLAN {vlan}",
-                "category": "network",
-                "type": ["info", "change"],
-                "outcome": "success",
-                "severity": 6
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ethernet"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "network-device"
+            "service": {
+                "name": "VLAN Management",
+                "type": "switch"
+            }
         }
 
     def vlan_event_warning(self):
         port = random.choice(self.port)
-
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "switch"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["warning", "misconfiguration"],
+                "action": f"Native VLAN mismatch on {port}",
+                "outcome": "failure",
+                "severity": 4,
+                "severity_label": "medium",
+                "provider": "simulated-switch",
+                "rule": {
+                    "id": "SIM-SW-VLAN-002",
+                    "name": "Native VLAN mismatch detected"
+                }
+            },
             "process": {
                 "name": "VLAN-NATIVE_MISMATCH",
                 "pid": 1
             },
-            "event": {
-                "action": f"Native VLAN mismatch on {port}",
-                "category": "network",
-                "type": ["warning", "misconfiguration"],
-                "outcome": "failure",
-                "severity": 4
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ethernet"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "network-device"
+            "service": {
+                "name": "VLAN Management",
+                "type": "switch"
+            }
         }
 
     def vlan_event_debug(self):
         port = random.choice(self.port)
-
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "switch"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["debug", "info"],
+                "action": f"VLAN membership updated for {port}",
+                "outcome": "success",
+                "severity": 7,
+                "severity_label": "low",
+                "provider": "simulated-switch",
+                "rule": {
+                    "id": "SIM-SW-VLAN-003",
+                    "name": "VLAN membership debug update"
+                }
+            },
             "process": {
                 "name": "VLAN-DEBUG",
                 "pid": 1
             },
-            "event": {
-                "action": f"VLAN membership updated for {port}",
-                "category": "network",
-                "type": ["debug", "info"],
-                "outcome": "success",
-                "severity": 7
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ethernet"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "network-device"
+            "service": {
+                "name": "VLAN Management",
+                "type": "switch"
+            }
         }
 
     def auth_802_1x_info(self, list_mac_addr):
         other_mac = [mac for mac in list_mac_addr if mac != self.get_mac_addr()]
+        if not other_mac:
+            return None
         mac_addr = random.choice(other_mac)
 
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "switch"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network", "authentication"],
+                "type": ["info", "access"],
+                "action": f"Auth succeeded for MAC {mac_addr}",
+                "outcome": "success",
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-switch",
+                "rule": {
+                    "id": "SIM-SW-8021X-001",
+                    "name": "802.1X authentication succeeded"
+                }
+            },
             "process": {
                 "name": "DOT1X-SUCCESS",
                 "pid": 1
             },
-            "event": {
-                "action": f"Auth succeeded for MAC {mac_addr}",
-                "category": "network",
-                "type": ["info", "authentication"],
-                "outcome": "success",
-                "severity": 6
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ethernet"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "network-device"
+            "service": {
+                "name": "802.1X Authentication",
+                "type": "dot1x"
+            }
         }
 
     def auth_802_1x_warning(self, list_mac_addr):
         other_mac = [mac for mac in list_mac_addr if mac != self.get_mac_addr()]
+        if not other_mac:
+            return None
         mac_addr = random.choice(other_mac)
 
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "switch"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network", "authentication"],
+                "type": ["warning", "access"],
+                "action": f"Auth failed for MAC {mac_addr}",
+                "outcome": "failure",
+                "severity": 4,
+                "severity_label": "medium",
+                "provider": "simulated-switch",
+                "rule": {
+                    "id": "SIM-SW-8021X-002",
+                    "name": "802.1X authentication failed"
+                }
+            },
             "process": {
                 "name": "DOT1X-FAIL",
                 "pid": 1
             },
-            "event": {
-                "action": f"Auth failed for MAC {mac_addr}",
-                "category": "network",
-                "type": ["warning", "authentication"],
-                "outcome": "failure",
-                "severity": 4
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ethernet"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "network-device"
+            "service": {
+                "name": "802.1X Authentication",
+                "type": "dot1x"
+            }
         }
 
     def auth_802_1x_alert(self, list_mac_addr):
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "switch"
+            },
+            "event": {
+                "kind": "alert",
+                "category": ["network", "intrusion_detection", "authentication"],
+                "type": ["alert", "attack"],
+                "action": "EAPOL flood attack detected",
+                "outcome": "failure",
+                "severity": 1,
+                "severity_label": "critical",
+                "provider": "simulated-switch",
+                "rule": {
+                    "id": "SIM-SW-8021X-003",
+                    "name": "802.1X EAPOL flood attack"
+                }
+            },
             "process": {
                 "name": "DOT1X-ATTACK",
                 "pid": 1
             },
-            "event": {
-                "action": "EAPOL flood attack detected",
-                "category": "network",
-                "type": ["alert", "attack"],
-                "outcome": "failure",
-                "severity": 1
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ethernet"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "network-device"
+            "service": {
+                "name": "802.1X Authentication",
+                "type": "dot1x"
+            }
         }
-
 
 class Router(Device):
 
@@ -3254,491 +3910,532 @@ class Router(Device):
 
     def change_status_int_info(self):
         interface = random.choice(self.port)
-
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"  # или "nxos", "cumulus" и т.д.
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "router"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["info", "change"],
+                "action": f"{interface} changed state to up",
+                "outcome": "success",
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-router",
+                "rule": {
+                    "id": "SIM-RT-INT-001",
+                    "name": "Router interface state changed to up"
+                }
+            },
             "process": {
                 "name": "LINEPROTO-UPDOWN",
                 "pid": 1
             },
-            "event": {
-                "action": f"{interface} changed state to up",
-                "category": "network",
-                "type": ["info", "change"],
-                "outcome": "success",
-                "severity": 6
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ip"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "router"
+            "service": {
+                "name": "Interface Management",
+                "type": "router"
+            }
         }
 
     def change_status_int_warning(self):
         interface = random.choice(self.port)
-
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "router"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["warning", "change"],
+                "action": f"{interface} flapping",
+                "outcome": "success",
+                "severity": 4,
+                "severity_label": "medium",
+                "provider": "simulated-router",
+                "rule": {
+                    "id": "SIM-RT-INT-002",
+                    "name": "Router interface flapping detected"
+                }
+            },
             "process": {
                 "name": "INTERFACE-FLAP",
                 "pid": 1
             },
-            "event": {
-                "action": f"{interface} flapping",
-                "category": "network",
-                "type": ["warning", "change"],
-                "outcome": "success",
-                "severity": 4
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ip"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "router"
+            "service": {
+                "name": "Interface Management",
+                "type": "router"
+            }
         }
 
     def change_status_int_crit(self):
         interface = random.choice(self.port)
-
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "router"
+            },
+            "event": {
+                "kind": "alert",
+                "category": ["network", "hardware"],
+                "type": ["error", "critical"],
+                "action": f"Carrier loss on {interface}",
+                "outcome": "failure",
+                "severity": 2,
+                "severity_label": "critical",
+                "provider": "simulated-router",
+                "rule": {
+                    "id": "SIM-RT-INT-003",
+                    "name": "Router interface carrier loss — physical layer failure"
+                }
+            },
             "process": {
                 "name": "HWIC-LINK_FAIL",
                 "pid": 1
             },
-            "event": {
-                "action": f"Carrier loss on {interface}",
-                "category": "network",
-                "type": ["error", "critical"],
-                "outcome": "failure",
-                "severity": 2
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ip"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "router"
+            "service": {
+                "name": "Interface Management",
+                "type": "router"
+            }
         }
 
     def change_roadmap_info(self, list_ip_addr):
         other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
         route = random.choice(self.destination_ip + other_ip)
-
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "router"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["info", "change"],
+                "action": f"Route {route} added",
+                "outcome": "success",
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-router",
+                "rule": {
+                    "id": "SIM-RT-ROUTE-001",
+                    "name": "Static or dynamic route added to routing table"
+                }
+            },
             "process": {
                 "name": "IP-ROUTE",
                 "pid": 1
             },
-            "event": {
-                "action": f"Route {route} added",
-                "category": "network",
-                "type": ["info", "change"],
-                "outcome": "success",
-                "severity": 6
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ip"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "router"
+            "service": {
+                "name": "Routing Engine",
+                "type": "routing"
+            }
         }
 
     def change_roadmap_warning(self, list_ip_addr):
         other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
         route = random.choice(self.destination_ip + other_ip)
-
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "router"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["warning", "change"],
+                "action": f"Route {route} flapping",
+                "outcome": "success",
+                "severity": 4,
+                "severity_label": "medium",
+                "provider": "simulated-router",
+                "rule": {
+                    "id": "SIM-RT-ROUTE-002",
+                    "name": "Route flapping detected — unstable path"
+                }
+            },
             "process": {
                 "name": "IP-ROUTE_FLAP",
                 "pid": 1
             },
-            "event": {
-                "action": f"Route {route} flapping",
-                "category": "network",
-                "type": ["warning", "change"],
-                "outcome": "success",
-                "severity": 4
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ip"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "router"
+            "service": {
+                "name": "Routing Engine",
+                "type": "routing"
+            }
         }
 
     def change_roadmap_alert(self):
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "router"
+            },
+            "event": {
+                "kind": "alert",
+                "category": ["network", "availability"],
+                "type": ["alert", "failure"],
+                "action": "All default routes lost",
+                "outcome": "failure",
+                "severity": 1,
+                "severity_label": "critical",
+                "provider": "simulated-router",
+                "rule": {
+                    "id": "SIM-RT-ROUTE-003",
+                    "name": "Critical routing failure — no default route available"
+                }
+            },
             "process": {
                 "name": "IP-ROUTING_LOSS",
                 "pid": 1
             },
-            "event": {
-                "action": "All default routes lost",
-                "category": "network",
-                "type": ["alert", "failure"],
-                "outcome": "failure",
-                "severity": 1
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ip"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "router"
+            "service": {
+                "name": "Routing Engine",
+                "type": "routing"
+            }
         }
 
     def dynamic_routing_event_info(self):
         neighbor = random.choice(self.destination_ip)
-
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "router"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["info", "change"],
+                "action": f"Nbr {neighbor} from DOWN to FULL",
+                "outcome": "success",
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-router",
+                "rule": {
+                    "id": "SIM-RT-DYN-001",
+                    "name": "OSPF adjacency established"
+                }
+            },
             "process": {
                 "name": "OSPF-ADJCHG",
                 "pid": 1
             },
-            "event": {
-                "action": f"Nbr {neighbor} from DOWN to FULL",
-                "category": "network",
-                "type": ["info", "change"],
-                "outcome": "success",
-                "severity": 6
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ospf"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "router"
+            "service": {
+                "name": "Dynamic Routing",
+                "type": "routing"
+            }
         }
 
     def dynamic_routing_event_warning(self, list_ip_addr):
         other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
-        neighbor = random.choice(other_ip)
+        if not other_ip:
+            neighbor = random.choice(self.destination_ip)
+        else:
+            neighbor = random.choice(other_ip)
 
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "router"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["warning", "failure"],
+                "action": f"Neighbor {neighbor} Down",
+                "outcome": "failure",
+                "severity": 4,
+                "severity_label": "medium",
+                "provider": "simulated-router",
+                "rule": {
+                    "id": "SIM-RT-DYN-002",
+                    "name": "BGP neighbor down"
+                }
+            },
             "process": {
                 "name": "BGP-ADJCHANGE",
                 "pid": 1
             },
-            "event": {
-                "action": f"Neighbor {neighbor} Down",
-                "category": "network",
-                "type": ["warning", "failure"],
-                "outcome": "failure",
-                "severity": 4
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "bgp"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "router"
+            "service": {
+                "name": "Dynamic Routing",
+                "type": "routing"
+            }
         }
 
     def dynamic_routing_event_crit(self):
         interface = random.choice(self.port)
-
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "router"
+            },
+            "event": {
+                "kind": "alert",
+                "category": ["network", "integrity"],
+                "type": ["error", "critical"],
+                "action": f"OSPF checksum error on {interface}",
+                "outcome": "failure",
+                "severity": 2,
+                "severity_label": "critical",
+                "provider": "simulated-router",
+                "rule": {
+                    "id": "SIM-RT-DYN-003",
+                    "name": "OSPF protocol integrity violation"
+                }
+            },
             "process": {
                 "name": "OSPF-PROTOCOL_ERR",
                 "pid": 1
             },
-            "event": {
-                "action": f"OSPF checksum error on {interface}",
-                "category": "network",
-                "type": ["error", "critical"],
-                "outcome": "failure",
-                "severity": 2
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ospf"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "router"
+            "service": {
+                "name": "Dynamic Routing",
+                "type": "routing"
+            }
         }
 
     def acl_activity_info(self, list_ip_addr):
         other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
-        src_ip = random.choice(other_ip)
+        if not other_ip:
+            src_ip = "0.0.0.0"
+        else:
+            src_ip = random.choice(other_ip)
         dst_ip = random.choice(self.destination_ip)
+        src_port = random.randint(32768, 65535)
+        dst_port = random.choice([20, 21, 22, 23, 25, 53, 80, 443, 3389, 8080])
 
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "router"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["info", "access"],
+                "action": f"Permitted tcp from {src_ip} to {dst_ip}",
+                "outcome": "success",
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-router",
+                "rule": {
+                    "id": "SIM-RT-ACL-001",
+                    "name": "ACL permit rule matched"
+                }
+            },
             "process": {
                 "name": "ACL-PERMIT",
                 "pid": 1
             },
-            "event": {
-                "action": f"Permitted tcp from {src_ip} to {dst_ip}",
-                "category": "network",
-                "type": ["info", "access"],
-                "outcome": "success",
-                "severity": 6
-            },
-            "user": {
-                "name": "-"
-            },
             "source": {
                 "ip": src_ip,
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+                "port": src_port
             },
             "destination": {
                 "ip": dst_ip,
-                "port": 0
+                "port": dst_port
             },
             "network": {
-                "protocol": "tcp"
+                "protocol": "tcp",
+                "direction": "inbound"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": "Access Control List",
+                "type": "acl"
             },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "router"
+            "related": {
+                "ip": [src_ip, dst_ip]
+            }
         }
 
     def acl_activity_warning(self, list_ip_addr):
         other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
         src_ip = random.choice(self.destination_ip)
-        dst_ip = random.choice(other_ip)
+        if not other_ip:
+            dst_ip = "0.0.0.0"
+        else:
+            dst_ip = random.choice(other_ip)
+        src_port = random.randint(32768, 65535)
+        dst_port = random.choice([20, 21, 22, 23, 25, 53, 80, 443, 3389, 8080])
 
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "router"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["warning", "access"],
+                "action": f"Denied tcp from {src_ip} to {dst_ip}",
+                "outcome": "failure",
+                "severity": 4,
+                "severity_label": "medium",
+                "provider": "simulated-router",
+                "rule": {
+                    "id": "SIM-RT-ACL-002",
+                    "name": "ACL deny rule matched"
+                }
+            },
             "process": {
                 "name": "ACL-DENIED",
                 "pid": 1
             },
-            "event": {
-                "action": f"Denied tcp from {src_ip} to {dst_ip}",
-                "category": "network",
-                "type": ["warning", "access"],
-                "outcome": "failure",
-                "severity": 4
-            },
-            "user": {
-                "name": "-"
-            },
             "source": {
                 "ip": src_ip,
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+                "port": src_port
             },
             "destination": {
                 "ip": dst_ip,
-                "port": 0
+                "port": dst_port
             },
             "network": {
-                "protocol": "tcp"
+                "protocol": "tcp",
+                "direction": "inbound"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": "Access Control List",
+                "type": "acl"
             },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "router"
+            "related": {
+                "ip": [src_ip, dst_ip]
+            }
         }
 
     def acl_activity_debug(self):
@@ -3746,365 +4443,451 @@ class Router(Device):
         protocol = random.choice(['tcp', 'udp'])
         src = random.choice(self.port + ['any'])
         dst = random.choice(self.port + ['any'])
-        port = random.choice([20, 21, 22, 23, 25, 53, 80, 8080, 110, 135, 143, 443, 445, 993, 9600, 9200, 3306, 5432])
+        dst_port = random.choice(
+            [20, 21, 22, 23, 25, 53, 80, 8080, 110, 135, 143, 443, 445, 993, 9600, 9200, 3306, 5432])
 
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "router"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["debug", "info"],
+                "action": f"Matched rule {rule_id}: permit {protocol} {src} {dst} eq {dst_port}",
+                "outcome": "success",
+                "severity": 7,
+                "severity_label": "low",
+                "provider": "simulated-router",
+                "rule": {
+                    "id": "SIM-RT-ACL-003",
+                    "name": "ACL debug match"
+                }
+            },
             "process": {
                 "name": "ACL-MATCH",
                 "pid": 1
             },
-            "event": {
-                "action": f"Matched rule {rule_id}: permit {protocol} {src} {dst} eq {port}",
-                "category": "network",
-                "type": ["debug", "info"],
-                "outcome": "success",
-                "severity": 7
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": protocol
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "router"
+            "service": {
+                "name": "Access Control List",
+                "type": "acl"
+            }
         }
 
     def nat_event_info(self, list_ip_addr):
         other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
-        src_ip = random.choice(other_ip)
+        if not other_ip:
+            src_ip = "0.0.0.0"
+        else:
+            src_ip = random.choice(other_ip)
         translated_ip = random.choice(self.destination_ip)
+        src_port = random.randint(32768, 65535)
+        dst_port = random.randint(1, 65535)
 
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "router"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["info", "translation"],
+                "action": f"Translated {src_ip} to {translated_ip}",
+                "outcome": "success",
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-router",
+                "rule": {
+                    "id": "SIM-RT-NAT-001",
+                    "name": "NAT translation performed"
+                }
+            },
             "process": {
                 "name": "NAT-ADDR",
                 "pid": 1
             },
-            "event": {
-                "action": f"Translated {src_ip} to {translated_ip}",
-                "category": "network",
-                "type": ["info", "translation"],
-                "outcome": "success",
-                "severity": 6
-            },
-            "user": {
-                "name": "-"
-            },
             "source": {
                 "ip": src_ip,
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+                "port": src_port
             },
             "destination": {
                 "ip": translated_ip,
-                "port": 0
+                "port": dst_port
             },
             "network": {
-                "protocol": "ip"
+                "protocol": "ip",
+                "direction": "outbound"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": "Network Address Translation",
+                "type": "nat"
             },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "router"
+            "related": {
+                "ip": [src_ip, translated_ip]
+            }
         }
 
     def nat_event_warning(self, list_ip_addr):
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "router"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["warning", "resource"],
+                "action": "NAT pool exhausted",
+                "outcome": "failure",
+                "severity": 4,
+                "severity_label": "medium",
+                "provider": "simulated-router",
+                "rule": {
+                    "id": "SIM-RT-NAT-002",
+                    "name": "NAT address pool exhausted"
+                }
+            },
             "process": {
                 "name": "NAT-POOL_EXHAUSTED",
                 "pid": 1
             },
-            "event": {
-                "action": "NAT pool exhausted",
-                "category": "network",
-                "type": ["warning", "resource"],
-                "outcome": "failure",
-                "severity": 4
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ip"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "router"
+            "service": {
+                "name": "Network Address Translation",
+                "type": "nat"
+            }
         }
 
     def nat_event_debug(self, list_ip_addr):
         other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
-        src_ip = random.choice(other_ip)
+        if not other_ip:
+            src_ip = "0.0.0.0"
+        else:
+            src_ip = random.choice(other_ip)
         dst_ip = random.choice(self.destination_ip)
-        src_port = random.randint(100, 65500)
-        dst_port = random.randint(100, 65500)
+        src_port = random.randint(32768, 65535)
+        dst_port = random.randint(1, 65535)
 
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "router"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["debug", "info"],
+                "action": f"NAT entry created: {src_ip}:{src_port} to {dst_ip}:{dst_port}",
+                "outcome": "success",
+                "severity": 7,
+                "severity_label": "low",
+                "provider": "simulated-router",
+                "rule": {
+                    "id": "SIM-RT-NAT-003",
+                    "name": "NAT debug session created"
+                }
+            },
             "process": {
                 "name": "NAT-DEBUG",
                 "pid": 1
             },
-            "event": {
-                "action": f"NAT entry created: {src_ip}:{src_port} to {dst_ip}:{dst_port}",
-                "category": "network",
-                "type": ["debug", "info"],
-                "outcome": "success",
-                "severity": 7
-            },
-            "user": {
-                "name": "-"
-            },
             "source": {
                 "ip": src_ip,
-                "port": src_port,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+                "port": src_port
             },
             "destination": {
                 "ip": dst_ip,
                 "port": dst_port
             },
             "network": {
-                "protocol": "ip"
+                "protocol": "ip",
+                "direction": "outbound"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": "Network Address Translation",
+                "type": "nat"
             },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "router"
+            "related": {
+                "ip": [src_ip, dst_ip]
+            }
         }
 
     def icmp_message_info(self, list_ip_addr):
         other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
-        dst_ip = random.choice(other_ip)
+        if not other_ip:
+            dst_ip = "0.0.0.0"
+        else:
+            dst_ip = random.choice(other_ip)
 
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "router"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["info", "communication"],
+                "action": f"Echo reply sent to {dst_ip}",
+                "outcome": "success",
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-router",
+                "rule": {
+                    "id": "SIM-RT-ICMP-001",
+                    "name": "ICMP echo reply sent"
+                }
+            },
             "process": {
                 "name": "ICMP-ECHO",
                 "pid": 1
             },
-            "event": {
-                "action": f"Echo reply sent to {dst_ip}",
-                "category": "network",
-                "type": ["info", "communication"],
-                "outcome": "success",
-                "severity": 6
-            },
-            "user": {
-                "name": "-"
-            },
             "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+                "ip": self.get_ip_addr()
             },
             "destination": {
-                "ip": dst_ip,
-                "port": 0
+                "ip": dst_ip
             },
             "network": {
                 "protocol": "icmp"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": "ICMP Handling",
+                "type": "icmp"
             },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "router"
+            "related": {
+                "ip": [self.get_ip_addr(), dst_ip]
+            }
         }
 
     def icmp_message_warning(self, list_ip_addr):
         other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
-        dst_ip = random.choice(other_ip)
+        if not other_ip:
+            dst_ip = "0.0.0.0"
+        else:
+            dst_ip = random.choice(other_ip)
 
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "router"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["warning", "error"],
+                "action": f"Destination {dst_ip} unreachable",
+                "outcome": "failure",
+                "severity": 4,
+                "severity_label": "medium",
+                "provider": "simulated-router",
+                "rule": {
+                    "id": "SIM-RT-ICMP-002",
+                    "name": "ICMP destination unreachable"
+                }
+            },
             "process": {
                 "name": "ICMP-DSTUNREACH",
                 "pid": 1
             },
-            "event": {
-                "action": f"Destination {dst_ip} unreachable",
-                "category": "network",
-                "type": ["warning", "error"],
-                "outcome": "failure",
-                "severity": 4
-            },
-            "user": {
-                "name": "-"
-            },
             "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+                "ip": self.get_ip_addr()
             },
             "destination": {
-                "ip": dst_ip,
-                "port": 0
+                "ip": dst_ip
             },
             "network": {
                 "protocol": "icmp"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": "ICMP Handling",
+                "type": "icmp"
             },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "router"
+            "related": {
+                "ip": [self.get_ip_addr(), dst_ip]
+            }
         }
 
     def icmp_message_debug(self, list_ip_addr):
         other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
-        src_ip = random.choice(other_ip)
+        if not other_ip:
+            src_ip = "0.0.0.0"
+        else:
+            src_ip = random.choice(other_ip)
         icmp_type = random.randint(3, 12)
 
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "router"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["debug", "info"],
+                "action": f"Received ICMP type {icmp_type} from {src_ip}",
+                "outcome": "success",
+                "severity": 7,
+                "severity_label": "low",
+                "provider": "simulated-router",
+                "rule": {
+                    "id": "SIM-RT-ICMP-003",
+                    "name": "ICMP debug message received"
+                }
+            },
             "process": {
                 "name": "ICMP-DEBUG",
                 "pid": 1
             },
-            "event": {
-                "action": f"Received ICMP type {icmp_type} from {src_ip}",
-                "category": "network",
-                "type": ["debug", "info"],
-                "outcome": "success",
-                "severity": 7
-            },
-            "user": {
-                "name": "-"
-            },
             "source": {
-                "ip": src_ip,
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+                "ip": src_ip
             },
             "destination": {
-                "ip": "-",
-                "port": 0
+                "ip": self.get_ip_addr()
             },
             "network": {
                 "protocol": "icmp"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": "ICMP Handling",
+                "type": "icmp"
             },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "router"
+            "related": {
+                "ip": [src_ip, self.get_ip_addr()]
+            }
         }
 
     def violation_traffic_info(self, list_ip_addr):
         other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
-        src_ip = random.choice(other_ip)
+        if not other_ip:
+            src_ip = "0.0.0.0"
+        else:
+            src_ip = random.choice(other_ip)
         traffic_class = random.choice(['VOICE', 'VIDEO CONF', 'BUSINESS-DATA', 'EFFORT'])
 
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "router"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["info", "classification"],
+                "action": f"Traffic from {src_ip} classified as {traffic_class}",
+                "outcome": "success",
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-router",
+                "rule": {
+                    "id": "SIM-RT-QOS-001",
+                    "name": "QoS traffic classification"
+                }
+            },
             "process": {
                 "name": "QOS-CLASSIFIED",
                 "pid": 1
             },
-            "event": {
-                "action": f"Traffic from {src_ip} classified as {traffic_class}",
-                "category": "network",
-                "type": ["info", "classification"],
-                "outcome": "success",
-                "severity": 6
-            },
-            "user": {
-                "name": "-"
-            },
             "source": {
-                "ip": src_ip,
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
+                "ip": src_ip
             },
             "network": {
                 "protocol": "ip"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": "QoS Engine",
+                "type": "qos"
             },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "router"
+            "related": {
+                "ip": [src_ip, self.get_ip_addr()]
+            }
         }
 
     def violation_traffic_warning(self):
@@ -4112,43 +4895,44 @@ class Router(Device):
 
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "router"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["warning", "resource"],
+                "action": f"Rate limit exceeded on {interface}",
+                "outcome": "failure",
+                "severity": 4,
+                "severity_label": "medium",
+                "provider": "simulated-router",
+                "rule": {
+                    "id": "SIM-RT-QOS-002",
+                    "name": "QoS rate limit exceeded"
+                }
+            },
             "process": {
                 "name": "QOS-RATE_EXCEEDED",
                 "pid": 1
             },
-            "event": {
-                "action": f"Rate limit exceeded on {interface}",
-                "category": "network",
-                "type": ["warning", "resource"],
-                "outcome": "failure",
-                "severity": 4
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ip"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "router"
+            "service": {
+                "name": "QoS Engine",
+                "type": "qos"
+            }
         }
 
     def violation_traffic_debug(self):
@@ -4156,45 +4940,45 @@ class Router(Device):
 
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "ios"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "router"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["debug", "info"],
+                "action": f"Packet marked with {marking}",
+                "outcome": "success",
+                "severity": 7,
+                "severity_label": "low",
+                "provider": "simulated-router",
+                "rule": {
+                    "id": "SIM-RT-QOS-003",
+                    "name": "QoS packet marking debug"
+                }
+            },
             "process": {
                 "name": "QOS-DEBUG",
                 "pid": 1
             },
-            "event": {
-                "action": f"Packet marked with {marking}",
-                "category": "network",
-                "type": ["debug", "info"],
-                "outcome": "success",
-                "severity": 7
-            },
-            "user": {
-                "name": "-"
-            },
-            "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
-            },
-            "destination": {
-                "ip": "-",
-                "port": 0
-            },
             "network": {
                 "protocol": "ip"
             },
-            "file": {
-                "path": "-"
-            },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "router"
+            "service": {
+                "name": "QoS Engine",
+                "type": "qos"
+            }
         }
-
 
 class Firewall(Device):
 
@@ -4244,273 +5028,382 @@ class Firewall(Device):
 
     def allow_traffic_info(self, list_ip_addr):
         other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
+        if not other_ip:
+            dst_ip = "0.0.0.0"
+        else:
+            dst_ip = random.choice(other_ip)
         src_ip = random.choice(self.destination_ip)
-        dst_ip = random.choice(other_ip)
+        src_port = random.randint(32768, 65535)
+        dst_port = random.choice([22, 25, 53, 80, 443, 3389, 8080])
 
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "panos"  # или "asa", "fortios" — в зависимости от модели
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "firewall"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["info", "connection"],
+                "action": f"Built TCP connection for outside: {src_ip} to inside: {dst_ip}",
+                "outcome": "success",
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-firewall",
+                "rule": {
+                    "id": "SIM-FW-ALLOW-001",
+                    "name": "Allowed outbound TCP connection"
+                }
+            },
             "process": {
                 "name": "ASA-302013",
                 "pid": 1
             },
-            "event": {
-                "action": f"Built TCP connection for outside: {src_ip} to inside: {dst_ip}",
-                "category": "network",
-                "type": ["info", "connection"],
-                "outcome": "success",
-                "severity": 6
-            },
-            "user": {
-                "name": "-"
-            },
             "source": {
                 "ip": src_ip,
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+                "port": src_port
             },
             "destination": {
                 "ip": dst_ip,
-                "port": 0
+                "port": dst_port
             },
             "network": {
-                "protocol": "tcp"
+                "protocol": "tcp",
+                "direction": "inbound"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": "Firewall Policy Engine",
+                "type": "firewall"
             },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "firewall"
+            "related": {
+                "ip": [src_ip, dst_ip]
+            }
         }
 
     def allow_traffic_debug(self, list_ip_addr):
         other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
+        if not other_ip:
+            dst_ip = "0.0.0.0"
+        else:
+            dst_ip = random.choice(other_ip)
         src_ip = random.choice(self.destination_ip)
-        dst_ip = random.choice(other_ip)
+        src_port = random.randint(32768, 65535)
+        dst_port = random.choice([22, 25, 53, 80, 443, 3389, 8080])
         app_proto = random.choice(['ssh', 'ssl', 'tls', 'http', 'telnet'])
 
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "panos"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "firewall"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["debug", "info"],
+                "action": f"Session created: src={src_ip}, dst={dst_ip}, app={app_proto}",
+                "outcome": "success",
+                "severity": 7,
+                "severity_label": "low",
+                "provider": "simulated-firewall",
+                "rule": {
+                    "id": "SIM-FW-ALLOW-002",
+                    "name": "Firewall session debug event"
+                }
+            },
             "process": {
                 "name": "PAN-SESSION",
                 "pid": 1
             },
-            "event": {
-                "action": f"Session created: src={src_ip}, dst={dst_ip}, app={app_proto}",
-                "category": "network",
-                "type": ["debug", "info"],
-                "outcome": "success",
-                "severity": 7
-            },
-            "user": {
-                "name": "-"
-            },
             "source": {
                 "ip": src_ip,
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+                "port": src_port
             },
             "destination": {
                 "ip": dst_ip,
-                "port": 0
+                "port": dst_port
             },
             "network": {
-                "protocol": app_proto
+                "protocol": app_proto,
+                "direction": "inbound"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": "Firewall Session Tracker",
+                "type": "firewall"
             },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "firewall"
+            "related": {
+                "ip": [src_ip, dst_ip]
+            }
         }
 
     def lock_traffic_warning(self, list_ip_addr):
         other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
-        protocol = random.choice(['tcp', 'udp'])
+        if not other_ip:
+            dst_ip = "0.0.0.0"
+        else:
+            dst_ip = random.choice(other_ip)
         src_ip = random.choice(self.destination_ip)
-        dst_ip = random.choice(other_ip)
+        protocol = random.choice(['tcp', 'udp'])
+        src_port = random.randint(32768, 65535)
+        dst_port = random.choice([22, 23, 25, 53, 80, 443, 3389, 8080])
 
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "panos"  # или "asa", "fortios" — в зависимости от модели
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "firewall"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["warning", "access"],
+                "action": f"Deny {protocol} src outside:{src_ip}, dst inside:{dst_ip}",
+                "outcome": "failure",
+                "severity": 4,
+                "severity_label": "medium",
+                "provider": "simulated-firewall",
+                "rule": {
+                    "id": "SIM-FW-DENY-001",
+                    "name": "Firewall denied outbound traffic"
+                }
+            },
             "process": {
                 "name": "ASA-106015",
                 "pid": 1
             },
-            "event": {
-                "action": f"Deny {protocol} src outside:{src_ip}, dst inside:{dst_ip}",
-                "category": "network",
-                "type": ["warning", "access"],
-                "outcome": "failure",
-                "severity": 4
-            },
-            "user": {
-                "name": "-"
-            },
             "source": {
                 "ip": src_ip,
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+                "port": src_port
             },
             "destination": {
                 "ip": dst_ip,
-                "port": 0
+                "port": dst_port
             },
             "network": {
-                "protocol": protocol
+                "protocol": protocol,
+                "direction": "inbound"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": "Firewall Policy Engine",
+                "type": "firewall"
             },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "firewall"
+            "related": {
+                "ip": [src_ip, dst_ip]
+            }
         }
 
     def lock_traffic_alert(self, list_ip_addr):
+        # Для атаки генерируем реалистичные IP
+        src_ip = random.choice(self.destination_ip)
+        dst_ip = self.get_ip_addr()  # или внутренний хост, но для простоты — сам фаервол
+        protocol = "tcp"
+        src_port = random.randint(32768, 65535)
+        dst_port = 445  # типичная цель для эксплойтов
+
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "panos"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "firewall"
+            },
+            "event": {
+                "kind": "alert",
+                "category": ["network", "intrusion_detection"],
+                "type": ["alert", "security"],
+                "action": "Critical threat: Exploit attempt blocked",
+                "outcome": "success",
+                "severity": 1,
+                "severity_label": "critical",
+                "provider": "simulated-firewall",
+                "rule": {
+                    "id": "SIM-FW-THREAT-001",
+                    "name": "Firewall blocked critical exploit attempt"
+                }
+            },
             "process": {
                 "name": "PAN-THREAT",
                 "pid": 1
             },
-            "event": {
-                "action": "Critical threat: Exploit attempt blocked",
-                "category": "network",
-                "type": ["alert", "security"],
-                "outcome": "success",
-                "severity": 1
-            },
-            "user": {
-                "name": "-"
-            },
             "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+                "ip": src_ip,
+                "port": src_port
             },
             "destination": {
-                "ip": "-",
-                "port": 0
+                "ip": dst_ip,
+                "port": dst_port
             },
             "network": {
-                "protocol": "ip"
+                "protocol": protocol,
+                "direction": "inbound"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": "Threat Prevention",
+                "type": "firewall"
             },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "firewall"
+            "related": {
+                "ip": [src_ip, dst_ip]
+            }
         }
 
     def lock_traffic_debug(self):
         rule_app = random.choice(['ssh', 'ssl', 'tls', 'http', 'telnet'])
+        src_ip = random.choice(self.destination_ip)
+        dst_ip = self.get_ip_addr()  # или внутренний адрес, но для простоты — сам фаервол
+        src_port = random.randint(32768, 65535)
+        dst_port = {'ssh': 22, 'http': 80, 'ssl': 443, 'tls': 443, 'telnet': 23}.get(rule_app, 0)
 
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "panos"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "firewall"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["debug", "info"],
+                "action": f"Matched rule 'block-external-{rule_app}'",
+                "outcome": "success",
+                "severity": 7,
+                "severity_label": "low",
+                "provider": "simulated-firewall",
+                "rule": {
+                    "id": "SIM-FW-DEBUG-001",
+                    "name": "Firewall debug rule match"
+                }
+            },
             "process": {
                 "name": "FW-RULE_MATCH",
                 "pid": 1
             },
-            "event": {
-                "action": f"Matched rule 'block-external-{rule_app}'",
-                "category": "network",
-                "type": ["debug", "info"],
-                "outcome": "success",
-                "severity": 7
-            },
-            "user": {
-                "name": "-"
-            },
             "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+                "ip": src_ip,
+                "port": src_port
             },
             "destination": {
-                "ip": "-",
-                "port": 0
+                "ip": dst_ip,
+                "port": dst_port
             },
             "network": {
-                "protocol": rule_app
+                "protocol": rule_app,
+                "direction": "inbound"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": "Firewall Policy Engine",
+                "type": "firewall"
             },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "firewall"
+            "related": {
+                "ip": [src_ip, dst_ip]
+            }
         }
 
     def change_session_info_connect(self, list_ip_addr):
         protocol = random.choice(['TCP', 'UDP'])
         conn_id = random.randint(1000, 20000)
+        other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
+        src_ip = random.choice(self.destination_ip)
+        dst_ip = random.choice(other_ip) if other_ip else self.get_ip_addr()
+        src_port = random.randint(32768, 65535)
+        dst_port = random.choice([22, 25, 53, 80, 443, 3389, 8080])
 
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "asa"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "firewall"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["info", "connection"],
+                "action": f"Built {protocol} connection {conn_id}",
+                "outcome": "success",
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-firewall",
+                "rule": {
+                    "id": "SIM-FW-CONN-001",
+                    "name": "Firewall session established"
+                }
+            },
             "process": {
                 "name": "ASA-6-302013",
                 "pid": 1
             },
-            "event": {
-                "action": f"Built {protocol} connection {conn_id}",
-                "category": "network",
-                "type": ["info", "connection"],
-                "outcome": "success",
-                "severity": 6
-            },
-            "user": {
-                "name": "-"
-            },
             "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+                "ip": src_ip,
+                "port": src_port
             },
             "destination": {
-                "ip": "-",
-                "port": 0
+                "ip": dst_ip,
+                "port": dst_port
             },
             "network": {
-                "protocol": protocol.lower()
+                "protocol": protocol.lower(),
+                "direction": "inbound"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": "Firewall Session Tracker",
+                "type": "firewall"
             },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "firewall"
+            "related": {
+                "ip": [src_ip, dst_ip]
+            }
         }
 
     def change_session_info_breakup(self, list_ip_addr):
@@ -4518,176 +5411,246 @@ class Firewall(Device):
         conn_id = random.randint(1000, 20000)
         duration = random.randint(60, 600)
 
+        other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
+        src_ip = random.choice(self.destination_ip)
+        dst_ip = random.choice(other_ip) if other_ip else self.get_ip_addr()
+        src_port = random.randint(32768, 65535)
+        dst_port = random.choice([22, 25, 53, 80, 443, 3389, 8080])
+
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "asa"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "firewall"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["info", "connection"],
+                "action": f"Teardown {protocol} connection {conn_id} duration {duration}sec",
+                "outcome": "success",
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-firewall",
+                "rule": {
+                    "id": "SIM-FW-SESSION-001",
+                    "name": "Firewall session teardown"
+                }
+            },
             "process": {
                 "name": "ASA-6-302014",
                 "pid": 1
             },
-            "event": {
-                "action": f"Teardown {protocol} connection {conn_id} duration {duration}sec",
-                "category": "network",
-                "type": ["info", "connection"],
-                "outcome": "success",
-                "severity": 6
-            },
-            "user": {
-                "name": "-"
-            },
             "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+                "ip": src_ip,
+                "port": src_port
             },
             "destination": {
-                "ip": "-",
-                "port": 0
+                "ip": dst_ip,
+                "port": dst_port
             },
             "network": {
-                "protocol": protocol.lower()
+                "protocol": protocol.lower(),
+                "direction": "inbound"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": "Firewall Session Tracker",
+                "type": "firewall"
             },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "firewall"
+            "related": {
+                "ip": [src_ip, dst_ip]
+            }
         }
 
     def change_session_debug(self, list_ip_addr):
         bytes_in = random.randint(10000, 200000)
         bytes_out = random.randint(10000, 200000)
 
+        other_ip = [ip for ip in list_ip_addr if ip != self.get_ip_addr()]
+        src_ip = random.choice(self.destination_ip)
+        dst_ip = random.choice(other_ip) if other_ip else self.get_ip_addr()
+        src_port = random.randint(32768, 65535)
+        dst_port = random.choice([22, 25, 53, 80, 443, 3389, 8080])
+
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "os": {
+                    "name": self.os,
+                    "platform": "asa"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.get_ip_addr(),
+                "type": "firewall"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["debug", "info"],
+                "action": f"Session stats: bytes_in={bytes_in}, bytes_out={bytes_out}",
+                "outcome": "success",
+                "severity": 7,
+                "severity_label": "low",
+                "provider": "simulated-firewall",
+                "rule": {
+                    "id": "SIM-FW-SESSION-002",
+                    "name": "Firewall session debug statistics"
+                }
+            },
             "process": {
                 "name": "FW-SESSION",
                 "pid": 1
             },
-            "event": {
-                "action": f"Session stats: bytes_in={bytes_in}, bytes_out= {bytes_out}",
-                "category": "network",
-                "type": ["debug", "info"],
-                "outcome": "success",
-                "severity": 7
-            },
-            "user": {
-                "name": "-"
-            },
             "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+                "ip": src_ip,
+                "port": src_port
             },
             "destination": {
-                "ip": "-",
-                "port": 0
+                "ip": dst_ip,
+                "port": dst_port
             },
             "network": {
-                "protocol": "ip"
+                "protocol": "ip",
+                "direction": "inbound"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": "Firewall Session Tracker",
+                "type": "firewall"
             },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "firewall"
+            "related": {
+                "ip": [src_ip, dst_ip]
+            }
         }
 
     def vpn_tunnel_info(self):
         peer_ip = random.choice(self.destination_ip)
+        local_ip = self.get_ip_addr()
+        src_port = 500  # стандартный порт IKE
+        dst_port = 500
 
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": local_ip,
+                "os": {
+                    "name": self.os,
+                    "platform": "panos"  # или "asa", "fortios" — в зависимости от модели
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": local_ip,
+                "type": "firewall"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["info", "connection"],
+                "action": f"VPN tunnel to {peer_ip} established",
+                "outcome": "success",
+                "severity": 6,
+                "severity_label": "medium",
+                "provider": "simulated-firewall",
+                "rule": {
+                    "id": "SIM-FW-VPN-001",
+                    "name": "IPsec VPN tunnel established"
+                }
+            },
             "process": {
                 "name": "IPSEC-VPNUP",
                 "pid": 1
             },
-            "event": {
-                "action": f"VPN tunnel to {peer_ip} established",
-                "category": "network",
-                "type": ["info", "connection"],
-                "outcome": "success",
-                "severity": 6
-            },
-            "user": {
-                "name": "-"
-            },
             "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+                "ip": local_ip,
+                "port": src_port
             },
             "destination": {
                 "ip": peer_ip,
-                "port": 0
+                "port": dst_port
             },
             "network": {
-                "protocol": "ipsec"
+                "protocol": "ipsec",
+                "direction": "outbound"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": "IPsec VPN",
+                "type": "vpn"
             },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "firewall"
+            "related": {
+                "ip": [local_ip, peer_ip]
+            }
         }
 
     def vpn_tunnel_warning(self):
         peer_ip = random.choice(self.destination_ip)
+        local_ip = self.get_ip_addr()
+        src_port = 500
+        dst_port = 500
 
         return {
             "@timestamp": self.get_timestamp(),
-            "hostname": self.hostname,
+            "host": {
+                "hostname": self.hostname,
+                "ip": local_ip,
+                "os": {
+                    "name": self.os,
+                    "platform": "panos"
+                }
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": local_ip,
+                "type": "firewall"
+            },
+            "event": {
+                "kind": "event",
+                "category": ["network"],
+                "type": ["warning", "connection"],
+                "action": f"VPN tunnel to {peer_ip} disconnected",
+                "outcome": "failure",
+                "severity": 4,
+                "severity_label": "medium",
+                "provider": "simulated-firewall",
+                "rule": {
+                    "id": "SIM-FW-VPN-002",
+                    "name": "IPsec VPN tunnel disconnected"
+                }
+            },
             "process": {
                 "name": "IPSEC-VPNDOWN",
                 "pid": 1
             },
-            "event": {
-                "action": f"VPN tunnel to {peer_ip} disconnected",
-                "category": "network",
-                "type": ["warning", "connection"],
-                "outcome": "failure",
-                "severity": 4
-            },
-            "user": {
-                "name": "-"
-            },
             "source": {
-                "ip": "-",
-                "port": 0,
-                "user": "-",
-                "executable": "-",
-                "file": "-"
+                "ip": local_ip,
+                "port": src_port
             },
             "destination": {
                 "ip": peer_ip,
-                "port": 0
+                "port": dst_port
             },
             "network": {
-                "protocol": "ipsec"
+                "protocol": "ipsec",
+                "direction": "outbound"
             },
-            "file": {
-                "path": "-"
+            "service": {
+                "name": "IPsec VPN",
+                "type": "vpn"
             },
-            "package": {
-                "name": "firmware",
-                "size": "0 KB"
-            },
-            "app": "firewall"
+            "related": {
+                "ip": [local_ip, peer_ip]
+            }
         }

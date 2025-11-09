@@ -1,5 +1,3 @@
-from itertools import count
-
 import entity
 import network
 import json
@@ -12,8 +10,11 @@ def check_ip_address_list(ip_address, ip_address_list):
         return True
     else: return False
 
+
+
 def generation_ip_address(header, subnetwork, tail=0, ip_address_list=[] ):
     if 10 == header:
+
         while True:
             if  tail == 1:
                 ip_address = f"10.0.{subnetwork}.{tail}"
@@ -90,6 +91,13 @@ def generation_topology(topology_name, subnetwork_list):
         firewall["ip"] += firewall_data["ip"]
         firewall["mac"] += firewall_data["mac"]
 
+        # --- RETURN ---
+
+        users = pc["users"] + switch["users"] + router["users"] + firewall["users"]
+        all_ip_address = pc["ip"] + switch["ip"] + router["ip"] + firewall["ip"]
+        all_mac_address = pc["mac"] + switch["mac"] + router["mac"] + firewall["mac"]
+        return users, all_ip_address, all_mac_address
+
     elif topology_name == "images/top-3AV.jpg":
         for i in range(len(subnetwork_list) - 1):
             windows_data = generator_device(3, {"PC": "Windows"},192, subnetwork_list[i])
@@ -137,6 +145,13 @@ def generation_topology(topology_name, subnetwork_list):
         firewall["ip"] += firewall_data["ip"]
         firewall["mac"] += firewall_data["mac"]
 
+        # --- RETURN ---
+
+        users = pc["users"] + switch["users"] + router["users"] + firewall["users"]
+        all_ip_address = pc["ip"] + switch["ip"] + router["ip"] + firewall["ip"]
+        all_mac_address = pc["mac"] + switch["mac"] + router["mac"] + firewall["mac"]
+        return users, all_ip_address, all_mac_address
+
     elif topology_name == "images/top-3B.jpg":
         for subnet in subnetwork_list:
             windows_data = generator_device(3, {"PC": "Windows"},192, subnet)
@@ -158,6 +173,13 @@ def generation_topology(topology_name, subnetwork_list):
         router["users"] += router_data["users"]
         router["ip"] += router_data["ip"]
         router["mac"] += router_data["mac"]
+
+        # --- RETURN ---
+
+        users = pc["users"] + switch["users"] + router["users"] + firewall["users"]
+        all_ip_address = pc["ip"] + switch["ip"] + router["ip"] + firewall["ip"]
+        all_mac_address = pc["mac"] + switch["mac"] + router["mac"] + firewall["mac"]
+        return users, all_ip_address, all_mac_address
 
     elif topology_name == "images/top-3BV.jpg":
         for i in range(len(subnetwork_list)-1):
@@ -203,6 +225,13 @@ def generation_topology(topology_name, subnetwork_list):
         router["ip"] += router_data["ip"]
         router["mac"] += router_data["mac"]
 
+        # --- RETURN ---
+
+        users = pc["users"] + switch["users"] + router["users"] + firewall["users"]
+        all_ip_address = pc["ip"] + switch["ip"] + router["ip"] + firewall["ip"]
+        all_mac_address = pc["mac"] + switch["mac"] + router["mac"] + firewall["mac"]
+        return users, all_ip_address, all_mac_address
+
 
 # --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
@@ -217,8 +246,6 @@ def generation_topology(topology_name, subnetwork_list):
             switch["users"] += switch_data["users"]
             switch["ip"] += switch_data["ip"]
             switch["mac"] += switch_data["mac"]
-
-        print(f"> DEBUG: {subnetwork_list[3]}")
 
         linux_data = generator_device(3, {"PC": "Linux"}, 192, subnetwork_list[3])
         pc["users"] += linux_data["users"]
@@ -239,6 +266,13 @@ def generation_topology(topology_name, subnetwork_list):
         firewall["users"] += firewall_data["users"]
         firewall["ip"] += firewall_data["ip"]
         firewall["mac"] += firewall_data["mac"]
+
+        # --- RETURN ---
+
+        users = pc["users"] + switch["users"] + router["users"] + firewall["users"]
+        all_ip_address = pc["ip"] + switch["ip"] + router["ip"] + firewall["ip"]
+        all_mac_address = pc["mac"] + switch["mac"] + router["mac"] + firewall["mac"]
+        return users, all_ip_address, all_mac_address
 
     elif topology_name == "images/top-4AV.jpg":
         for i in range(len(subnetwork_list) - 2):
@@ -308,6 +342,13 @@ def generation_topology(topology_name, subnetwork_list):
         firewall["ip"] += firewall_data["ip"]
         firewall["mac"] += firewall_data["mac"]
 
+        # --- RETURN ---
+
+        users = pc["users"] + switch["users"] + router["users"] + firewall["users"]
+        all_ip_address = pc["ip"] + switch["ip"] + router["ip"] + firewall["ip"]
+        all_mac_address = pc["mac"] + switch["mac"] + router["mac"] + firewall["mac"]
+        return users, all_ip_address, all_mac_address
+
     elif topology_name == "images/top-4B.jpg":
         for i in range(len(subnetwork_list)-1):
 
@@ -350,6 +391,13 @@ def generation_topology(topology_name, subnetwork_list):
         router["ip"] += router_data["ip"]
         router["mac"] += router_data["mac"]
 
+        # --- RETURN ---
+
+        users = pc["users"] + switch["users"] + router["users"] + firewall["users"]
+        all_ip_address = pc["ip"] + switch["ip"] + router["ip"] + firewall["ip"]
+        all_mac_address = pc["mac"] + switch["mac"] + router["mac"] + firewall["mac"]
+        return users, all_ip_address, all_mac_address
+
     elif topology_name == "images/top-4BV.jpg":
         for i in range(len(subnetwork_list) - 1):
             windows_data = generator_device(3, {"PC": "Windows"}, 192, subnetwork_list[i])
@@ -386,6 +434,13 @@ def generation_topology(topology_name, subnetwork_list):
         router["users"] += router_data["users"]
         router["ip"] += router_data["ip"]
         router["mac"] += router_data["mac"]
+
+        # --- RETURN ---
+
+        users = pc["users"] + switch["users"] + router["users"] + firewall["users"]
+        all_ip_address = pc["ip"] + switch["ip"] + router["ip"] + firewall["ip"]
+        all_mac_address = pc["mac"] + switch["mac"] + router["mac"] + firewall["mac"]
+        return users, all_ip_address, all_mac_address
 
 # --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
@@ -435,6 +490,13 @@ def generation_topology(topology_name, subnetwork_list):
         firewall["users"] += firewall_data["users"]
         firewall["ip"] += firewall_data["ip"]
         firewall["mac"] += firewall_data["mac"]
+
+        # --- RETURN ---
+
+        users = pc["users"] + switch["users"] + router["users"] + firewall["users"]
+        all_ip_address = pc["ip"] + switch["ip"] + router["ip"] + firewall["ip"]
+        all_mac_address = pc["mac"] + switch["mac"] + router["mac"] + firewall["mac"]
+        return users, all_ip_address, all_mac_address
 
     elif topology_name == "images/top-5AV.jpg":
         for i in range(len(subnetwork_list)-2):
@@ -494,6 +556,13 @@ def generation_topology(topology_name, subnetwork_list):
         firewall["ip"] += firewall_data["ip"]
         firewall["mac"] += firewall_data["mac"]
 
+        # --- RETURN ---
+
+        users = pc["users"] + switch["users"] + router["users"] + firewall["users"]
+        all_ip_address = pc["ip"] + switch["ip"] + router["ip"] + firewall["ip"]
+        all_mac_address = pc["mac"] + switch["mac"] + router["mac"] + firewall["mac"]
+        return users, all_ip_address, all_mac_address
+
     elif topology_name == "images/top-5B.jpg":
         for i in range(len(subnetwork_list) - 2):
             windows_data = generator_device(3, {"PC": "Windows"}, 192, subnetwork_list[i])
@@ -549,6 +618,13 @@ def generation_topology(topology_name, subnetwork_list):
         router["users"] += router_data["users"]
         router["ip"] += router_data["ip"]
         router["mac"] += router_data["mac"]
+
+        # --- RETURN ---
+
+        users = pc["users"] + switch["users"] + router["users"] + firewall["users"]
+        all_ip_address = pc["ip"] + switch["ip"] + router["ip"] + firewall["ip"]
+        all_mac_address = pc["mac"] + switch["mac"] + router["mac"] + firewall["mac"]
+        return users, all_ip_address, all_mac_address
 
     elif topology_name == "images/top-5BV.jpg":
         for i in range(len(subnetwork_list) - 2):
@@ -606,34 +682,43 @@ def generation_topology(topology_name, subnetwork_list):
         router["ip"] += router_data["ip"]
         router["mac"] += router_data["mac"]
 
+        # --- RETURN ---
+
+        users = pc["users"] + switch["users"] + router["users"] + firewall["users"]
+        all_ip_address = pc["ip"] + switch["ip"] + router["ip"] + firewall["ip"]
+        all_mac_address = pc["mac"] + switch["mac"] + router["mac"] + firewall["mac"]
+        return users, all_ip_address, all_mac_address
+
 
 # --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
     else:
         print("Ошибка передачи топологии!")
+        return None, None, None
 
-    print(
-    f" --- Personal Computers ---\n"
-    f"PC = {len(pc['users'])}\n"
-    f"{pc['users']}\n"
-    f"{pc['ip']}\n"
-    f"{pc['mac']}\n"
-    f" --- Switches ---\n"
-    f"SW = {len(switch['users'])}\n"
-    f"{switch['users']}\n"
-    f"{switch['ip']}\n"
-    f"{switch['mac']}\n"
-    f" --- Routers ---\n"
-    f"RT = {len(router['users'])}\n"
-    f"{router['users']}\n"
-    f"{router['ip']}\n"
-    f"{router['mac']}\n"
-    f" --- Firewalls ---\n"
-    f"FW = {len(firewall['users'])}\n"
-    f"{firewall['users']}\n"
-    f"{firewall['ip']}\n"
-    f"{firewall['mac']}\n"
-    )
+    # print("DEBUG: topology")
+    # print(
+    # f" --- Personal Computers ---\n"
+    # f"PC = {len(pc['users'])}\n"
+    # f"{pc['users']}\n"
+    # f"{pc['ip']}\n"
+    # f"{pc['mac']}\n"
+    # f" --- Switches ---\n"
+    # f"SW = {len(switch['users'])}\n"
+    # f"{switch['users']}\n"
+    # f"{switch['ip']}\n"
+    # f"{switch['mac']}\n"
+    # f" --- Routers ---\n"
+    # f"RT = {len(router['users'])}\n"
+    # f"{router['users']}\n"
+    # f"{router['ip']}\n"
+    # f"{router['mac']}\n"
+    # f" --- Firewalls ---\n"
+    # f"FW = {len(firewall['users'])}\n"
+    # f"{firewall['users']}\n"
+    # f"{firewall['ip']}\n"
+    # f"{firewall['mac']}\n"
+    # )
 
 
 
@@ -757,395 +842,399 @@ def generator_device(count_users, category, header, subnetwork, tail=0):
 
 
 
-def generator_protocols(client, index_name, users, list_ip_addr, list_mac_addr):
+def generator_protocols(client, index_name, users, list_ip_addr, list_mac_addr, stop_event):
 
     # --- ATTENTION! --- USE IN INFINITELY LOOP! --- ONE-TIME ACTION! ---
 
-    operations = []
-    operations_index = 0
+    operations_index = 1
 
-    operations.append(random.randint(1, 21))
-    while operations_index < len(operations):
+    while not stop_event.is_set():
+        # Случайная задержка
+        delay = random.uniform(0.1, 10)
+        sleep(delay)
 
-        count_sec = random.uniform(0.1, 10)
-        sleep(count_sec)
+        if stop_event.is_set():
+            break
+
         user = random.choice(users)
+        operation = random.randint(1, 21)
 
         if type(user) == entity.PersonalComputerLinux or type(user) == entity.PersonalComputerWindows:
             if type(user) == entity.PersonalComputerLinux:
                 print("Linux -> ", end="")
             if type(user) == entity.PersonalComputerWindows:
                 print("Windows -> ", end="")
-            if operations[operations_index] == 1:
-                print(f"{operations_index}, {operations[operations_index]} | auth_info", end=", ")
+            if operation == 1:
+                print(f"{operations_index}, {operation} | auth_info", end=", ")
                 logs = (user.auth_info_json(list_ip_addr))
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
-            elif operations[operations_index] == 2:
-                print(f"{operations_index}, {operations[operations_index]} | auth_warning", end=", ")
+                operations_index += 1
+            elif operation == 2:
+                print(f"{operations_index}, {operation} | auth_warning", end=", ")
                 logs = (user.auth_warning_json(list_ip_addr))
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 3:
-                print(f"{operations_index}, {operations[operations_index]} | auth_crit", end=", ")
+            elif operation == 3:
+                print(f"{operations_index}, {operation} | auth_crit", end=", ")
                 logs = (user.auth_crit_json(list_ip_addr))
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 4:
-                print(f"{operations_index}, {operations[operations_index]} | start_process_info", end=", ")
+            elif operation == 4:
+                print(f"{operations_index}, {operation} | start_process_info", end=", ")
                 logs = (user.start_process_info_json())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 5:
-                print(f"{operations_index}, {operations[operations_index]} | start_process_warning", end=", ")
+            elif operation == 5:
+                print(f"{operations_index}, {operation} | start_process_warning", end=", ")
                 logs = (user.start_process_warning_json())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 6:
-                print(f"{operations_index}, {operations[operations_index]} | start_process_debug", end=", ")
+            elif operation == 6:
+                print(f"{operations_index}, {operation} | start_process_debug", end=", ")
                 logs = (user.start_process_debug_json())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 7:
-                print(f"{operations_index}, {operations[operations_index]} | open_file_info", end=", ")
+            elif operation == 7:
+                print(f"{operations_index}, {operation} | open_file_info", end=", ")
                 logs = (user.open_file_info_json())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 8:
-                print(f"{operations_index}, {operations[operations_index]} | open_file_warning", end=", ")
+            elif operation == 8:
+                print(f"{operations_index}, {operation} | open_file_warning", end=", ")
                 logs = (user.open_file_warning_json())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 9:
-                print(f"{operations_index}, {operations[operations_index]} | open_file_crit", end=", ")
+            elif operation == 9:
+                print(f"{operations_index}, {operation} | open_file_crit", end=", ")
                 logs = (user.open_file_crit_json())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 10:
-                print(f"{operations_index}, {operations[operations_index]} | network_activity_info", end=", ")
+            elif operation == 10:
+                print(f"{operations_index}, {operation} | network_activity_info", end=", ")
                 logs = (user.network_activity_info_json())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 11:
-                print(f"{operations_index}, {operations[operations_index]} | network_activity_warning", end=", ")
+            elif operation == 11:
+                print(f"{operations_index}, {operation} | network_activity_warning", end=", ")
                 logs = (user.network_activity_warning_json())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 12:
-                print(f"{operations_index}, {operations[operations_index]} | network_activity_debug", end=", ")
+            elif operation == 12:
+                print(f"{operations_index}, {operation} | network_activity_debug", end=", ")
                 logs = (user.network_activity_debug_json())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 13:
-                print(f"{operations_index}, {operations[operations_index]} | edit_policies_notice", end=", ")
+            elif operation == 13:
+                print(f"{operations_index}, {operation} | edit_policies_notice", end=", ")
                 logs = (user.edit_policies_notice_json())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 14:
-                print(f"{operations_index}, {operations[operations_index]} | edit_policies_warning", end=", ")
+            elif operation == 14:
+                print(f"{operations_index}, {operation} | edit_policies_warning", end=", ")
                 logs = (user.edit_policies_warning_json())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 15:
-                print(f"{operations_index}, {operations[operations_index]} | edit_policies_info", end=", ")
+            elif operation == 15:
+                print(f"{operations_index}, {operation} | edit_policies_info", end=", ")
                 logs = (user.edit_policies_info_json())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 16:
-                print(f"{operations_index}, {operations[operations_index]} | remote_control_info", end=", ")
+            elif operation == 16:
+                print(f"{operations_index}, {operation} | remote_control_info", end=", ")
                 logs = (user.remote_control_info_json())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 17:
-                print(f"{operations_index}, {operations[operations_index]} | remote_control_warning", end=", ")
+            elif operation == 17:
+                print(f"{operations_index}, {operation} | remote_control_warning", end=", ")
                 logs = (user.remote_control_warning_json())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 18:
-                print(f"{operations_index}, {operations[operations_index]} | remote_control_alert", end=", ")
+            elif operation == 18:
+                print(f"{operations_index}, {operation} | remote_control_alert", end=", ")
                 logs = (user.remote_control_alert_json())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 19:
-                print(f"{operations_index}, {operations[operations_index]} | update_system_info", end=", ")
+            elif operation == 19:
+                print(f"{operations_index}, {operation} | update_system_info", end=", ")
                 logs = (user.update_system_info_json())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 20:
-                print(f"{operations_index}, {operations[operations_index]} | update_system_err", end=", ")
+            elif operation == 20:
+                print(f"{operations_index}, {operation} | update_system_err", end=", ")
                 logs = (user.update_system_err_json())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 21:
-                print(f"{operations_index}, {operations[operations_index]} | update_system_notice", end=", ")
+            elif operation == 21:
+                print(f"{operations_index}, {operation} | update_system_notice", end=", ")
                 logs = (user.update_system_notice_json())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
 
         elif type(user) == entity.Switch:
             print("Switch -> ", end="")
-            if operations[operations_index] == 1:
-                print(f"{operations_index}, {operations[operations_index]} | change_status_port_info", end=", ")
+            if operation == 1:
+                print(f"{operations_index}, {operation} | change_status_port_info", end=", ")
                 logs = (user.change_status_port_info())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 2:
-                print(f"{operations_index}, {operations[operations_index]} | change_status_port_warning", end=", ")
+            elif operation == 2:
+                print(f"{operations_index}, {operation} | change_status_port_warning", end=", ")
                 logs = (user.change_status_port_warning())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 3:
-                print(f"{operations_index}, {operations[operations_index]} | change_status_port_crit", end=", ")
+            elif operation == 3:
+                print(f"{operations_index}, {operation} | change_status_port_crit", end=", ")
                 logs = (user.change_status_port_crit())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 4:
-                print(f"{operations_index}, {operations[operations_index]} | learn_mac_addr_info", end=", ")
+            elif operation == 4:
+                print(f"{operations_index}, {operation} | learn_mac_addr_info", end=", ")
                 logs = (user.learn_mac_addr_info(list_mac_addr))
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 5:
-                print(f"{operations_index}, {operations[operations_index]} | learn_mac_addr_warning", end=", ")
+            elif operation == 5:
+                print(f"{operations_index}, {operation} | learn_mac_addr_warning", end=", ")
                 logs = (user.learn_mac_addr_warning(list_mac_addr))
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 6:
-                print(f"{operations_index}, {operations[operations_index]} | learn_mac_addr_debug", end=", ")
+            elif operation == 6:
+                print(f"{operations_index}, {operation} | learn_mac_addr_debug", end=", ")
                 logs = (user.learn_mac_addr_debug(list_mac_addr))
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 7:
-                print(f"{operations_index}, {operations[operations_index]} | violation_port_security_warning", end=", ")
+            elif operation == 7:
+                print(f"{operations_index}, {operation} | violation_port_security_warning", end=", ")
                 logs = (user.violation_port_security_warning())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 8:
-                print(f"{operations_index}, {operations[operations_index]} | violation_port_security_crit", end=", ")
+            elif operation == 8:
+                print(f"{operations_index}, {operation} | violation_port_security_crit", end=", ")
                 logs = (user.violation_port_security_crit())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 9:
-                print(f"{operations_index}, {operations[operations_index]} | violation_port_security_alert", end=", ")
+            elif operation == 9:
+                print(f"{operations_index}, {operation} | violation_port_security_alert", end=", ")
                 logs = (user.violation_port_security_alert())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 10:
-                print(f"{operations_index}, {operations[operations_index]} | stp_event_info", end=", ")
+            elif operation == 10:
+                print(f"{operations_index}, {operation} | stp_event_info", end=", ")
                 logs = (user.stp_event_info())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 11:
-                print(f"{operations_index}, {operations[operations_index]} | stp_event_warning", end=", ")
+            elif operation == 11:
+                print(f"{operations_index}, {operation} | stp_event_warning", end=", ")
                 logs = (user.stp_event_warning())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 12:
-                print(f"{operations_index}, {operations[operations_index]} | stp_event_crit", end=", ")
+            elif operation == 12:
+                print(f"{operations_index}, {operation} | stp_event_crit", end=", ")
                 logs = (user.stp_event_crit())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 13:
-                print(f"{operations_index}, {operations[operations_index]} | duplex_error_warning", end=", ")
+            elif operation == 13:
+                print(f"{operations_index}, {operation} | duplex_error_warning", end=", ")
                 logs = (user.duplex_error_warning())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 14:
-                print(f"{operations_index}, {operations[operations_index]} | duplex_error_err", end=", ")
+            elif operation == 14:
+                print(f"{operations_index}, {operation} | duplex_error_err", end=", ")
                 logs = (user.duplex_error_err())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 15:
-                print(f"{operations_index}, {operations[operations_index]} | duplex_error_crit", end=", ")
+            elif operation == 15:
+                print(f"{operations_index}, {operation} | duplex_error_crit", end=", ")
                 logs = (user.duplex_error_crit())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 16:
-                print(f"{operations_index}, {operations[operations_index]} | vlan_event_info", end=", ")
+            elif operation == 16:
+                print(f"{operations_index}, {operation} | vlan_event_info", end=", ")
                 logs = (user.vlan_event_info())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 17:
-                print(f"{operations_index}, {operations[operations_index]} | vlan_event_info", end=", ")
+            elif operation == 17:
+                print(f"{operations_index}, {operation} | vlan_event_info", end=", ")
                 logs = (user.vlan_event_warning())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 18:
-                print(f"{operations_index}, {operations[operations_index]} | vlan_event_debug", end=", ")
+            elif operation == 18:
+                print(f"{operations_index}, {operation} | vlan_event_debug", end=", ")
                 logs = (user.vlan_event_debug())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 19:
-                print(f"{operations_index}, {operations[operations_index]} | auth_802_1x_info", end=", ")
+            elif operation == 19:
+                print(f"{operations_index}, {operation} | auth_802_1x_info", end=", ")
                 logs = (user.auth_802_1x_info(list_mac_addr))
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 20:
-                print(f"{operations_index}, {operations[operations_index]} | auth_802_1x_warning", end=", ")
+            elif operation == 20:
+                print(f"{operations_index}, {operation} | auth_802_1x_warning", end=", ")
                 logs = (user.auth_802_1x_warning(list_mac_addr))
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 21:
-                print(f"{operations_index}, {operations[operations_index]} | auth_802_1x_alert", end=", ")
+            elif operation == 21:
+                print(f"{operations_index}, {operation} | auth_802_1x_alert", end=", ")
                 logs = (user.auth_802_1x_alert(list_mac_addr))
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
 
         elif type(user) == entity.Router:
             print("Router -> ", end="")
-            if operations[operations_index] == 1:
-                print(f"{operations_index}, {operations[operations_index]} | change_status_int_info", end=", ")
+            if operation == 1:
+                print(f"{operations_index}, {operation} | change_status_int_info", end=", ")
                 logs = (user.change_status_int_info())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 2:
-                print(f"{operations_index}, {operations[operations_index]} | change_status_int_warning", end=", ")
+            elif operation == 2:
+                print(f"{operations_index}, {operation} | change_status_int_warning", end=", ")
                 logs = (user.change_status_int_warning())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 3:
-                print(f"{operations_index}, {operations[operations_index]} | change_status_int_crit", end=", ")
+            elif operation == 3:
+                print(f"{operations_index}, {operation} | change_status_int_crit", end=", ")
                 logs = (user.change_status_int_crit())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 4:
-                print(f"{operations_index}, {operations[operations_index]} | change_roadmap_info", end=", ")
+            elif operation == 4:
+                print(f"{operations_index}, {operation} | change_roadmap_info", end=", ")
                 logs = (user.change_roadmap_info(list_ip_addr))
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 5:
-                print(f"{operations_index}, {operations[operations_index]} | change_roadmap_warning", end=", ")
+            elif operation == 5:
+                print(f"{operations_index}, {operation} | change_roadmap_warning", end=", ")
                 logs = (user.change_roadmap_warning(list_ip_addr))
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 6:
-                print(f"{operations_index}, {operations[operations_index]} | change_roadmap_alert", end=", ")
+            elif operation == 6:
+                print(f"{operations_index}, {operation} | change_roadmap_alert", end=", ")
                 logs = (user.change_roadmap_alert())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 7:
-                print(f"{operations_index}, {operations[operations_index]} | dynamic_routing_event_info", end=", ")
+            elif operation == 7:
+                print(f"{operations_index}, {operation} | dynamic_routing_event_info", end=", ")
                 logs = (user.dynamic_routing_event_info())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 8:
-                print(f"{operations_index}, {operations[operations_index]} | dynamic_routing_event_warning", end=", ")
+            elif operation == 8:
+                print(f"{operations_index}, {operation} | dynamic_routing_event_warning", end=", ")
                 logs = (user.dynamic_routing_event_warning(list_ip_addr))
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 9:
-                print(f"{operations_index}, {operations[operations_index]} | dynamic_routing_event_crit", end=", ")
+            elif operation == 9:
+                print(f"{operations_index}, {operation} | dynamic_routing_event_crit", end=", ")
                 logs = (user.dynamic_routing_event_crit())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 10:
-                print(f"{operations_index}, {operations[operations_index]} | acl_activity_info", end=", ")
+            elif operation == 10:
+                print(f"{operations_index}, {operation} | acl_activity_info", end=", ")
                 logs = (user.acl_activity_info(list_ip_addr))
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 11:
-                print(f"{operations_index}, {operations[operations_index]} | acl_activity_warning", end=", ")
+            elif operation == 11:
+                print(f"{operations_index}, {operation} | acl_activity_warning", end=", ")
                 logs = (user.acl_activity_warning(list_ip_addr))
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 12:
-                print(f"{operations_index}, {operations[operations_index]} | acl_activity_debug", end=", ")
+            elif operation == 12:
+                print(f"{operations_index}, {operation} | acl_activity_debug", end=", ")
                 logs = (user.acl_activity_debug())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 13:
-                print(f"{operations_index}, {operations[operations_index]} | nat_event_info", end=", ")
+            elif operation == 13:
+                print(f"{operations_index}, {operation} | nat_event_info", end=", ")
                 logs = (user.nat_event_info(list_ip_addr))
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 14:
-                print(f"{operations_index}, {operations[operations_index]} | nat_event_warning", end=", ")
+            elif operation == 14:
+                print(f"{operations_index}, {operation} | nat_event_warning", end=", ")
                 logs = (user.nat_event_warning(list_ip_addr))
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 15:
-                print(f"{operations_index}, {operations[operations_index]} | nat_event_debug", end=", ")
+            elif operation == 15:
+                print(f"{operations_index}, {operation} | nat_event_debug", end=", ")
                 logs = (user.nat_event_debug(list_ip_addr))
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 16:
-                print(f"{operations_index}, {operations[operations_index]} | icmp_message_info", end=", ")
+            elif operation == 16:
+                print(f"{operations_index}, {operation} | icmp_message_info", end=", ")
                 logs = (user.icmp_message_info(list_ip_addr))
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 17:
-                print(f"{operations_index}, {operations[operations_index]} | icmp_message_warning", end=", ")
+            elif operation == 17:
+                print(f"{operations_index}, {operation} | icmp_message_warning", end=", ")
                 logs = (user.icmp_message_warning(list_ip_addr))
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 18:
-                print(f"{operations_index}, {operations[operations_index]} | icmp_message_debug", end=", ")
+            elif operation == 18:
+                print(f"{operations_index}, {operation} | icmp_message_debug", end=", ")
                 logs = (user.icmp_message_debug(list_ip_addr))
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 19:
-                print(f"{operations_index}, {operations[operations_index]} | violation_traffic_info", end=", ")
+            elif operation == 19:
+                print(f"{operations_index}, {operation} | violation_traffic_info", end=", ")
                 logs = (user.violation_traffic_info(list_mac_addr))
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 20:
-                print(f"{operations_index}, {operations[operations_index]} | violation_traffic_warning", end=", ")
+            elif operation == 20:
+                print(f"{operations_index}, {operation} | violation_traffic_warning", end=", ")
                 logs = (user.violation_traffic_warning())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif operations[operations_index] == 21:
-                print(f"{operations_index}, {operations[operations_index]} | violation_traffic_debug", end=", ")
+            elif operation == 21:
+                print(f"{operations_index}, {operation} | violation_traffic_debug", end=", ")
                 logs = (user.violation_traffic_debug())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
 
         elif type(user) == entity.Firewall:
             print("Firewall -> ", end="")
-            if (operations[operations_index] % 10) == 1 or operations[operations_index] == 1:
-                print(f"{operations_index}, {operations[operations_index]} | allow_traffic_info", end=", ")
+            if (operation % 10) == 1 or operation == 1:
+                print(f"{operations_index}, {operation} | allow_traffic_info", end=", ")
                 logs = (user.allow_traffic_info(list_ip_addr))
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif (operations[operations_index] % 10) == 2 or operations[operations_index] == 2:
-                print(f"{operations_index}, {operations[operations_index]} | allow_traffic_debug", end=", ")
+            elif (operation % 10) == 2 or operation == 2:
+                print(f"{operations_index}, {operation} | allow_traffic_debug", end=", ")
                 logs = (user.allow_traffic_debug(list_ip_addr))
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif (operations[operations_index] % 10) == 3 or operations[operations_index] == 3:
-                print(f"{operations_index}, {operations[operations_index]} | lock_traffic_warning", end=", ")
+            elif (operation % 10) == 3 or operation == 3:
+                print(f"{operations_index}, {operation} | lock_traffic_warning", end=", ")
                 logs = (user.lock_traffic_warning(list_ip_addr))
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif (operations[operations_index] % 10) == 4 or operations[operations_index] == 4:
-                print(f"{operations_index}, {operations[operations_index]} | lock_traffic_alert", end=", ")
+            elif (operation % 10) == 4 or operation == 4:
+                print(f"{operations_index}, {operation} | lock_traffic_alert", end=", ")
                 logs = (user.lock_traffic_alert(list_ip_addr))
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif (operations[operations_index] % 10) == 5 or operations[operations_index] == 5:
-                print(f"{operations_index}, {operations[operations_index]} | lock_traffic_debug", end=", ")
+            elif (operation % 10) == 5 or operation == 5:
+                print(f"{operations_index}, {operation} | lock_traffic_debug", end=", ")
                 logs = (user.lock_traffic_debug())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif (operations[operations_index] % 10) == 6 or operations[operations_index] == 6:
-                print(f"{operations_index}, {operations[operations_index]} | change_session_info_connect", end=", ")
+            elif (operation % 10) == 6 or operation == 6:
+                print(f"{operations_index}, {operation} | change_session_info_connect", end=", ")
                 logs = (user.change_session_info_connect(list_ip_addr))
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif (operations[operations_index] % 10) == 7 or operations[operations_index] == 7:
-                print(f"{operations_index}, {operations[operations_index]} | change_session_info_breakup", end=", ")
+            elif (operation % 10) == 7 or operation == 7:
+                print(f"{operations_index}, {operation} | change_session_info_breakup", end=", ")
                 logs = (user.change_session_info_breakup(list_ip_addr))
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif (operations[operations_index] % 10) == 8 or operations[operations_index] == 8:
-                print(f"{operations_index}, {operations[operations_index]} | change_session_debug", end=", ")
+            elif (operation % 10) == 8 or operation == 8:
+                print(f"{operations_index}, {operation} | change_session_debug", end=", ")
                 logs = (user.change_session_debug(list_ip_addr))
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif (operations[operations_index] % 10) == 9 or operations[operations_index] == 9:
-                print(f"{operations_index}, {operations[operations_index]} | vpn_tunnel_info", end=", ")
+            elif (operation % 10) == 9 or operation == 9:
+                print(f"{operations_index}, {operation} | vpn_tunnel_info", end=", ")
                 logs = (user.vpn_tunnel_info())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
-            elif (operations[operations_index] % 10) == 0 or operations[operations_index] == 10:
-                print(f"{operations_index}, {operations[operations_index]} | vpn_tunnel_warning", end=", ")
+            elif (operation % 10) == 0 or operation == 10:
+                print(f"{operations_index}, {operation} | vpn_tunnel_warning", end=", ")
                 logs = (user.vpn_tunnel_warning())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
@@ -1157,6 +1246,8 @@ def generator_protocols(client, index_name, users, list_ip_addr, list_mac_addr):
 
 def unit_test():
     pass
+
+
 
 if __name__ == "__main__":
     unit_test()
