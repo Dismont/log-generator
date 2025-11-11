@@ -5654,3 +5654,619 @@ class Firewall(Device):
                 "ip": [local_ip, peer_ip]
             }
         }
+
+
+class Attacker(Device):
+
+    def __init__(self, hostname, os, category, log_format, asset_number, ip_addr, mac_addr, domain):
+        super().__init__(hostname, os, category, log_format, asset_number, ip_addr, mac_addr, domain)
+        self.destination_ip = [
+            "8.8.8.8", "1.1.1.1", "9.9.9.9", "142.250.185.206", "140.82.121.4",
+            "104.16.132.229", "40.126.35.10", "17.253.144.10", "13.32.187.123",
+            "31.13.71.36", "104.244.42.1", "142.250.186.174", "91.198.174.192",
+            "151.101.1.69", "173.194.222.108", "52.100.160.10", "162.125.1.1",
+            "3.233.128.10", "34.102.136.180", "13.107.246.10", "91.189.91.83",
+            "34.224.140.168", "104.16.23.35", "151.101.193.223"
+        ]
+
+    def ssh_bruteforce(self, target_ip, target_port=22):
+        """
+        Генерирует событие атаки brute-force по SSH.
+        """
+        return {
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.ip_addr,
+                "os": {"name": "Linux", "platform": "attack_tool"}
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.ip_addr,
+                "type": "host"
+            },
+            "event": {
+                "kind": "alert",
+                "category": ["intrusion_detection", "authentication"],
+                "type": ["access", "attack"],
+                "action": "ssh_brute_force_launched",
+                "outcome": "success", # Атака запущена
+                "severity": 1, # Критическая для атакующего
+                "severity_label": "critical",
+                "provider": "simulated-attacker",
+                "rule": {
+                    "id": "ATT-SIM-SSH-BF-001",
+                    "name": "Simulated SSH brute-force attack launched"
+                }
+            },
+            "user": {"name": "attacker"},
+            "process": {
+                "name": "hydra",
+                "pid": random.randint(10000, 20000),
+                "executable": "/usr/bin/hydra"
+            },
+            "source": {
+                "ip": self.ip_addr,
+                "port": random.randint(32768, 65535)
+            },
+            "destination": {
+                "ip": target_ip,
+                "port": target_port
+            },
+            "network": {
+                "protocol": "tcp",
+                "direction": "outbound"
+            },
+            "service": {
+                "name": "SSH",
+                "type": "ssh"
+            },
+            "related": {
+                "ip": [self.ip_addr, target_ip],
+                "user": ["attacker"]
+            }
+        }
+
+    def rdp_bruteforce(self, target_ip, target_port=3389):
+        """
+        Генерирует событие атаки brute-force по RDP.
+        """
+        return {
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.ip_addr,
+                "os": {"name": "Linux", "platform": "attack_tool"}
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.ip_addr,
+                "type": "host"
+            },
+            "event": {
+                "kind": "alert",
+                "category": ["intrusion_detection", "authentication"],
+                "type": ["connection", "attack"],
+                "action": "rdp_brute-force_launched",
+                "outcome": "success",
+                "severity": 1,
+                "severity_label": "critical",
+                "provider": "simulated-attacker",
+                "rule": {
+                    "id": "ATT-SIM-RDP-BF-001",
+                    "name": "Simulated RDP brute-force attack launched"
+                }
+            },
+            "user": {"name": "attacker"},
+            "process": {
+                "name": "crowbar",
+                "pid": random.randint(10000, 20000),
+                "executable": "/usr/bin/crowbar"
+            },
+            "source": {
+                "ip": self.ip_addr,
+                "port": random.randint(32768, 65535)
+            },
+            "destination": {
+                "ip": target_ip,
+                "port": target_port
+            },
+            "network": {
+                "protocol": "tcp",
+                "direction": "outbound"
+            },
+            "service": {
+                "name": "RDP",
+                "type": "rdp"
+            },
+            "related": {
+                "ip": [self.ip_addr, target_ip],
+                "user": ["attacker"]
+            }
+        }
+
+    def data_exfiltration(self, target_ip, exfiltrated_data_size_bytes):
+        """
+        Генерирует событие передачи данных (data exfiltration) на внешний IP.
+        """
+        destination_ip = random.choice(self.destination_ip)
+        return {
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.ip_addr,
+                "os": {"name": "Windows", "platform": "attack_tool"}
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.ip_addr,
+                "type": "host"
+            },
+            "event": {
+                "kind": "alert",
+                "category": ["network", "intrusion_detection"],
+                "type": ["connection", "data_exfiltration"],
+                "action": "outbound_data_transfer",
+                "outcome": "success",
+                "severity": 1,
+                "severity_label": "critical",
+                "provider": "simulated-attacker",
+                "rule": {
+                    "id": "ATT-SIM-DATA-EXF-001",
+                    "name": "Simulated data exfiltration"
+                }
+            },
+            "user": {"name": "attacker"},
+            "process": {
+                "name": "nc.exe", # Netcat как пример инструмента
+                "pid": random.randint(10000, 20000),
+                "executable": "C:\\Tools\\nc.exe"
+            },
+            "source": {
+                "ip": self.ip_addr,
+                "port": random.randint(32768, 65535)
+            },
+            "destination": {
+                "ip": destination_ip,
+                "port": random.randint(1, 65535)
+            },
+            "network": {
+                "protocol": "tcp",
+                "direction": "outbound"
+            },
+            "file": {
+                "size": exfiltrated_data_size_bytes
+            },
+            "service": {
+                "name": "Data Transfer",
+                "type": "data_exfiltration"
+            },
+            "related": {
+                "ip": [self.ip_addr, destination_ip],
+                "user": ["attacker"]
+            }
+        }
+
+    def living_off_the_land_powershell(self, target_command):
+        """
+        Генерирует событие использования PowerShell для выполнения вредоносной команды (Living-off-the-Land).
+        """
+        return {
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.ip_addr,
+                "os": {"name": "Windows", "platform": "attack_tool"}
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.ip_addr,
+                "type": "host"
+            },
+            "event": {
+                "kind": "alert",
+                "category": ["process", "intrusion_detection"],
+                "type": ["start", "malicious"],
+                "action": "powershell_execution",
+                "outcome": "success",
+                "severity": 1,
+                "severity_label": "critical",
+                "provider": "simulated-attacker",
+                "rule": {
+                    "id": "ATT-SIM-LOT-PWSH-001",
+                    "name": "Simulated Living-off-the-Land PowerShell execution"
+                }
+            },
+            "user": {"name": "attacker"},
+            "process": {
+                "name": "powershell.exe",
+                "pid": random.randint(10000, 20000),
+                "executable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+                "command_line": target_command
+            },
+            "service": {
+                "name": "PowerShell",
+                "type": "powershell"
+            },
+            "related": {
+                "user": ["attacker"]
+            }
+        }
+
+    def living_off_the_land_wmi(self, target_wmi_query):
+        """
+        Генерирует событие использования WMI для выполнения вредоносного запроса (Living-off-the-Land).
+        """
+        return {
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.ip_addr,
+                "os": {"name": "Windows", "platform": "attack_tool"}
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.ip_addr,
+                "type": "host"
+            },
+            "event": {
+                "kind": "alert",
+                "category": ["process", "intrusion_detection"],
+                "type": ["start", "malicious"],
+                "action": "wmi_query_execution",
+                "outcome": "success",
+                "severity": 1,
+                "severity_label": "critical",
+                "provider": "simulated-attacker",
+                "rule": {
+                    "id": "ATT-SIM-LOT-WMI-001",
+                    "name": "Simulated Living-off-the-Land WMI query execution"
+                }
+            },
+            "user": {"name": "attacker"},
+            "process": {
+                "name": "wmic.exe",
+                "pid": random.randint(10000, 20000),
+                "executable": "C:\\Windows\\System32\\wbem\\wmic.exe",
+                "command_line": target_wmi_query
+            },
+            "service": {
+                "name": "WMI",
+                "type": "wmi"
+            },
+            "related": {
+                "user": ["attacker"]
+            }
+        }
+
+    def cam_overflow(self, switch_ip, switch_port):
+        """
+        Генерирует событие атаки CAM-таблица overflow на коммутаторе.
+        """
+        return {
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.ip_addr,
+                "os": {"name": "Linux", "platform": "attack_tool"}
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.ip_addr,
+                "type": "host"
+            },
+            "event": {
+                "kind": "alert",
+                "category": ["network", "intrusion_detection"],
+                "type": ["security", "attack"],
+                "action": "CAM table overflow launched",
+                "outcome": "success",
+                "severity": 1,
+                "severity_label": "critical",
+                "provider": "simulated-attacker",
+                "rule": {
+                    "id": "ATT-SIM-CAM-OVF-001",
+                    "name": "Simulated CAM table flooding attack launched"
+                }
+            },
+            "process": {
+                "name": "macof",
+                "pid": random.randint(10000, 20000),
+                "executable": "/usr/bin/macof"
+            },
+            "source": {
+                "ip": self.ip_addr,
+                "port": random.randint(32768, 65535)
+            },
+            "destination": {
+                "ip": switch_ip,
+                "port": switch_port
+            },
+            "network": {
+                "protocol": "ethernet",
+                "direction": "outbound"
+            },
+            "service": {
+                "name": "CAM Overflow",
+                "type": "switch_attack"
+            },
+            "related": {
+                "ip": [self.ip_addr, switch_ip]
+            }
+        }
+
+    def unauthorized_acl_modification(self, router_ip, target_acl_name):
+        """
+        Генерирует событие несанкционированного изменения ACL на маршрутизаторе.
+        """
+        return {
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.ip_addr,
+                "os": {"name": "Linux", "platform": "attack_tool"}
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.ip_addr,
+                "type": "host"
+            },
+            "event": {
+                "kind": "alert",
+                "category": ["network", "intrusion_detection"],
+                "type": ["configuration", "attack"],
+                "action": "ACL modification launched",
+                "outcome": "success",
+                "severity": 1,
+                "severity_label": "critical",
+                "provider": "simulated-attacker",
+                "rule": {
+                    "id": "ATT-SIM-ACL-MOD-001",
+                    "name": "Simulated unauthorized ACL modification launched"
+                }
+            },
+            "process": {
+                "name": "nmap",
+                "pid": random.randint(10000, 20000),
+                "executable": "/usr/bin/nmap"
+            },
+            "source": {
+                "ip": self.ip_addr,
+                "port": random.randint(32768, 65535)
+            },
+            "destination": {
+                "ip": router_ip,
+                "port": 22 # SSH для конфигурации
+            },
+            "network": {
+                "protocol": "tcp",
+                "direction": "outbound"
+            },
+            "service": {
+                "name": "Router ACL",
+                "type": "router"
+            },
+            "related": {
+                "ip": [self.ip_addr, router_ip]
+            }
+        }
+
+    def stp_root_bridge_hijacking(self, switch_ip):
+        """
+        Генерирует событие атаки STP Root Bridge Hijacking на коммутаторе.
+        """
+        return {
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.ip_addr,
+                "os": {"name": "Linux", "platform": "attack_tool"}
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.ip_addr,
+                "type": "host"
+            },
+            "event": {
+                "kind": "alert",
+                "category": ["network", "intrusion_detection"],
+                "type": ["configuration", "attack"],
+                "action": "STP Root Bridge Hijacking launched",
+                "outcome": "success",
+                "severity": 1,
+                "severity_label": "critical",
+                "provider": "simulated-attacker",
+                "rule": {
+                    "id": "ATT-SIM-STP-HIJACK-001",
+                    "name": "Simulated STP Root Bridge Hijacking attack launched"
+                }
+            },
+            "process": {
+                "name": "yersinia",
+                "pid": random.randint(10000, 20000),
+                "executable": "/usr/bin/yersinia"
+            },
+            "source": {
+                "ip": self.ip_addr,
+                "port": random.randint(32768, 65535)
+            },
+            "destination": {
+                "ip": switch_ip,
+                "port": 802 # STP порт
+            },
+            "network": {
+                "protocol": "ethernet",
+                "direction": "outbound"
+            },
+            "service": {
+                "name": "STP",
+                "type": "stp"
+            },
+            "related": {
+                "ip": [self.ip_addr, switch_ip]
+            }
+        }
+
+    def rogue_dhcp_server(self, target_subnet):
+        """
+        Генерирует событие запуска ложного DHCP-сервера (Rogue DHCP Server).
+        """
+        rogue_ip = f"{target_subnet}.{random.randint(100, 200)}"
+        return {
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.ip_addr,
+                "os": {"name": "Linux", "platform": "attack_tool"}
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.ip_addr,
+                "type": "host"
+            },
+            "event": {
+                "kind": "alert",
+                "category": ["network", "intrusion_detection"],
+                "type": ["service", "attack"],
+                "action": "Rogue DHCP server launched",
+                "outcome": "success",
+                "severity": 1,
+                "severity_label": "critical",
+                "provider": "simulated-attacker",
+                "rule": {
+                    "id": "ATT-SIM-DHCP-ROGUE-001",
+                    "name": "Simulated Rogue DHCP server launched"
+                }
+            },
+            "process": {
+                "name": "dhcpd",
+                "pid": random.randint(10000, 20000),
+                "executable": "/usr/sbin/dhcpd"
+            },
+            "source": {
+                "ip": rogue_ip, # IP, который будет раздавать фейковый DHCP
+                "port": 67
+            },
+            "network": {
+                "protocol": "udp",
+                "direction": "outbound"
+            },
+            "service": {
+                "name": "DHCP",
+                "type": "dhcp"
+            }
+        }
+
+    def route_injection(self, target_router_ip, injected_route):
+        """
+        Генерирует событие атаки Route Injection на маршрутизаторе.
+        """
+        return {
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.ip_addr,
+                "os": {"name": "Linux", "platform": "attack_tool"}
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.ip_addr,
+                "type": "host"
+            },
+            "event": {
+                "kind": "alert",
+                "category": ["network", "intrusion_detection"],
+                "type": ["routing", "attack"],
+                "action": "Route injection launched",
+                "outcome": "success",
+                "severity": 1,
+                "severity_label": "critical",
+                "provider": "simulated-attacker",
+                "rule": {
+                    "id": "ATT-SIM-ROUTE-INJ-001",
+                    "name": "Simulated Route injection attack launched"
+                }
+            },
+            "process": {
+                "name": "quagga",
+                "pid": random.randint(10000, 20000),
+                "executable": "/usr/sbin/zebra"
+            },
+            "source": {
+                "ip": self.ip_addr,
+                "port": random.randint(32768, 65535)
+            },
+            "destination": {
+                "ip": target_router_ip,
+                "port": 179 # BGP
+            },
+            "network": {
+                "protocol": "bgp",
+                "direction": "outbound"
+            },
+            "service": {
+                "name": "BGP",
+                "type": "routing"
+            },
+            "related": {
+                "ip": [self.ip_addr, target_router_ip]
+            }
+        }
+
+    def snmp_bruteforce(self, target_router_ip, target_port=161):
+        """
+        Генерирует событие атаки SNMP Bruteforce на маршрутизаторе.
+        """
+        return {
+            "@timestamp": self.get_timestamp(),
+            "host": {
+                "hostname": self.hostname,
+                "ip": self.ip_addr,
+                "os": {"name": "Linux", "platform": "attack_tool"}
+            },
+            "observer": {
+                "hostname": self.hostname,
+                "ip": self.ip_addr,
+                "type": "host"
+            },
+            "event": {
+                "kind": "alert",
+                "category": ["intrusion_detection", "network"],
+                "type": ["access", "attack"],
+                "action": "snmp_brute_force_launched",
+                "outcome": "success",
+                "severity": 1,
+                "severity_label": "critical",
+                "provider": "simulated-attacker",
+                "rule": {
+                    "id": "ATT-SIM-SNMP-BF-001",
+                    "name": "Simulated SNMP brute-force attack launched"
+                }
+            },
+            "user": {"name": "attacker"},
+            "process": {
+                "name": "onesixtyone",
+                "pid": random.randint(10000, 20000),
+                "executable": "/usr/bin/onesixtyone"
+            },
+            "source": {
+                "ip": self.ip_addr,
+                "port": random.randint(32768, 65535)
+            },
+            "destination": {
+                "ip": target_router_ip,
+                "port": target_port
+            },
+            "network": {
+                "protocol": "udp",
+                "direction": "outbound"
+            },
+            "service": {
+                "name": "SNMP",
+                "type": "snmp"
+            },
+            "related": {
+                "ip": [self.ip_addr, target_router_ip],
+                "user": ["attacker"]
+            }
+        }
