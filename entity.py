@@ -5655,7 +5655,6 @@ class Firewall(Device):
             }
         }
 
-
 class Attacker(Device):
 
     def __init__(self, hostname, os, category, log_format, asset_number, ip_addr, mac_addr, domain):
@@ -5668,11 +5667,25 @@ class Attacker(Device):
             "3.233.128.10", "34.102.136.180", "13.107.246.10", "91.189.91.83",
             "34.224.140.168", "104.16.23.35", "151.101.193.223"
         ]
+        self.users_attr = [
+            "root",  # Суперпользователь
+            "deamon",  # Управление демонами
+            "bin",  # Владелец бинарников
+            "sys",  # Системные логи и ядро
+            "sync",  # Вледелец `sync`
+            "nobody",  # Минимальные привилегии
+            "lp",  # Печать
+            "mail",  # Почтовая система
+            "backup",  # Резервное копирование
+            "uucp",  # Unix-to-Unix Copy
+            "www-data",  # Веб-сервер
+            f"user-{self.asset_number.replace('IN-', '')}",
+            "auditd"
+        ]
+        self.user = random.choice(self.users_attr)
 
     def ssh_bruteforce(self, target_ip, target_port=22):
-        """
-        Генерирует событие атаки brute-force по SSH.
-        """
+
         return {
             "@timestamp": self.get_timestamp(),
             "host": {
@@ -5693,7 +5706,7 @@ class Attacker(Device):
                 "outcome": "success", # Атака запущена
                 "severity": 1, # Критическая для атакующего
                 "severity_label": "critical",
-                "provider": "simulated-attacker",
+                "provider": "simulated-linux",
                 "rule": {
                     "id": "ATT-SIM-SSH-BF-001",
                     "name": "Simulated SSH brute-force attack launched"
@@ -5723,7 +5736,7 @@ class Attacker(Device):
             },
             "related": {
                 "ip": [self.ip_addr, target_ip],
-                "user": ["attacker"]
+                "user": self.user
             }
         }
 
@@ -5751,13 +5764,13 @@ class Attacker(Device):
                 "outcome": "success",
                 "severity": 1,
                 "severity_label": "critical",
-                "provider": "simulated-attacker",
+                "provider": "simulated-linux",
                 "rule": {
                     "id": "ATT-SIM-RDP-BF-001",
                     "name": "Simulated RDP brute-force attack launched"
                 }
             },
-            "user": {"name": "attacker"},
+            "user": {"name": self.user},
             "process": {
                 "name": "crowbar",
                 "pid": random.randint(10000, 20000),
@@ -5781,7 +5794,7 @@ class Attacker(Device):
             },
             "related": {
                 "ip": [self.ip_addr, target_ip],
-                "user": ["attacker"]
+                "user": self.user
             }
         }
 
@@ -5810,7 +5823,7 @@ class Attacker(Device):
                 "outcome": "success",
                 "severity": 1,
                 "severity_label": "critical",
-                "provider": "simulated-attacker",
+                "provider": "simulated-linux",
                 "rule": {
                     "id": "ATT-SIM-DATA-EXF-001",
                     "name": "Simulated data exfiltration"
@@ -5871,7 +5884,7 @@ class Attacker(Device):
                 "outcome": "success",
                 "severity": 1,
                 "severity_label": "critical",
-                "provider": "simulated-attacker",
+                "provider": "simulated-linux",
                 "rule": {
                     "id": "ATT-SIM-LOT-PWSH-001",
                     "name": "Simulated Living-off-the-Land PowerShell execution"
@@ -5917,7 +5930,7 @@ class Attacker(Device):
                 "outcome": "success",
                 "severity": 1,
                 "severity_label": "critical",
-                "provider": "simulated-attacker",
+                "provider": "simulated-linux",
                 "rule": {
                     "id": "ATT-SIM-LOT-WMI-001",
                     "name": "Simulated Living-off-the-Land WMI query execution"
@@ -5963,7 +5976,7 @@ class Attacker(Device):
                 "outcome": "success",
                 "severity": 1,
                 "severity_label": "critical",
-                "provider": "simulated-attacker",
+                "provider": "simulated-linux",
                 "rule": {
                     "id": "ATT-SIM-CAM-OVF-001",
                     "name": "Simulated CAM table flooding attack launched"
@@ -6019,7 +6032,7 @@ class Attacker(Device):
                 "outcome": "success",
                 "severity": 1,
                 "severity_label": "critical",
-                "provider": "simulated-attacker",
+                "provider": "simulated-linux",
                 "rule": {
                     "id": "ATT-SIM-ACL-MOD-001",
                     "name": "Simulated unauthorized ACL modification launched"
@@ -6075,7 +6088,7 @@ class Attacker(Device):
                 "outcome": "success",
                 "severity": 1,
                 "severity_label": "critical",
-                "provider": "simulated-attacker",
+                "provider": "simulated-linux",
                 "rule": {
                     "id": "ATT-SIM-STP-HIJACK-001",
                     "name": "Simulated STP Root Bridge Hijacking attack launched"
@@ -6132,7 +6145,7 @@ class Attacker(Device):
                 "outcome": "success",
                 "severity": 1,
                 "severity_label": "critical",
-                "provider": "simulated-attacker",
+                "provider": "simulated-linux",
                 "rule": {
                     "id": "ATT-SIM-DHCP-ROGUE-001",
                     "name": "Simulated Rogue DHCP server launched"
@@ -6157,7 +6170,7 @@ class Attacker(Device):
             }
         }
 
-    def route_injection(self, target_router_ip, injected_route):
+    def route_injection(self, target_router_ip):
         """
         Генерирует событие атаки Route Injection на маршрутизаторе.
         """
@@ -6181,7 +6194,7 @@ class Attacker(Device):
                 "outcome": "success",
                 "severity": 1,
                 "severity_label": "critical",
-                "provider": "simulated-attacker",
+                "provider": "simulated-linux",
                 "rule": {
                     "id": "ATT-SIM-ROUTE-INJ-001",
                     "name": "Simulated Route injection attack launched"
@@ -6237,7 +6250,7 @@ class Attacker(Device):
                 "outcome": "success",
                 "severity": 1,
                 "severity_label": "critical",
-                "provider": "simulated-attacker",
+                "provider": "simulated-linux",
                 "rule": {
                     "id": "ATT-SIM-SNMP-BF-001",
                     "name": "Simulated SNMP brute-force attack launched"
@@ -6267,6 +6280,6 @@ class Attacker(Device):
             },
             "related": {
                 "ip": [self.ip_addr, target_router_ip],
-                "user": ["attacker"]
+                "user": [self.user]
             }
         }

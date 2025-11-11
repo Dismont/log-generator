@@ -15,6 +15,10 @@ class MainWindow(Tk):
 
         # --- GENERATOR & NETWORK FIELDS ---
 
+        self.is_generating = None
+        self.generator_thread = None
+        self.stop_event = None
+        self.attacker_code = None
         self.segment_subnetwork_number = None
         self.random_link_image = None
         self.is_get_task = False
@@ -190,7 +194,7 @@ class MainWindow(Tk):
         # --- --- --- --- --- --- --- --- --- ---
 
         # --- BUTTON <GENERATION> ---
-        self.button_generation = Button(self, text="Генерация", state="disabled", command=self.generation_ui)
+        self.button_generation = Button(self, text="Запустить генерацию", state="disabled", command=self.toggle_generation_protocols)
         self.button_generation.place(x=10, y=610, width=300, height=25)
         # --- --- --- --- --- --- --- --- --- ---
 
@@ -273,83 +277,80 @@ class MainWindow(Tk):
                                                 index_name=self.index_name)
                 self.label_status_create_index.config(text="Индекс удален")
                 messagebox.showinfo(f"Индекс {self.index_name}", f"Индекс {self.index_name} успешно удалён!")
+                self.title("Электронный тренажер")
                 self.button_get_task.config(state="disabled")
+                self.button_generation.config(state="disabled")
             else:
                 self.label_status_create_index.config(text="Индекс без изменений")
                 messagebox.showinfo(f"Индекс {self.index_name}", f"Состояние индекса {self.index_name} не изменилось!")
+                self.title("Электронный тренажер")
                 self.button_get_task.config(state="normal")
+                self.button_generation.config(state="disabled")
 
     def get_task_ui(self):
-        self.random_link_image = random.choice(self.link_images)
-        image = Image.open(self.random_link_image)
-        topology = ImageTk.PhotoImage(image)
-        self.label_photo.config(image=topology)
-        self.label_photo.image = topology
-        self.label_photo.config(state="normal")
 
-        self.segment_subnetwork_number = []
-        if "3" in self.random_link_image:
-            print(f"3 Seg. {self.random_link_image}")
+        change_window = ChangeWindow(self.app_font, self.client, self.index_name, self.index_mapping, self.users,
+                                     self.ip_address_list, self.mac_address_list, self.attacker_code)
+        change_window.mainloop()
+        if change_window.type_of_job == "demo":
+            print("DEMO!")
+            self.title("Электронный тренажер - Демо версия")
+            self.random_link_image = "images/top-3A.jpg"
+            image = Image.open(self.random_link_image)
+            topology = ImageTk.PhotoImage(image)
+            self.label_photo.config(image=topology)
+            self.label_photo.image = topology
+            self.label_photo.config(state="normal")
+            self.segment_subnetwork_number = []
+
+
+            text_seg = ""
             for i in range(3):
                 self.segment_subnetwork_number.append(random.randint(1, 50))
+                text_seg += f"Seg.{i + 1} | 192.168.{self.segment_subnetwork_number[i]}.0/24\n"
 
-        elif "4" in self.random_link_image:
-            print(f"4 Seg. {self.random_link_image}")
-            for i in range(4):
-                self.segment_subnetwork_number.append(random.randint(1, 50))
+            self.users, self.ip_address_list, self.mac_address_list, self.attacker_code = generator.generation_topology(
+                "default/ssh_brute_force", self.segment_subnetwork_number)
+            self.label_task.config(text=text_seg)
+            self.is_get_task = True
+            self.button_get_task.config(state="disabled")
+            self.button_generation.config(state="normal")
+
         else:
-            print(f"5 Seg. {self.random_link_image}")
-            for i in range(5):
-                self.segment_subnetwork_number.append(random.randint(1, 50))
+            print("PRACTISE!")
+            self.title("Электронный тренажер - Практическая версия")
+            self.random_link_image = random.choice(self.link_images)
+            image = Image.open(self.random_link_image)
+            topology = ImageTk.PhotoImage(image)
+            self.label_photo.config(image=topology)
+            self.label_photo.image = topology
+            self.label_photo.config(state="normal")
 
-        text_seg = ""
-        for i in range(len(self.segment_subnetwork_number)):
-            text_seg += f"Seg.{i + 1} | 192.168.{self.segment_subnetwork_number[i]}.0/24\n"
+            self.segment_subnetwork_number = []
+            if "3" in self.random_link_image:
+                print(f"3 Seg. {self.random_link_image}")
+                for i in range(3):
+                    self.segment_subnetwork_number.append(random.randint(1, 50))
 
-        self.users, self.ip_address_list, self.mac_address_list = generator.generation_topology(self.random_link_image, self.segment_subnetwork_number)
-        self.label_task.config(text=text_seg)
-        self.is_get_task = True
-        self.button_get_task.config(state="disabled")
-        self.button_generation.config(state="normal")
+            elif "4" in self.random_link_image:
+                print(f"4 Seg. {self.random_link_image}")
+                for i in range(4):
+                    self.segment_subnetwork_number.append(random.randint(1, 50))
+            else:
+                print(f"5 Seg. {self.random_link_image}")
+                for i in range(5):
+                    self.segment_subnetwork_number.append(random.randint(1, 50))
 
-    def generation_ui(self):
+            text_seg = ""
+            for i in range(len(self.segment_subnetwork_number)):
+                text_seg += f"Seg.{i + 1} | 192.168.{self.segment_subnetwork_number[i]}.0/24\n"
 
-        additional_window = AdditionalWindow(self.app_font, self.client, self.index_name, self.index_mapping, self.users, self.ip_address_list, self.mac_address_list)
-        additional_window.mainloop()
+            self.users, self.ip_address_list, self.mac_address_list, self.attacker_code = generator.generation_topology(self.random_link_image, self.segment_subnetwork_number)
+            self.label_task.config(text=text_seg)
+            self.is_get_task = True
+            self.button_get_task.config(state="disabled")
+            self.button_generation.config(state="normal")
 
-
-class AdditionalWindow(Tk):
-
-    def __init__(self,app_font, client, index_name, index_mapping, users, ip_address_list, mac_address_list):
-        super().__init__()
-
-        # --- GENERATOR FIELDS ---
-
-        self.client = client
-        self.index_name = index_name
-        self.index_mapping = index_mapping
-        self.users = users
-        self.ip_address_list = ip_address_list
-        self.mac_address_list = mac_address_list
-
-        # --- UI FIELDS ---
-
-        self.app_font = app_font
-        self.title("Генерация")
-        self.geometry("400x300")
-        self.option_add("*Font", self.app_font)
-        self['bg'] = 'darkgray'
-
-        # --- THREAD FIELD ---
-
-        self.is_generating = False
-        self.stop_event = None
-        self.generator_thread = None
-
-        # --- BUTTON <GENERATION_PROTOCOLS> ---
-
-        self.button_generation_protocols = Button(self,text="Начать генерацию", state="normal", command=self.toggle_generation_protocols)
-        self.button_generation_protocols.place(x=100, y=50, width=200, height=50)
 
     def toggle_generation_protocols(self):
         if self.is_generating:
@@ -357,7 +358,9 @@ class AdditionalWindow(Tk):
             self.stop_event.set()
             self.generator_thread.join(timeout=1.0)  # Ждём завершения (макс. 1 сек)
             self.is_generating = False
-            self.button_generation_protocols.config(text="Запустить генерацию")
+            self.button_generation.config(text="Запустить генерацию")
+            print("! ОСТАНОВКА ГЕНЕРАЦИИ !")
+
         else:
             # Запуск
             self.stop_event = threading.Event()
@@ -369,14 +372,62 @@ class AdditionalWindow(Tk):
                     self.users,
                     self.ip_address_list,
                     self.mac_address_list,
-                    self.stop_event
+                    self.stop_event,
+                    self.attacker_code
                 ),
                 daemon=True  # Поток завершится при закрытии окна
             )
             self.generator_thread.start()
             self.is_generating = True
-            self.button_generation_protocols.config(text="Остановить генерацию")
+            self.button_generation.config(text="Остановить генерацию")
+            print("! ЗАПУСК ГЕНЕРАЦИИ !")
 
+
+class ChangeWindow(Tk):
+
+    def __init__(self,app_font, client, index_name, index_mapping, users, ip_address_list, mac_address_list, attacker_code):
+        super().__init__()
+
+        self.client = client
+        self.index_name = index_name
+        self.index_mapping = index_mapping
+        self.users = users
+        self.ip_address_list = ip_address_list
+        self.mac_address_list = mac_address_list
+        self.attacker_code = attacker_code
+        self.type_of_job = None
+
+        # --- UI FIELDS ---
+
+        self.app_font = app_font
+        self.title("Выбор режима подготовки")
+        self.geometry("400x200")
+        self['bg'] = "darkgray"
+        self.option_add("*Font", self.app_font)
+        self.resizable(False, False)
+
+        # --- BUTTON <EASY GENERATION> ---
+
+        self.button_easy_generation = Button(self, text="ДЕМО Версия", state="normal", command=self.demo_ui)
+        self.button_easy_generation.place(x=25, y=50, width=150, height=50)
+
+        # --- BUTTON <HARD GENERATION> ---
+        self.button_hard_generation = Button(self, text="Практика", state="normal", command=self.practise_ui)
+        self.button_hard_generation.place(x=225, y=50, width=150, height=50)
+
+
+    def demo_ui(self):
+        self.type_of_job = "demo"
+        print(f"SET > Type of job: {self.type_of_job}")
+        self.destroy()
+        self.quit()
+
+
+    def practise_ui(self):
+        self.type_of_job = "practise"
+        print(f"SET > Type of job: {self.type_of_job}")
+        self.destroy()
+        self.quit()
 
 
 def main():
