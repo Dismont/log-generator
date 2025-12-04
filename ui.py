@@ -1,10 +1,7 @@
 from tkinter import Tk, Label, Entry, Button, font, Frame, messagebox
 from PIL import Image, ImageTk
-import random
-import network
-import generator
+import random, network, generator, datetime, json
 
-# --- FOR 2nd WINDOW ---
 
 import threading
 
@@ -21,6 +18,11 @@ class MainWindow(Tk):
         self.attacker_code = None
         self.segment_subnetwork_number = None
         self.random_link_image = None
+        self.second_name = None
+        self.id_student = None
+        self.now = None
+        self.buffer = ""
+
         self.is_get_task = False
         self.link_images = [
             "images/top-3A.jpg", "images/top-3AV.jpg", "images/top-3B.jpg", "images/top-3BV.jpg",
@@ -241,8 +243,8 @@ class MainWindow(Tk):
 
     def create_index_ui(self):
 
-        second_name = self.entry_second_name.get().lower()
-        id_student = self.entry_id.get()
+        self.second_name = self.entry_second_name.get().lower()
+        self.id_student = self.entry_id.get()
         word = ""
 
         translit_map = {
@@ -252,14 +254,14 @@ class MainWindow(Tk):
             'э': 'e', 'ю': 'yu', 'я': 'ya'
         }
 
-        for i in range(len(second_name.lower())):
+        for i in range(len(self.second_name.lower())):
             for key, value in translit_map.items():
-                if second_name[i] == key:
+                if self.second_name[i] == key:
                     word += value
                 else:
                     continue
 
-        self.index_name = word + '_' + str(id_student)
+        self.index_name = word + '_' + str(self.id_student)
         self.label_status_create_index.config(text="Создание индекса")
         code = network.create_index_opensearch(
             client=self.client,
@@ -359,6 +361,8 @@ class MainWindow(Tk):
             self.generator_thread.join(timeout=1.0)  # Ждём завершения (макс. 1 сек)
             self.is_generating = False
             self.button_generation.config(text="Запустить генерацию")
+            self.writer_log()
+            self.buffer = None
             print("! ОСТАНОВКА ГЕНЕРАЦИИ !")
 
         else:
@@ -373,15 +377,34 @@ class MainWindow(Tk):
                     self.ip_address_list,
                     self.mac_address_list,
                     self.stop_event,
-                    self.attacker_code
+                    self.attacker_code,
+                    self
                 ),
                 daemon=True  # Поток завершится при закрытии окна
             )
             self.generator_thread.start()
             self.is_generating = True
             self.button_generation.config(text="Остановить генерацию")
+            self.write_header_log()
             print("! ЗАПУСК ГЕНЕРАЦИИ !")
 
+    def writer_log(self):
+            with open(f"{self.index_name}_{self.now.strftime('%d_%m_%Y')}.txt", mode="a", encoding="utf-8") as file:
+                file.write(f"{self.buffer}")
+                file.close()
+
+    def buffer_log(self, data = None, index = 0):
+        self.buffer += f"\n[{index}][{datetime.datetime.now().strftime("%H:%M:%S")}]:{data}\n"
+
+
+    def write_header_log(self):
+        self.now = datetime.datetime.now()
+        with open(f"{self.index_name}_{self.now.strftime('%d_%m_%Y')}.txt", mode="a", encoding="utf-8") as file:
+            file.write(
+                f"Индекс: {self.index_name}\nФамилия: {self.second_name}\nНомер ID: {self.id_student}\nВремя: {datetime.datetime.now().strftime("%H:%M:%S")}\n\t\t Строки которые необходимо было найти:")
+            file.close()
+
+# --- FOR 2nd WINDOW ---
 
 class ChangeWindow(Tk):
 

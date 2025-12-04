@@ -1430,7 +1430,6 @@ class PersonalComputerLinux(Device):
             }
         }
 
-
 class PersonalComputerWindows(Device):
 
     def __init__(self, hostname, os, category, log_format, asset_number, ip_addr, mac_addr, domain):
@@ -2822,7 +2821,6 @@ class PersonalComputerWindows(Device):
                 "user": [user]
             }
         }
-
 
 class Switch(Device):
 

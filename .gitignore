@@ -6,3 +6,4 @@ __pycache__/
 configuration/
 program-exe/
 program-txt/
+*_*.txt

