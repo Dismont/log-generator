@@ -1,3 +1,4 @@
+import base64
 from tkinter import Tk, Label, Entry, Button, font, Frame, messagebox
 from PIL import Image, ImageTk
 import random, network, generator, datetime, json
@@ -20,6 +21,7 @@ class MainWindow(Tk):
         self.random_link_image = None
         self.second_name = None
         self.id_student = None
+        self.code_attack = None
         self.now = None
         self.buffer = ""
 
@@ -162,11 +164,19 @@ class MainWindow(Tk):
         self.entry_id.place(x=110, y=285, width=200, height=25)
         # --- --- --- --- --- --- --- --- --- ---
 
+        # --- LABEL <ATTACK> ---
+        self.label_attack = Label(self, bg="darkgray", text="Атака №", anchor="e")
+        self.label_attack.place(x=10, y=320, width=100, height=25)
+        # --- ENTRY <ATTACK> ---
+        self.entry_attack = Entry(self, state="disabled")
+        self.entry_attack.place(x=110, y=320, width=200, height=25)
+        # --- --- --- --- --- --- --- --- --- ---
+
         # --- LABEL`s <STATUS> ---
         self.label_status_logo_create_index = Label(self, bg="darkgray", text="Статус:", anchor="e")
-        self.label_status_logo_create_index.place(x=10, y=320, width=100, height=25)
+        self.label_status_logo_create_index.place(x=10, y=390, width=100, height=25)
         self.label_status_create_index = Label(self, bg="darkgray", text="*", anchor="e")
-        self.label_status_create_index.place(x=110, y=320, width=230, height=25)
+        self.label_status_create_index.place(x=110, y=390, width=230, height=25)
         # --- --- --- --- --- --- --- --- --- ---
 
         # --- BUTTON <CREATE INDEX> ---
@@ -176,7 +186,7 @@ class MainWindow(Tk):
 
         # --- SEPARATOR <create index> ---
         self.separator_auth = Frame(self, height=2, bg="black")
-        self.separator_auth.place(x=0, y=400, width=350)
+        self.separator_auth.place(x=0, y=420, width=350)
         # --- --- --- --- --- --- --- --- --- ---
 
         # --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -229,6 +239,8 @@ class MainWindow(Tk):
                 self.entry_second_name.config(state="normal")
                 self.label_id.config(state="normal")
                 self.entry_id.config(state="normal")
+                self.label_attack.config(state="normal")
+                self.entry_attack.config(state="normal")
                 self.button_create_index.config(state="normal")
                 self.client = client
             elif code == 401:
@@ -245,6 +257,7 @@ class MainWindow(Tk):
 
         self.second_name = self.entry_second_name.get().lower()
         self.id_student = self.entry_id.get()
+        self.code_attack = self.entry_attack.get().strip()
         word = ""
 
         translit_map = {
@@ -312,7 +325,7 @@ class MainWindow(Tk):
                 text_seg += f"Seg.{i + 1} | 192.168.{self.segment_subnetwork_number[i]}.0/24\n"
 
             self.users, self.ip_address_list, self.mac_address_list, self.attacker_code = generator.generation_topology(
-                "default/ssh_brute_force", self.segment_subnetwork_number)
+                "default/ssh_brute_force", self.segment_subnetwork_number, 1,1)
             self.label_task.config(text=text_seg)
             self.is_get_task = True
             self.button_get_task.config(state="disabled")
@@ -347,7 +360,7 @@ class MainWindow(Tk):
             for i in range(len(self.segment_subnetwork_number)):
                 text_seg += f"Seg.{i + 1} | 192.168.{self.segment_subnetwork_number[i]}.0/24\n"
 
-            self.users, self.ip_address_list, self.mac_address_list, self.attacker_code = generator.generation_topology(self.random_link_image, self.segment_subnetwork_number)
+            self.users, self.ip_address_list, self.mac_address_list, self.attacker_code = generator.generation_topology(self.random_link_image, self.segment_subnetwork_number, self.code_attack, self.id_student)
             self.label_task.config(text=text_seg)
             self.is_get_task = True
             self.button_get_task.config(state="disabled")
@@ -389,8 +402,9 @@ class MainWindow(Tk):
             print("! ЗАПУСК ГЕНЕРАЦИИ !")
 
     def writer_log(self):
-            with open(f"{self.index_name}_{self.now.strftime('%d_%m_%Y')}.txt", mode="a", encoding="utf-8") as file:
-                file.write(f"{self.buffer}")
+            with open(f"{self.index_name}_{self.now.strftime('%d_%m_%Y')}_attacks.txt", mode="ab") as file:
+                text = base64.b64encode(self.buffer.encode("utf-8"))
+                file.write(text)
                 file.close()
 
     def buffer_log(self, data = None, index = 0):
@@ -400,8 +414,8 @@ class MainWindow(Tk):
     def write_header_log(self):
         self.now = datetime.datetime.now()
         with open(f"{self.index_name}_{self.now.strftime('%d_%m_%Y')}.txt", mode="a", encoding="utf-8") as file:
-            file.write(
-                f"Индекс: {self.index_name}\nФамилия: {self.second_name}\nНомер ID: {self.id_student}\nВремя: {datetime.datetime.now().strftime("%H:%M:%S")}\n\t\t Строки которые необходимо было найти:")
+            text = f"Индекс: {self.index_name}\nФамилия: {self.second_name}\nНомер ID: {self.id_student}\nВремя: {datetime.datetime.now().strftime("%H:%M:%S")}"
+            file.write(text)
             file.close()
 
 # --- FOR 2nd WINDOW ---

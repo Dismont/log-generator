@@ -49,7 +49,7 @@ def generation_mac_address():
 
 
 
-def generation_topology(topology_name, subnetwork_list):
+def generation_topology(topology_name, subnetwork_list, code_attack, student_id):
 
     pc = {
         "users": [],
@@ -144,7 +144,7 @@ def generation_topology(topology_name, subnetwork_list):
         users = pc["users"] + switch["users"] + router["users"] + firewall["users"] + attacker["users"]
         all_ip_address = pc["ip"] + switch["ip"] + router["ip"] + firewall["ip"]
         all_mac_address = pc["mac"] + switch["mac"] + router["mac"] + firewall["mac"]
-        attacker_method_code = random.randint(1,9)
+        attacker_method_code = (int(code_attack) + int(student_id)) % 11 + 1
         return users, all_ip_address, all_mac_address, attacker_method_code
 
     elif topology_name == "images/top-3AV.jpg":
@@ -204,7 +204,7 @@ def generation_topology(topology_name, subnetwork_list):
         users = pc["users"] + switch["users"] + router["users"] + firewall["users"] + attacker["users"]
         all_ip_address = pc["ip"] + switch["ip"] + router["ip"] + firewall["ip"]
         all_mac_address = pc["mac"] + switch["mac"] + router["mac"] + firewall["mac"]
-        attacker_method_code = random.randint(1,9)
+        attacker_method_code = (int(code_attack) + int(student_id)) % 11 + 1
         return users, all_ip_address, all_mac_address, attacker_method_code
 
 
@@ -240,7 +240,7 @@ def generation_topology(topology_name, subnetwork_list):
         users = pc["users"] + switch["users"] + router["users"] + firewall["users"] + attacker["users"]
         all_ip_address = pc["ip"] + switch["ip"] + router["ip"] + firewall["ip"]
         all_mac_address = pc["mac"] + switch["mac"] + router["mac"] + firewall["mac"]
-        attacker_method_code = random.randint(1,9)
+        attacker_method_code = (int(code_attack) + int(student_id)) % 11 + 1
         return users, all_ip_address, all_mac_address, attacker_method_code
 
     elif topology_name == "images/top-3BV.jpg":
@@ -297,7 +297,7 @@ def generation_topology(topology_name, subnetwork_list):
         users = pc["users"] + switch["users"] + router["users"] + firewall["users"] + attacker["users"]
         all_ip_address = pc["ip"] + switch["ip"] + router["ip"] + firewall["ip"]
         all_mac_address = pc["mac"] + switch["mac"] + router["mac"] + firewall["mac"]
-        attacker_method_code = random.randint(1,9)
+        attacker_method_code = (int(code_attack) + int(student_id)) % 11 + 1
         return users, all_ip_address, all_mac_address, attacker_method_code
 
 
@@ -345,7 +345,7 @@ def generation_topology(topology_name, subnetwork_list):
         users = pc["users"] + switch["users"] + router["users"] + firewall["users"] + attacker["users"]
         all_ip_address = pc["ip"] + switch["ip"] + router["ip"] + firewall["ip"]
         all_mac_address = pc["mac"] + switch["mac"] + router["mac"] + firewall["mac"]
-        attacker_method_code = random.randint(1,9)
+        attacker_method_code = (int(code_attack) + int(student_id)) % 11 + 1
         return users, all_ip_address, all_mac_address, attacker_method_code
 
     elif topology_name == "images/top-4AV.jpg":
@@ -426,7 +426,7 @@ def generation_topology(topology_name, subnetwork_list):
         users = pc["users"] + switch["users"] + router["users"] + firewall["users"] + attacker["users"]
         all_ip_address = pc["ip"] + switch["ip"] + router["ip"] + firewall["ip"]
         all_mac_address = pc["mac"] + switch["mac"] + router["mac"] + firewall["mac"]
-        attacker_method_code = random.randint(1,9)
+        attacker_method_code = (int(code_attack) + int(student_id)) % 11 + 1
         return users, all_ip_address, all_mac_address, attacker_method_code
 
     elif topology_name == "images/top-4B.jpg":
@@ -481,7 +481,7 @@ def generation_topology(topology_name, subnetwork_list):
         users = pc["users"] + switch["users"] + router["users"] + firewall["users"] + attacker["users"]
         all_ip_address = pc["ip"] + switch["ip"] + router["ip"] + firewall["ip"]
         all_mac_address = pc["mac"] + switch["mac"] + router["mac"] + firewall["mac"]
-        attacker_method_code = random.randint(1,9)
+        attacker_method_code = (int(code_attack) + int(student_id)) % 11 + 1
         return users, all_ip_address, all_mac_address, attacker_method_code
 
     elif topology_name == "images/top-4BV.jpg":
@@ -531,7 +531,7 @@ def generation_topology(topology_name, subnetwork_list):
         users = pc["users"] + switch["users"] + router["users"] + firewall["users"] + attacker["users"]
         all_ip_address = pc["ip"] + switch["ip"] + router["ip"] + firewall["ip"]
         all_mac_address = pc["mac"] + switch["mac"] + router["mac"] + firewall["mac"]
-        attacker_method_code = random.randint(1,9)
+        attacker_method_code = (int(code_attack) + int(student_id)) % 11 + 1
         return users, all_ip_address, all_mac_address, attacker_method_code
 
 # --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -593,7 +593,7 @@ def generation_topology(topology_name, subnetwork_list):
         users = pc["users"] + switch["users"] + router["users"] + firewall["users"] + attacker["users"]
         all_ip_address = pc["ip"] + switch["ip"] + router["ip"] + firewall["ip"]
         all_mac_address = pc["mac"] + switch["mac"] + router["mac"] + firewall["mac"]
-        attacker_method_code = random.randint(1,9)
+        attacker_method_code = (int(code_attack) + int(student_id)) % 11 + 1
         return users, all_ip_address, all_mac_address, attacker_method_code
 
     elif topology_name == "images/top-5AV.jpg":
@@ -664,7 +664,7 @@ def generation_topology(topology_name, subnetwork_list):
         users = pc["users"] + switch["users"] + router["users"] + firewall["users"] + attacker["users"]
         all_ip_address = pc["ip"] + switch["ip"] + router["ip"] + firewall["ip"]
         all_mac_address = pc["mac"] + switch["mac"] + router["mac"] + firewall["mac"]
-        attacker_method_code = random.randint(1,9)
+        attacker_method_code = (int(code_attack) + int(student_id)) % 11 + 1
         return users, all_ip_address, all_mac_address, attacker_method_code
 
     elif topology_name == "images/top-5B.jpg":
@@ -733,7 +733,7 @@ def generation_topology(topology_name, subnetwork_list):
         users = pc["users"] + switch["users"] + router["users"] + firewall["users"] + attacker["users"]
         all_ip_address = pc["ip"] + switch["ip"] + router["ip"] + firewall["ip"]
         all_mac_address = pc["mac"] + switch["mac"] + router["mac"] + firewall["mac"]
-        attacker_method_code = random.randint(1,9)
+        attacker_method_code = (int(code_attack) + int(student_id)) % 11 + 1
         return users, all_ip_address, all_mac_address, attacker_method_code
 
     elif topology_name == "images/top-5BV.jpg":
@@ -802,7 +802,7 @@ def generation_topology(topology_name, subnetwork_list):
         users = pc["users"] + switch["users"] + router["users"] + firewall["users"] + attacker["users"]
         all_ip_address = pc["ip"] + switch["ip"] + router["ip"] + firewall["ip"]
         all_mac_address = pc["mac"] + switch["mac"] + router["mac"] + firewall["mac"]
-        attacker_method_code = random.randint(1,9)
+        attacker_method_code = (int(code_attack) + int(student_id)) % 11 + 1
         return users, all_ip_address, all_mac_address, attacker_method_code
 
 

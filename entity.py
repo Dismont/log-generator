@@ -5689,7 +5689,7 @@ class Attacker(Device):
             "host": {
                 "hostname": self.hostname,
                 "ip": self.ip_addr,
-                "os": {"name": "Linux", "platform": "attack_tool"}
+                "os": {"name": "Linux", "platform": "utility"}
             },
             "observer": {
                 "hostname": self.hostname,
@@ -5710,7 +5710,7 @@ class Attacker(Device):
                     "name": "Simulated SSH brute-force attack launched"
                 }
             },
-            "user": {"name": "attacker"},
+            "user": {"name": "user"},
             "process": {
                 "name": "hydra",
                 "pid": random.randint(10000, 20000),
@@ -5747,7 +5747,7 @@ class Attacker(Device):
             "host": {
                 "hostname": self.hostname,
                 "ip": self.ip_addr,
-                "os": {"name": "Linux", "platform": "attack_tool"}
+                "os": {"name": "Linux", "platform": "utility"}
             },
             "observer": {
                 "hostname": self.hostname,
@@ -5806,7 +5806,7 @@ class Attacker(Device):
             "host": {
                 "hostname": self.hostname,
                 "ip": self.ip_addr,
-                "os": {"name": "Windows", "platform": "attack_tool"}
+                "os": {"name": "Windows", "platform": "utility"}
             },
             "observer": {
                 "hostname": self.hostname,
@@ -5827,7 +5827,7 @@ class Attacker(Device):
                     "name": "Simulated data exfiltration"
                 }
             },
-            "user": {"name": "attacker"},
+            "user": {"name": "user"},
             "process": {
                 "name": "nc.exe", # Netcat как пример инструмента
                 "pid": random.randint(10000, 20000),
@@ -5854,7 +5854,7 @@ class Attacker(Device):
             },
             "related": {
                 "ip": [self.ip_addr, destination_ip],
-                "user": ["attacker"]
+                "user": ["user"]
             }
         }
 
@@ -5867,7 +5867,7 @@ class Attacker(Device):
             "host": {
                 "hostname": self.hostname,
                 "ip": self.ip_addr,
-                "os": {"name": "Windows", "platform": "attack_tool"}
+                "os": {"name": "Windows", "platform": "utility"}
             },
             "observer": {
                 "hostname": self.hostname,
@@ -5888,7 +5888,7 @@ class Attacker(Device):
                     "name": "Simulated Living-off-the-Land PowerShell execution"
                 }
             },
-            "user": {"name": "attacker"},
+            "user": {"name": "user"},
             "process": {
                 "name": "powershell.exe",
                 "pid": random.randint(10000, 20000),
@@ -5900,7 +5900,7 @@ class Attacker(Device):
                 "type": "powershell"
             },
             "related": {
-                "user": ["attacker"]
+                "user": ["user"]
             }
         }
 
@@ -5913,7 +5913,7 @@ class Attacker(Device):
             "host": {
                 "hostname": self.hostname,
                 "ip": self.ip_addr,
-                "os": {"name": "Windows", "platform": "attack_tool"}
+                "os": {"name": "Windows", "platform": "utility"}
             },
             "observer": {
                 "hostname": self.hostname,
@@ -5934,7 +5934,7 @@ class Attacker(Device):
                     "name": "Simulated Living-off-the-Land WMI query execution"
                 }
             },
-            "user": {"name": "attacker"},
+            "user": {"name": "user"},
             "process": {
                 "name": "wmic.exe",
                 "pid": random.randint(10000, 20000),
@@ -5946,7 +5946,7 @@ class Attacker(Device):
                 "type": "wmi"
             },
             "related": {
-                "user": ["attacker"]
+                "user": ["user"]
             }
         }
 
@@ -5959,7 +5959,7 @@ class Attacker(Device):
             "host": {
                 "hostname": self.hostname,
                 "ip": self.ip_addr,
-                "os": {"name": "Linux", "platform": "attack_tool"}
+                "os": {"name": "Linux", "platform": "utility"}
             },
             "observer": {
                 "hostname": self.hostname,
@@ -6015,7 +6015,7 @@ class Attacker(Device):
             "host": {
                 "hostname": self.hostname,
                 "ip": self.ip_addr,
-                "os": {"name": "Linux", "platform": "attack_tool"}
+                "os": {"name": "Linux", "platform": "utility"}
             },
             "observer": {
                 "hostname": self.hostname,
@@ -6071,7 +6071,7 @@ class Attacker(Device):
             "host": {
                 "hostname": self.hostname,
                 "ip": self.ip_addr,
-                "os": {"name": "Linux", "platform": "attack_tool"}
+                "os": {"name": "Linux", "platform": "utility"}
             },
             "observer": {
                 "hostname": self.hostname,
@@ -6128,7 +6128,7 @@ class Attacker(Device):
             "host": {
                 "hostname": self.hostname,
                 "ip": self.ip_addr,
-                "os": {"name": "Linux", "platform": "attack_tool"}
+                "os": {"name": "Linux", "platform": "utility"}
             },
             "observer": {
                 "hostname": self.hostname,
@@ -6177,7 +6177,7 @@ class Attacker(Device):
             "host": {
                 "hostname": self.hostname,
                 "ip": self.ip_addr,
-                "os": {"name": "Linux", "platform": "attack_tool"}
+                "os": {"name": "Linux", "platform": "utility"}
             },
             "observer": {
                 "hostname": self.hostname,
@@ -6233,7 +6233,7 @@ class Attacker(Device):
             "host": {
                 "hostname": self.hostname,
                 "ip": self.ip_addr,
-                "os": {"name": "Linux", "platform": "attack_tool"}
+                "os": {"name": "Linux", "platform": "utility"}
             },
             "observer": {
                 "hostname": self.hostname,
@@ -6254,7 +6254,7 @@ class Attacker(Device):
                     "name": "Simulated SNMP brute-force attack launched"
                 }
             },
-            "user": {"name": "attacker"},
+            "user": {"name": "user"},
             "process": {
                 "name": "onesixtyone",
                 "pid": random.randint(10000, 20000),
